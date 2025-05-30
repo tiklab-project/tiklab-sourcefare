@@ -1,0 +1,12 @@
+target/
+.settings/
+.classpath
+.project
+.idea
+*.iml
+data/
+logs/
+plugin/
+APP_HOME_IS_UNDEFINED/
+DATA_HOME_IS_UNDEFINED/
+.embbed/

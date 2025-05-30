@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.tiklab</groupId>
+        <artifactId>tiklab-dependencies</artifactId>
+        <version>1.0.2</version>
+    </parent>
+    <groupId>io.tiklab</groupId>
+    <artifactId>tiklab-sourcefare</artifactId>
+    <name>${project.artifactId}</name>
+    <packaging>pom</packaging>
+    <version>1.0.2</version>
+
+    <properties>
+        <tiklab-sourcewair-scanner.version>1.0.2</tiklab-sourcewair-scanner.version>
+
+        <tiklab-toolkit.version>1.0.2</tiklab-toolkit.version>
+        <tiklab-gateway.version>1.0.2</tiklab-gateway.version>
+        <tiklab-rpc.version>1.0.2</tiklab-rpc.version>
+        <tiklab-dss.version>1.0.2</tiklab-dss.version>
+        <tiklab-dfs.version>1.0.2</tiklab-dfs.version>
+        <tiklab-dcs.version>1.0.2</tiklab-dcs.version>
+        <tiklab-integration.version>1.0.2</tiklab-integration.version>
+        <tiklab-join.version>1.0.2</tiklab-join.version>
+        <tiklab-dal.version>1.0.2</tiklab-dal.version>
+        <tiklab-dsm.version>1.0.2</tiklab-dsm.version>
+        <tiklab-openapi-version>1.0.2</tiklab-openapi-version>
+
+        <!--平台组件-->
+        <tiklab-privilege.version>1.0.2</tiklab-privilege.version>
+        <tiklab-licence.version>1.0.2</tiklab-licence.version>
+        <tiklab-user.version>1.0.2</tiklab-user.version>
+        <tiklab-security.version>1.0.2</tiklab-security.version>
+        <tiklab-message.version>1.0.2</tiklab-message.version>
+        <tiklab-todotask.version>1.0.2</tiklab-todotask.version>
+        <tiklab-eam.version>1.0.2</tiklab-eam.version>
+        <tiklab-postgresql.version>1.0.2</tiklab-postgresql.version>
+        <tiklab-spotbugs.version>1.0.2</tiklab-spotbugs.version>
+        <tiklab-install.version>1.0.2</tiklab-install.version>
+        <tiklab-postin-doclet-version>1.0.2</tiklab-postin-doclet-version>
+
+    <!--    <tiklab-upgrade.version>1.0.2</tiklab-upgrade.version>-->
+        <tiklab-postin.version>1.0.2</tiklab-postin.version>
+        <tiklab-jdk.version>1.0.2</tiklab-jdk.version>
+
+        <!--other-->
+        <commons-compress.version>1.19</commons-compress.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <sshd-core.version>2.9.2</sshd-core.version>
+        <come-jsch.version>0.1.55</come-jsch.version>
+        <org-jgit.version>6.4.0.202211300538-r</org-jgit.version>
+
+        <!--  <org-jgit.version>6.7.0.202309050840-r</org-jgit.version> -->
+      <!-- <org-jgit.version>4.11.9.201909030838-r</org-jgit.version>-->
+
+
+<commons-lang3.version>3.12.0</commons-lang3.version>
+<quartz.version>2.3.2</quartz.version>
+<quartz-spring-boot.version>3.1.1</quartz-spring-boot.version>
+</properties>
+
+<modules>
+<module>tiklab-sourcefare-api</module>
+<module>tiklab-sourcefare-server</module>
+<module>tiklab-sourcefare-starter</module>
+</modules>
+
+
+<!-- 许可证信息 -->
+    <licenses>
+        <!-- Apache许可证 -->
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <profiles>
+        <profile>
+            <id>deploy-public</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>sonatype-snapshots</id>
+                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>sonatype-release</id>
+                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>taip</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <!--    <configuration>
+                                        <useAgent>true</useAgent>
+                                        <keyname>limingliang</keyname>
+                                        <passphraseServerId>limingliang</passphraseServerId>
+                                        <gpgArguments>
+                                            <arg>&#45;&#45;batch</arg>
+                                            <arg>&#45;&#45;pinentry-mode</arg>
+                                            <arg>loopback</arg>
+                                        </gpgArguments>
+                                    </configuration>-->
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!--   <plugin>
+                           <groupId>org.apache.maven.plugins</groupId>
+                           <artifactId>maven-javadoc-plugin</artifactId>
+                           <version>2.9.1</version>
+                           <executions>
+                               <execution>
+                                   <id>attach-javadocs</id>
+                                   <goals>
+                                       <goal>jar</goal>
+                                   </goals>
+                               </execution>
+                           </executions>
+                       </plugin>-->
+                </plugins>
+            </build>
+            <properties>
+                <profile.assembly.package.suffix>deploy-public</profile.assembly.package.suffix>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>deploy-hadess</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>xpack</id>
+                    <url>http://192.168.10.10:8080/repository/maven-snapshot</url>
+                </snapshotRepository>
+                <repository>
+                    <id>xpack</id>
+                    <url>http://192.168.10.10:8080/repository/maven-releases</url>
+                </repository>
+            </distributionManagement>
+            <properties>
+                <profile.assembly.package.suffix>deploy-xpack</profile.assembly.package.suffix>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

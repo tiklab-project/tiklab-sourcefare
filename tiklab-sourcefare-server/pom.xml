@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>io.tiklab</groupId>
+		<artifactId>tiklab-sourcefare</artifactId>
+		<version>1.0.2</version>
+	</parent>
+
+
+	<artifactId>tiklab-sourcefare-server</artifactId>
+	<name>${project.artifactId}</name>
+
+	<dependencies>
+		<!--common-->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+
+
+		<!--tiklab-->
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-sourcefare-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-dal-jpa</artifactId>
+			<version>${tiklab-dal.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.12.13</version>
+		</dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-eam-server</artifactId>
+			<version>${tiklab-eam.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-rpc-common</artifactId>
+			<version>${tiklab-rpc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-privilege-spring-boot-starter</artifactId>
+			<version>${tiklab-privilege.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-toolkit-spring-boot-starter</artifactId>
+			<version>${tiklab-toolkit.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-rpc-annotation</artifactId>
+			<version>${tiklab-rpc.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-toolkit-annotation</artifactId>
+			<version>${tiklab-toolkit.version}</version>
+		</dependency>
+
+		<!--other-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commons-lang3.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>${org-jgit.version}</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.http.server -->
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit.http.server</artifactId>
+			<version>${org-jgit.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>${commons-compress.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-sourcefare-scanner</artifactId>
+			<version>${tiklab-sourcewair-scanner.version}</version>
+		</dependency>
+		<!-- QuartzConfigration -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${quartz.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-quartz -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-quartz</artifactId>
+			<version>${quartz-spring-boot.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz-jobs -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-jobs</artifactId>
+			<version>${quartz.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jcraft</groupId>
+			<artifactId>jsch</artifactId>
+			<version>${come-jsch.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+
+
+		<!-- SLF4J 日志实现，例如 logback -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-postin-client</artifactId>
+			<version>${tiklab-postin.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>

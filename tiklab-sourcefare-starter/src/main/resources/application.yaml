@@ -1,0 +1,79 @@
+app:
+  name: sourcewair
+
+spring:
+  config:
+    import: optional:classpath:/config/${env:dev}/application.yaml
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  port: 8010
+
+APP_HOME: ${APP_HOME}
+
+#DATA config
+DATA_HOME: ${user.home}/tiklab/sourcewair
+
+#database config
+jdbc:
+  driverClassName: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5431/sourcewair_ce?stringtype=unspecified
+  username: postgres
+  password: darth2020
+
+postgresql:
+  embbed:
+    enable: true
+  database: tiklab_sourcewair
+  db:
+    port: 5432
+    username: postgres
+    password: darth2020
+    address: ${DATA_HOME}/postgresql
+
+
+#dcs config
+dcs:
+  server:
+    enabled: true
+    mode: server
+    port: 5000
+    datapath: ${DATA_HOME}/caches
+  client:
+    url: 127.0.0.1:5000
+    group: g1
+    database: dcs1
+    expire: 7200
+
+soular:
+  embbed:
+    enable: false
+  address: http://eas-ce.demo.tiklab.net
+
+
+sourcewair:
+  ssh:
+    port: 10000
+    key: tiklab-sourcewair-starter/file/id_rsa
+  file: tiklab-sourcewair-starter/file
+
+base:
+  url: http://eas-ce.demo.tiklab.net
+
+repository:
+  address: ${DATA_HOME}/repository
+
+#license
+licences:
+  path: ${DATA_HOME}/licences
+
+backups:
+  time: 0 0 2 * * ?
+  dir: /data
+  xcode:
+    dir: ${DATA_HOME}/repository
+
+
+spotbugs:
+  address: /embbed/spotbugs-4.8.1/bin
