@@ -1,0 +1,143 @@
+'\" t
+.\"     Title: SPI_modifytuple
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_MODIFYTUPLE" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_modifytuple \- create a row by replacing selected fields of a given row
+.SH "SYNOPSIS"
+.sp
+.nf
+HeapTuple SPI_modifytuple(Relation \fIrel\fR, HeapTuple \fIrow\fR, int \fIncols\fR,
+                          int * \fIcolnum\fR, Datum * \fIvalues\fR, const char * \fInulls\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_modifytuple\fR
+creates a new row by substituting new values for selected columns, copying the original row\*(Aqs columns at other positions\&. The input row is not modified\&. The new row is returned in the upper executor context\&.
+.PP
+This function can only be used while connected to SPI\&. Otherwise, it returns NULL and sets
+\fISPI_result\fR
+to
+SPI_ERROR_UNCONNECTED\&.
+.SH "ARGUMENTS"
+.PP
+Relation \fIrel\fR
+.RS 4
+Used only as the source of the row descriptor for the row\&. (Passing a relation rather than a row descriptor is a misfeature\&.)
+.RE
+.PP
+HeapTuple \fIrow\fR
+.RS 4
+row to be modified
+.RE
+.PP
+int \fIncols\fR
+.RS 4
+number of columns to be changed
+.RE
+.PP
+int * \fIcolnum\fR
+.RS 4
+an array of length
+\fIncols\fR, containing the numbers of the columns that are to be changed (column numbers start at 1)
+.RE
+.PP
+Datum * \fIvalues\fR
+.RS 4
+an array of length
+\fIncols\fR, containing the new values for the specified columns
+.RE
+.PP
+const char * \fInulls\fR
+.RS 4
+an array of length
+\fIncols\fR, describing which new values are null
+.sp
+If
+\fInulls\fR
+is
+NULL
+then
+\fBSPI_modifytuple\fR
+assumes that no new values are null\&. Otherwise, each entry of the
+\fInulls\fR
+array should be
+\*(Aq\ \&\*(Aq
+if the corresponding new value is non\-null, or
+\*(Aqn\*(Aq
+if the corresponding new value is null\&. (In the latter case, the actual value in the corresponding
+\fIvalues\fR
+entry doesn\*(Aqt matter\&.) Note that
+\fInulls\fR
+is not a text string, just an array: it does not need a
+\*(Aq\e0\*(Aq
+terminator\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+new row with modifications, allocated in the upper executor context, or
+NULL
+on error (see
+\fISPI_result\fR
+for an error indication)
+.PP
+On error,
+\fISPI_result\fR
+is set as follows:
+.PP
+SPI_ERROR_ARGUMENT
+.RS 4
+if
+\fIrel\fR
+is
+NULL, or if
+\fIrow\fR
+is
+NULL, or if
+\fIncols\fR
+is less than or equal to 0, or if
+\fIcolnum\fR
+is
+NULL, or if
+\fIvalues\fR
+is
+NULL\&.
+.RE
+.PP
+SPI_ERROR_NOATTRIBUTE
+.RS 4
+if
+\fIcolnum\fR
+contains an invalid column number (less than or equal to 0 or greater than the number of columns in
+\fIrow\fR)
+.RE
+.PP
+SPI_ERROR_UNCONNECTED
+.RS 4
+if SPI is not active
+.RE

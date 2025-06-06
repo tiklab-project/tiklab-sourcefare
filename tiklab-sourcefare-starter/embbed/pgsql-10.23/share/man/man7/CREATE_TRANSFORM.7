@@ -1,0 +1,198 @@
+'\" t
+.\"     Title: CREATE TRANSFORM
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TRANSFORM" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TRANSFORM \- define a new transform
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE [ OR REPLACE ] TRANSFORM FOR \fItype_name\fR LANGUAGE \fIlang_name\fR (
+    FROM SQL WITH FUNCTION \fIfrom_sql_function_name\fR [ (\fIargument_type\fR [, \&.\&.\&.]) ],
+    TO SQL WITH FUNCTION \fIto_sql_function_name\fR [ (\fIargument_type\fR [, \&.\&.\&.]) ]
+);
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TRANSFORM\fR
+defines a new transform\&.
+\fBCREATE OR REPLACE TRANSFORM\fR
+will either create a new transform, or replace an existing definition\&.
+.PP
+A transform specifies how to adapt a data type to a procedural language\&. For example, when writing a function in PL/Python using the
+hstore
+type, PL/Python has no prior knowledge how to present
+hstore
+values in the Python environment\&. Language implementations usually default to using the text representation, but that is inconvenient when, for example, an associative array or a list would be more appropriate\&.
+.PP
+A transform specifies two functions:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+A
+\(lqfrom SQL\(rq
+function that converts the type from the SQL environment to the language\&. This function will be invoked on the arguments of a function written in the language\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+A
+\(lqto SQL\(rq
+function that converts the type from the language to the SQL environment\&. This function will be invoked on the return value of a function written in the language\&.
+.RE
+.sp
+It is not necessary to provide both of these functions\&. If one is not specified, the language\-specific default behavior will be used if necessary\&. (To prevent a transformation in a certain direction from happening at all, you could also write a transform function that always errors out\&.)
+.PP
+To be able to create a transform, you must own and have
+USAGE
+privilege on the type, have
+USAGE
+privilege on the language, and own and have
+EXECUTE
+privilege on the from\-SQL and to\-SQL functions, if specified\&.
+.SH "PARAMETERS"
+.PP
+\fItype_name\fR
+.RS 4
+The name of the data type of the transform\&.
+.RE
+.PP
+\fIlang_name\fR
+.RS 4
+The name of the language of the transform\&.
+.RE
+.PP
+\fIfrom_sql_function_name\fR[(\fIargument_type\fR [, \&.\&.\&.])]
+.RS 4
+The name of the function for converting the type from the SQL environment to the language\&. It must take one argument of type
+internal
+and return type
+internal\&. The actual argument will be of the type for the transform, and the function should be coded as if it were\&. (But it is not allowed to declare an SQL\-level function returning
+internal
+without at least one argument of type
+internal\&.) The actual return value will be something specific to the language implementation\&. If no argument list is specified, the function name must be unique in its schema\&.
+.RE
+.PP
+\fIto_sql_function_name\fR[(\fIargument_type\fR [, \&.\&.\&.])]
+.RS 4
+The name of the function for converting the type from the language to the SQL environment\&. It must take one argument of type
+internal
+and return the type that is the type for the transform\&. The actual argument value will be something specific to the language implementation\&. If no argument list is specified, the function name must be unique in its schema\&.
+.RE
+.SH "NOTES"
+.PP
+Use
+DROP TRANSFORM (\fBDROP_TRANSFORM\fR(7))
+to remove transforms\&.
+.SH "EXAMPLES"
+.PP
+To create a transform for type
+hstore
+and language
+plpythonu, first set up the type and the language:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TYPE hstore \&.\&.\&.;
+
+CREATE LANGUAGE plpythonu \&.\&.\&.;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Then create the necessary functions:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION hstore_to_plpython(val internal) RETURNS internal
+LANGUAGE C STRICT IMMUTABLE
+AS \&.\&.\&.;
+
+CREATE FUNCTION plpython_to_hstore(val internal) RETURNS hstore
+LANGUAGE C STRICT IMMUTABLE
+AS \&.\&.\&.;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+And finally create the transform to connect them all together:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TRANSFORM FOR hstore LANGUAGE plpythonu (
+    FROM SQL WITH FUNCTION hstore_to_plpython(internal),
+    TO SQL WITH FUNCTION plpython_to_hstore(internal)
+);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+In practice, these commands would be wrapped up in extensions\&.
+.PP
+The
+contrib
+section contains a number of extensions that provide transforms, which can serve as real\-world examples\&.
+.SH "COMPATIBILITY"
+.PP
+This form of
+\fBCREATE TRANSFORM\fR
+is a
+PostgreSQL
+extension\&. There is a
+\fBCREATE TRANSFORM\fR
+command in the
+SQL
+standard, but it is for adapting data types to client languages\&. That usage is not supported by
+PostgreSQL\&.
+.SH "SEE ALSO"
+.PP
+CREATE FUNCTION (\fBCREATE_FUNCTION\fR(7)),
+CREATE LANGUAGE (\fBCREATE_LANGUAGE\fR(7)),
+CREATE TYPE (\fBCREATE_TYPE\fR(7)),
+DROP TRANSFORM (\fBDROP_TRANSFORM\fR(7))

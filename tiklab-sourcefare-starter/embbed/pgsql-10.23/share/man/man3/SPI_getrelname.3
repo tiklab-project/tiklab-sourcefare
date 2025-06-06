@@ -1,0 +1,51 @@
+'\" t
+.\"     Title: SPI_getrelname
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_GETRELNAME" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_getrelname \- return the name of the specified relation
+.SH "SYNOPSIS"
+.sp
+.nf
+char * SPI_getrelname(Relation \fIrel\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_getrelname\fR
+returns a copy of the name of the specified relation\&. (You can use
+\fBpfree\fR
+to release the copy of the name when you don\*(Aqt need it anymore\&.)
+.SH "ARGUMENTS"
+.PP
+Relation \fIrel\fR
+.RS 4
+input relation
+.RE
+.SH "RETURN VALUE"
+.PP
+The name of the specified relation\&.

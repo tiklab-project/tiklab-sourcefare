@@ -1,0 +1,61 @@
+'\" t
+.\"     Title: ALTER LARGE OBJECT
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER LARGE OBJECT" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_LARGE_OBJECT \- change the definition of a large object
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER LARGE OBJECT \fIlarge_object_oid\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER LARGE OBJECT\fR
+changes the definition of a large object\&.
+.PP
+You must own the large object to use
+\fBALTER LARGE OBJECT\fR\&. To alter the owner, you must also be a direct or indirect member of the new owning role\&. (However, a superuser can alter any large object anyway\&.) Currently, the only functionality is to assign a new owner, so both restrictions always apply\&.
+.SH "PARAMETERS"
+.PP
+\fIlarge_object_oid\fR
+.RS 4
+OID of the large object to be altered
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the large object
+.RE
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER LARGE OBJECT\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+Chapter\ \&34

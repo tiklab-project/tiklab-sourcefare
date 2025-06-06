@@ -1,0 +1,183 @@
+'\" t
+.\"     Title: pg_isready
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PG_ISREADY" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pg_isready \- check the connection status of a PostgreSQL server
+.SH "SYNOPSIS"
+.HP \w'\fBpg_isready\fR\ 'u
+\fBpg_isready\fR [\fIconnection\-option\fR...] [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+pg_isready
+is a utility for checking the connection status of a
+PostgreSQL
+database server\&. The exit status specifies the result of the connection check\&.
+.SH "OPTIONS"
+.PP
+\fB\-d \fR\fB\fIdbname\fR\fR
+.br
+\fB\-\-dbname=\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to connect to\&. The
+\fIdbname\fR
+can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&.
+.RE
+.PP
+\fB\-h \fR\fB\fIhostname\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhostname\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix\-domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or the local Unix\-domain socket file extension on which the server is listening for connections\&. Defaults to the value of the
+\fBPGPORT\fR
+environment variable or, if not set, to the port specified at compile time, usually 5432\&.
+.RE
+.PP
+\fB\-q\fR
+.br
+\fB\-\-quiet\fR
+.RS 4
+Do not display status message\&. This is useful when scripting\&.
+.RE
+.PP
+\fB\-t \fR\fB\fIseconds\fR\fR
+.br
+\fB\-\-timeout=\fR\fB\fIseconds\fR\fR
+.RS 4
+The maximum number of seconds to wait when attempting connection before returning that the server is not responding\&. Setting to 0 disables\&. The default is 3 seconds\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+Connect to the database as the user
+\fIusername\fR
+instead of the default\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+pg_isready
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+pg_isready
+command line arguments, and exit\&.
+.RE
+.SH "EXIT STATUS"
+.PP
+pg_isready
+returns
+0
+to the shell if the server is accepting connections normally,
+1
+if the server is rejecting connections (for example during startup),
+2
+if there was no response to the connection attempt, and
+3
+if no attempt was made (for example due to invalid parameters)\&.
+.SH "ENVIRONMENT"
+.PP
+\fBpg_isready\fR, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "NOTES"
+.PP
+It is not necessary to supply correct user name, password, or database name values to obtain the server status; however, if incorrect values are provided, the server will log a failed connection attempt\&.
+.SH "EXAMPLES"
+.PP
+Standard Usage:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_isready\fR
+/tmp:5432 \- accepting connections
+$ \fBecho $?\fR
+0
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Running with connection parameters to a
+PostgreSQL
+cluster in startup:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_isready \-h localhost \-p 5433\fR
+localhost:5433 \- rejecting connections
+$ \fBecho $?\fR
+1
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Running with connection parameters to a non\-responsive
+PostgreSQL
+cluster:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_isready \-h someremotehost\fR
+someremotehost:5432 \- no response
+$ \fBecho $?\fR
+2
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+

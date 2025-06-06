@@ -1,0 +1,352 @@
+'\" t
+.\"     Title: vacuumdb
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "VACUUMDB" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+vacuumdb \- garbage\-collect and analyze a PostgreSQL database
+.SH "SYNOPSIS"
+.HP \w'\fBvacuumdb\fR\ 'u
+\fBvacuumdb\fR [\fIconnection\-option\fR...] [\fIoption\fR...] [\ \fB\-t\fR\ |\ \fB\-\-table\fR\ \fItable\fR\ [(\ \fIcolumn\fR\ [,\&.\&.\&.]\ )]\ ]...  [\fIdbname\fR]
+.HP \w'\fBvacuumdb\fR\ 'u
+\fBvacuumdb\fR [\fIconnection\-option\fR...] [\fIoption\fR...] \fB\-a\fR | \fB\-\-all\fR 
+.SH "DESCRIPTION"
+.PP
+vacuumdb
+is a utility for cleaning a
+PostgreSQL
+database\&.
+vacuumdb
+will also generate internal statistics used by the
+PostgreSQL
+query optimizer\&.
+.PP
+vacuumdb
+is a wrapper around the SQL command
+\fBVACUUM\fR(7)\&. There is no effective difference between vacuuming and analyzing databases via this utility and via other methods for accessing the server\&.
+.SH "OPTIONS"
+.PP
+vacuumdb
+accepts the following command\-line arguments:
+.PP
+\fB\-a\fR
+.br
+\fB\-\-all\fR
+.RS 4
+Vacuum all databases\&.
+.RE
+.PP
+\fB[\-d]\fR\fB \fR\fB\fIdbname\fR\fR
+.br
+\fB[\-\-dbname=]\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to be cleaned or analyzed, when
+\fB\-a\fR/\fB\-\-all\fR
+is not used\&. If this is not specified, the database name is read from the environment variable
+\fBPGDATABASE\fR\&. If that is not set, the user name specified for the connection is used\&. The
+\fIdbname\fR
+can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&.
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\fR
+.RS 4
+Echo the commands that
+vacuumdb
+generates and sends to the server\&.
+.RE
+.PP
+\fB\-f\fR
+.br
+\fB\-\-full\fR
+.RS 4
+Perform
+\(lqfull\(rq
+vacuuming\&.
+.RE
+.PP
+\fB\-F\fR
+.br
+\fB\-\-freeze\fR
+.RS 4
+Aggressively
+\(lqfreeze\(rq
+tuples\&.
+.RE
+.PP
+\fB\-j \fR\fB\fInjobs\fR\fR
+.br
+\fB\-\-jobs=\fR\fB\fInjobs\fR\fR
+.RS 4
+Execute the vacuum or analyze commands in parallel by running
+\fInjobs\fR
+commands simultaneously\&. This option reduces the time of the processing but it also increases the load on the database server\&.
+.sp
+vacuumdb
+will open
+\fInjobs\fR
+connections to the database, so make sure your
+max_connections
+setting is high enough to accommodate all connections\&.
+.sp
+Note that using this mode together with the
+\fB\-f\fR
+(FULL) option might cause deadlock failures if certain system catalogs are processed in parallel\&.
+.RE
+.PP
+\fB\-q\fR
+.br
+\fB\-\-quiet\fR
+.RS 4
+Do not display progress messages\&.
+.RE
+.PP
+\fB\-t \fR\fB\fItable\fR\fR\fB [ (\fR\fB\fIcolumn\fR\fR\fB [,\&.\&.\&.]) ]\fR
+.br
+\fB\-\-table=\fR\fB\fItable\fR\fR\fB [ (\fR\fB\fIcolumn\fR\fR\fB [,\&.\&.\&.]) ]\fR
+.RS 4
+Clean or analyze
+\fItable\fR
+only\&. Column names can be specified only in conjunction with the
+\fB\-\-analyze\fR
+or
+\fB\-\-analyze\-only\fR
+options\&. Multiple tables can be vacuumed by writing multiple
+\fB\-t\fR
+switches\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+If you specify columns, you probably have to escape the parentheses from the shell\&. (See examples below\&.)
+.sp .5v
+.RE
+.RE
+.PP
+\fB\-v\fR
+.br
+\fB\-\-verbose\fR
+.RS 4
+Print detailed information during processing\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+vacuumdb
+version and exit\&.
+.RE
+.PP
+\fB\-z\fR
+.br
+\fB\-\-analyze\fR
+.RS 4
+Also calculate statistics for use by the optimizer\&.
+.RE
+.PP
+\fB\-Z\fR
+.br
+\fB\-\-analyze\-only\fR
+.RS 4
+Only calculate statistics for use by the optimizer (no vacuum)\&.
+.RE
+.PP
+\fB\-\-analyze\-in\-stages\fR
+.RS 4
+Only calculate statistics for use by the optimizer (no vacuum), like
+\fB\-\-analyze\-only\fR\&. Run several (currently three) stages of analyze with different configuration settings, to produce usable statistics faster\&.
+.sp
+This option is useful to analyze a database that was newly populated from a restored dump or by
+\fBpg_upgrade\fR\&. This option will try to create some statistics as fast as possible, to make the database usable, and then produce full statistics in the subsequent stages\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+vacuumdb
+command line arguments, and exit\&.
+.RE
+.PP
+vacuumdb
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+vacuumdb
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+vacuumdb
+will automatically prompt for a password if the server demands password authentication\&. However,
+vacuumdb
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+\fB\-\-maintenance\-db=\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to connect to to discover which databases should be vacuumed, when
+\fB\-a\fR/\fB\-\-all\fR
+is used\&. If not specified, the
+postgres
+database will be used, or if that does not exist,
+template1
+will be used\&. This can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&. Also, connection string parameters other than the database name itself will be re\-used when connecting to other databases\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBPGDATABASE\fR
+.br
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "DIAGNOSTICS"
+.PP
+In case of difficulty, see
+\fBVACUUM\fR(7)
+and
+\fBpsql\fR(1)
+for discussions of potential problems and error messages\&. The database server must be running at the targeted host\&. Also, any default connection settings and environment variables used by the
+libpq
+front\-end library will apply\&.
+.SH "NOTES"
+.PP
+vacuumdb
+might need to connect several times to the
+PostgreSQL
+server, asking for a password each time\&. It is convenient to have a
+~/\&.pgpass
+file in such cases\&. See
+Section\ \&33.15
+for more information\&.
+.SH "EXAMPLES"
+.PP
+To clean the database
+test:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBvacuumdb test\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To clean and analyze for the optimizer a database named
+bigdb:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBvacuumdb \-\-analyze bigdb\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To clean a single table
+foo
+in a database named
+xyzzy, and analyze a single column
+bar
+of the table for the optimizer:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBvacuumdb \-\-analyze \-\-verbose \-\-table=\*(Aqfoo(bar)\*(Aq xyzzy\fR
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+\fBVACUUM\fR(7)

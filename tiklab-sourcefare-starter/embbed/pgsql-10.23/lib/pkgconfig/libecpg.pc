@@ -1,0 +1,9 @@
+Name: libecpg
+Description: PostgreSQL libecpg library
+Url: http://www.postgresql.org/
+Version: 10.23
+Requires: 
+Requires.private: libpq libpgtypes
+Cflags: -I/mnt/hgfs/pginstaller.auto/server/staging_cache/linux-x64/include
+Libs: -L/mnt/hgfs/pginstaller.auto/server/staging_cache/linux-x64/lib -lecpg
+Libs.private: -L/opt/local/Current/lib -lm

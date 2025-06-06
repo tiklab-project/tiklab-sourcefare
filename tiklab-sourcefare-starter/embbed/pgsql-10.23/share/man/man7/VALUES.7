@@ -1,0 +1,280 @@
+'\" t
+.\"     Title: VALUES
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "VALUES" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+VALUES \- compute a set of rows
+.SH "SYNOPSIS"
+.sp
+.nf
+VALUES ( \fIexpression\fR [, \&.\&.\&.] ) [, \&.\&.\&.]
+    [ ORDER BY \fIsort_expression\fR [ ASC | DESC | USING \fIoperator\fR ] [, \&.\&.\&.] ]
+    [ LIMIT { \fIcount\fR | ALL } ]
+    [ OFFSET \fIstart\fR [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ \fIcount\fR ] { ROW | ROWS } ONLY ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBVALUES\fR
+computes a row value or set of row values specified by value expressions\&. It is most commonly used to generate a
+\(lqconstant table\(rq
+within a larger command, but it can be used on its own\&.
+.PP
+When more than one row is specified, all the rows must have the same number of elements\&. The data types of the resulting table\*(Aqs columns are determined by combining the explicit or inferred types of the expressions appearing in that column, using the same rules as for
+UNION
+(see
+Section\ \&10.5)\&.
+.PP
+Within larger commands,
+\fBVALUES\fR
+is syntactically allowed anywhere that
+\fBSELECT\fR
+is\&. Because it is treated like a
+\fBSELECT\fR
+by the grammar, it is possible to use the
+ORDER BY,
+LIMIT
+(or equivalently
+FETCH FIRST), and
+OFFSET
+clauses with a
+\fBVALUES\fR
+command\&.
+.SH "PARAMETERS"
+.PP
+\fIexpression\fR
+.RS 4
+A constant or expression to compute and insert at the indicated place in the resulting table (set of rows)\&. In a
+\fBVALUES\fR
+list appearing at the top level of an
+\fBINSERT\fR, an
+\fIexpression\fR
+can be replaced by
+DEFAULT
+to indicate that the destination column\*(Aqs default value should be inserted\&.
+DEFAULT
+cannot be used when
+\fBVALUES\fR
+appears in other contexts\&.
+.RE
+.PP
+\fIsort_expression\fR
+.RS 4
+An expression or integer constant indicating how to sort the result rows\&. This expression can refer to the columns of the
+\fBVALUES\fR
+result as
+column1,
+column2, etc\&. For more details see
+ORDER BY Clause\&.
+.RE
+.PP
+\fIoperator\fR
+.RS 4
+A sorting operator\&. For details see
+ORDER BY Clause\&.
+.RE
+.PP
+\fIcount\fR
+.RS 4
+The maximum number of rows to return\&. For details see
+LIMIT Clause\&.
+.RE
+.PP
+\fIstart\fR
+.RS 4
+The number of rows to skip before starting to return rows\&. For details see
+LIMIT Clause\&.
+.RE
+.SH "NOTES"
+.PP
+\fBVALUES\fR
+lists with very large numbers of rows should be avoided, as you might encounter out\-of\-memory failures or poor performance\&.
+\fBVALUES\fR
+appearing within
+\fBINSERT\fR
+is a special case (because the desired column types are known from the
+\fBINSERT\fR\*(Aqs target table, and need not be inferred by scanning the
+\fBVALUES\fR
+list), so it can handle larger lists than are practical in other contexts\&.
+.SH "EXAMPLES"
+.PP
+A bare
+\fBVALUES\fR
+command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+VALUES (1, \*(Aqone\*(Aq), (2, \*(Aqtwo\*(Aq), (3, \*(Aqthree\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This will return a table of two columns and three rows\&. It\*(Aqs effectively equivalent to:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT 1 AS column1, \*(Aqone\*(Aq AS column2
+UNION ALL
+SELECT 2, \*(Aqtwo\*(Aq
+UNION ALL
+SELECT 3, \*(Aqthree\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+More usually,
+\fBVALUES\fR
+is used within a larger SQL command\&. The most common use is in
+\fBINSERT\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+INSERT INTO films (code, title, did, date_prod, kind)
+    VALUES (\*(AqT_601\*(Aq, \*(AqYojimbo\*(Aq, 106, \*(Aq1961\-06\-16\*(Aq, \*(AqDrama\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+In the context of
+\fBINSERT\fR, entries of a
+\fBVALUES\fR
+list can be
+DEFAULT
+to indicate that the column default should be used here instead of specifying a value:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+INSERT INTO films VALUES
+    (\*(AqUA502\*(Aq, \*(AqBananas\*(Aq, 105, DEFAULT, \*(AqComedy\*(Aq, \*(Aq82 minutes\*(Aq),
+    (\*(AqT_601\*(Aq, \*(AqYojimbo\*(Aq, 106, DEFAULT, \*(AqDrama\*(Aq, DEFAULT);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fBVALUES\fR
+can also be used where a sub\-\fBSELECT\fR
+might be written, for example in a
+FROM
+clause:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT f\&.*
+  FROM films f, (VALUES(\*(AqMGM\*(Aq, \*(AqHorror\*(Aq), (\*(AqUA\*(Aq, \*(AqSci\-Fi\*(Aq)) AS t (studio, kind)
+  WHERE f\&.studio = t\&.studio AND f\&.kind = t\&.kind;
+
+UPDATE employees SET salary = salary * v\&.increase
+  FROM (VALUES(1, 200000, 1\&.2), (2, 400000, 1\&.4)) AS v (depno, target, increase)
+  WHERE employees\&.depno = v\&.depno AND employees\&.sales >= v\&.target;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Note that an
+AS
+clause is required when
+\fBVALUES\fR
+is used in a
+FROM
+clause, just as is true for
+\fBSELECT\fR\&. It is not required that the
+AS
+clause specify names for all the columns, but it\*(Aqs good practice to do so\&. (The default column names for
+\fBVALUES\fR
+are
+column1,
+column2, etc in
+PostgreSQL, but these names might be different in other database systems\&.)
+.PP
+When
+\fBVALUES\fR
+is used in
+\fBINSERT\fR, the values are all automatically coerced to the data type of the corresponding destination column\&. When it\*(Aqs used in other contexts, it might be necessary to specify the correct data type\&. If the entries are all quoted literal constants, coercing the first is sufficient to determine the assumed type for all:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT * FROM machines
+WHERE ip_address IN (VALUES(\*(Aq192\&.168\&.0\&.1\*(Aq::inet), (\*(Aq192\&.168\&.0\&.10\*(Aq), (\*(Aq192\&.168\&.1\&.43\*(Aq));
+.fi
+.if n \{\
+.RE
+.\}
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+.PP
+For simple
+IN
+tests, it\*(Aqs better to rely on the
+list\-of\-scalars
+form of
+IN
+than to write a
+\fBVALUES\fR
+query as shown above\&. The list of scalars method requires less writing and is often more efficient\&.
+.sp .5v
+.RE
+.SH "COMPATIBILITY"
+.PP
+\fBVALUES\fR
+conforms to the SQL standard\&.
+LIMIT
+and
+OFFSET
+are
+PostgreSQL
+extensions; see also under
+\fBSELECT\fR(7)\&.
+.SH "SEE ALSO"
+\fBINSERT\fR(7), \fBSELECT\fR(7)

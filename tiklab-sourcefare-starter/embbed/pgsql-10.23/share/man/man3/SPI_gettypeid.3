@@ -1,0 +1,63 @@
+'\" t
+.\"     Title: SPI_gettypeid
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_GETTYPEID" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_gettypeid \- return the data type OID of the specified column
+.SH "SYNOPSIS"
+.sp
+.nf
+Oid SPI_gettypeid(TupleDesc \fIrowdesc\fR, int \fIcolnumber\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_gettypeid\fR
+returns the
+OID
+of the data type of the specified column\&.
+.SH "ARGUMENTS"
+.PP
+TupleDesc \fIrowdesc\fR
+.RS 4
+input row description
+.RE
+.PP
+int \fIcolnumber\fR
+.RS 4
+column number (count starts at 1)
+.RE
+.SH "RETURN VALUE"
+.PP
+The
+OID
+of the data type of the specified column or
+InvalidOid
+on error\&. On error,
+\fISPI_result\fR
+is set to
+SPI_ERROR_NOATTRIBUTE\&.

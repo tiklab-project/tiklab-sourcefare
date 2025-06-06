@@ -1,0 +1,51 @@
+'\" t
+.\"     Title: SPI_connect
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_CONNECT" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_connect \- connect a procedure to the SPI manager
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_connect(void)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_connect\fR
+opens a connection from a procedure invocation to the SPI manager\&. You must call this function if you want to execute commands through SPI\&. Some utility SPI functions can be called from unconnected procedures\&.
+.SH "RETURN VALUE"
+.PP
+SPI_OK_CONNECT
+.RS 4
+on success
+.RE
+.PP
+SPI_ERROR_CONNECT
+.RS 4
+on error
+.RE

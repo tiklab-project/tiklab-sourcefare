@@ -1,0 +1,86 @@
+'\" t
+.\"     Title: dblink_get_notify
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_GET_NOTIFY" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_get_notify \- retrieve async notifications on a connection
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_get_notify() returns setof (notify_name text, be_pid int, extra text)
+dblink_get_notify(text connname) returns setof (notify_name text, be_pid int, extra text)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_get_notify\fR
+retrieves notifications on either the unnamed connection, or on a named connection if specified\&. To receive notifications via dblink,
+\fBLISTEN\fR
+must first be issued, using
+\fBdblink_exec\fR\&. For details see
+\fBLISTEN\fR(7)
+and
+\fBNOTIFY\fR(7)\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+The name of a named connection to get notifications on\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+Returns
+setof (notify_name text, be_pid int, extra text), or an empty set if none\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_exec(\*(AqLISTEN virtual\*(Aq);
+ dblink_exec 
+\-\-\-\-\-\-\-\-\-\-\-\-\-
+ LISTEN
+(1 row)
+
+SELECT * FROM dblink_get_notify();
+ notify_name | be_pid | extra
+\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-
+(0 rows)
+
+NOTIFY virtual;
+NOTIFY
+
+SELECT * FROM dblink_get_notify();
+ notify_name | be_pid | extra
+\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-
+ virtual     |   1229 |
+(1 row)
+.fi
+.if n \{\
+.RE
+.\}

@@ -36,8 +36,8 @@ public class ScanRule implements Serializable {
     @ApiProperty(name="problemLevel",desc="规则等级 严重：1、警告：2、建议：3")
     private Integer problemLevel;
 
-    @ApiProperty(name="describe",desc="规则描述")
-    private String describe;
+    @ApiProperty(name="description",desc="规则描述")
+    private String description;
 
     @ApiProperty(name="createTime",desc="创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
@@ -92,12 +92,12 @@ public class ScanRule implements Serializable {
         this.problemLevel = problemLevel;
     }
 
-    public String getDescribe() {
-        return describe;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescribe(String describe) {
-        this.describe = describe;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Timestamp getCreateTime() {

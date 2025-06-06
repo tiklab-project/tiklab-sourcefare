@@ -1,0 +1,84 @@
+'\" t
+.\"     Title: DROP MATERIALIZED VIEW
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP MATERIALIZED VIEW" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_MATERIALIZED_VIEW \- remove a materialized view
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP MATERIALIZED VIEW [ IF EXISTS ] \fIname\fR [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP MATERIALIZED VIEW\fR
+drops an existing materialized view\&. To execute this command you must be the owner of the materialized view\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the materialized view does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of the materialized view to remove\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the materialized view (such as other materialized views, or regular views), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the materialized view if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+This command will remove the materialized view called
+order_summary:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP MATERIALIZED VIEW order_summary;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBDROP MATERIALIZED VIEW\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE MATERIALIZED VIEW (\fBCREATE_MATERIALIZED_VIEW\fR(7)), ALTER MATERIALIZED VIEW (\fBALTER_MATERIALIZED_VIEW\fR(7)), REFRESH MATERIALIZED VIEW (\fBREFRESH_MATERIALIZED_VIEW\fR(7))

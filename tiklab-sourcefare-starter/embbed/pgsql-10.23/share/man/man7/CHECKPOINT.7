@@ -1,0 +1,63 @@
+'\" t
+.\"     Title: CHECKPOINT
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CHECKPOINT" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CHECKPOINT \- force a write\-ahead log checkpoint
+.SH "SYNOPSIS"
+.sp
+.nf
+CHECKPOINT
+.fi
+.SH "DESCRIPTION"
+.PP
+A checkpoint is a point in the write\-ahead log sequence at which all data files have been updated to reflect the information in the log\&. All data files will be flushed to disk\&. Refer to
+Section\ \&30.4
+for more details about what happens during a checkpoint\&.
+.PP
+The
+\fBCHECKPOINT\fR
+command forces an immediate checkpoint when the command is issued, without waiting for a regular checkpoint scheduled by the system (controlled by the settings in
+Section\ \&19.5.2)\&.
+\fBCHECKPOINT\fR
+is not intended for use during normal operation\&.
+.PP
+If executed during recovery, the
+\fBCHECKPOINT\fR
+command will force a restartpoint (see
+Section\ \&30.4) rather than writing a new checkpoint\&.
+.PP
+Only superusers can call
+\fBCHECKPOINT\fR\&.
+.SH "COMPATIBILITY"
+.PP
+The
+\fBCHECKPOINT\fR
+command is a
+PostgreSQL
+language extension\&.

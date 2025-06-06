@@ -1,0 +1,330 @@
+'\" t
+.\"     Title: ALTER ROLE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER ROLE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_ROLE \- change a database role
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER ROLE \fIrole_specification\fR [ WITH ] \fIoption\fR [ \&.\&.\&. ]
+
+where \fIoption\fR can be:
+
+      SUPERUSER | NOSUPERUSER
+    | CREATEDB | NOCREATEDB
+    | CREATEROLE | NOCREATEROLE
+    | INHERIT | NOINHERIT
+    | LOGIN | NOLOGIN
+    | REPLICATION | NOREPLICATION
+    | BYPASSRLS | NOBYPASSRLS
+    | CONNECTION LIMIT \fIconnlimit\fR
+    | [ ENCRYPTED ] PASSWORD \*(Aq\fIpassword\fR\*(Aq
+    | VALID UNTIL \*(Aq\fItimestamp\fR\*(Aq
+
+ALTER ROLE \fIname\fR RENAME TO \fInew_name\fR
+
+ALTER ROLE { \fIrole_specification\fR | ALL } [ IN DATABASE \fIdatabase_name\fR ] SET \fIconfiguration_parameter\fR { TO | = } { \fIvalue\fR | DEFAULT }
+ALTER ROLE { \fIrole_specification\fR | ALL } [ IN DATABASE \fIdatabase_name\fR ] SET \fIconfiguration_parameter\fR FROM CURRENT
+ALTER ROLE { \fIrole_specification\fR | ALL } [ IN DATABASE \fIdatabase_name\fR ] RESET \fIconfiguration_parameter\fR
+ALTER ROLE { \fIrole_specification\fR | ALL } [ IN DATABASE \fIdatabase_name\fR ] RESET ALL
+
+where \fIrole_specification\fR can be:
+
+    \fIrole_name\fR
+  | CURRENT_USER
+  | SESSION_USER
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER ROLE\fR
+changes the attributes of a
+PostgreSQL
+role\&.
+.PP
+The first variant of this command listed in the synopsis can change many of the role attributes that can be specified in
+CREATE ROLE (\fBCREATE_ROLE\fR(7))\&. (All the possible attributes are covered, except that there are no options for adding or removing memberships; use
+\fBGRANT\fR(7)
+and
+\fBREVOKE\fR(7)
+for that\&.) Attributes not mentioned in the command retain their previous settings\&. Database superusers can change any of these settings for any role\&. Roles having
+CREATEROLE
+privilege can change any of these settings except
+SUPERUSER,
+REPLICATION, and
+BYPASSRLS; but only for non\-superuser and non\-replication roles\&. Ordinary roles can only change their own password\&.
+.PP
+The second variant changes the name of the role\&. Database superusers can rename any role\&. Roles having
+CREATEROLE
+privilege can rename non\-superuser roles\&. The current session user cannot be renamed\&. (Connect as a different user if you need to do that\&.) Because
+MD5\-encrypted passwords use the role name as cryptographic salt, renaming a role clears its password if the password is
+MD5\-encrypted\&.
+.PP
+The remaining variants change a role\*(Aqs session default for a configuration variable, either for all databases or, when the
+IN DATABASE
+clause is specified, only for sessions in the named database\&. If
+ALL
+is specified instead of a role name, this changes the setting for all roles\&. Using
+ALL
+with
+IN DATABASE
+is effectively the same as using the command
+ALTER DATABASE \&.\&.\&. SET \&.\&.\&.\&.
+.PP
+Whenever the role subsequently starts a new session, the specified value becomes the session default, overriding whatever setting is present in
+postgresql\&.conf
+or has been received from the
+\fBpostgres\fR
+command line\&. This only happens at login time; executing
+SET ROLE (\fBSET_ROLE\fR(7))
+or
+SET SESSION AUTHORIZATION (\fBSET_SESSION_AUTHORIZATION\fR(7))
+does not cause new configuration values to be set\&. Settings set for all databases are overridden by database\-specific settings attached to a role\&. Settings for specific databases or specific roles override settings for all roles\&.
+.PP
+Superusers can change anyone\*(Aqs session defaults\&. Roles having
+CREATEROLE
+privilege can change defaults for non\-superuser roles\&. Ordinary roles can only set defaults for themselves\&. Certain configuration variables cannot be set this way, or can only be set if a superuser issues the command\&. Only superusers can change a setting for all roles in all databases\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the role whose attributes are to be altered\&.
+.RE
+.PP
+CURRENT_USER
+.RS 4
+Alter the current user instead of an explicitly identified role\&.
+.RE
+.PP
+SESSION_USER
+.RS 4
+Alter the current session user instead of an explicitly identified role\&.
+.RE
+.PP
+SUPERUSER
+.br
+NOSUPERUSER
+.br
+CREATEDB
+.br
+NOCREATEDB
+.br
+CREATEROLE
+.br
+NOCREATEROLE
+.br
+INHERIT
+.br
+NOINHERIT
+.br
+LOGIN
+.br
+NOLOGIN
+.br
+REPLICATION
+.br
+NOREPLICATION
+.br
+BYPASSRLS
+.br
+NOBYPASSRLS
+.br
+CONNECTION LIMIT \fIconnlimit\fR
+.br
+[ ENCRYPTED ] PASSWORD \fIpassword\fR
+.br
+VALID UNTIL \*(Aq\fItimestamp\fR\*(Aq
+.RS 4
+These clauses alter attributes originally set by
+CREATE ROLE (\fBCREATE_ROLE\fR(7))\&. For more information, see the
+\fBCREATE ROLE\fR
+reference page\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the role\&.
+.RE
+.PP
+\fIdatabase_name\fR
+.RS 4
+The name of the database the configuration variable should be set in\&.
+.RE
+.PP
+\fIconfiguration_parameter\fR
+.br
+\fIvalue\fR
+.RS 4
+Set this role\*(Aqs session default for the specified configuration parameter to the given value\&. If
+\fIvalue\fR
+is
+DEFAULT
+or, equivalently,
+RESET
+is used, the role\-specific variable setting is removed, so the role will inherit the system\-wide default setting in new sessions\&. Use
+RESET ALL
+to clear all role\-specific settings\&.
+SET FROM CURRENT
+saves the session\*(Aqs current value of the parameter as the role\-specific value\&. If
+IN DATABASE
+is specified, the configuration parameter is set or removed for the given role and database only\&.
+.sp
+Role\-specific variable settings take effect only at login;
+SET ROLE (\fBSET_ROLE\fR(7))
+and
+SET SESSION AUTHORIZATION (\fBSET_SESSION_AUTHORIZATION\fR(7))
+do not process role\-specific variable settings\&.
+.sp
+See
+\fBSET\fR(7)
+and
+Chapter\ \&19
+for more information about allowed parameter names and values\&.
+.RE
+.SH "NOTES"
+.PP
+Use
+CREATE ROLE (\fBCREATE_ROLE\fR(7))
+to add new roles, and
+DROP ROLE (\fBDROP_ROLE\fR(7))
+to remove a role\&.
+.PP
+\fBALTER ROLE\fR
+cannot change a role\*(Aqs memberships\&. Use
+\fBGRANT\fR(7)
+and
+\fBREVOKE\fR(7)
+to do that\&.
+.PP
+Caution must be exercised when specifying an unencrypted password with this command\&. The password will be transmitted to the server in cleartext, and it might also be logged in the client\*(Aqs command history or the server log\&.
+\fBpsql\fR(1)
+contains a command
+\fB\epassword\fR
+that can be used to change a role\*(Aqs password without exposing the cleartext password\&.
+.PP
+It is also possible to tie a session default to a specific database rather than to a role; see
+ALTER DATABASE (\fBALTER_DATABASE\fR(7))\&. If there is a conflict, database\-role\-specific settings override role\-specific ones, which in turn override database\-specific ones\&.
+.SH "EXAMPLES"
+.PP
+Change a role\*(Aqs password:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE davide WITH PASSWORD \*(Aqhu8jmn3\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Remove a role\*(Aqs password:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE davide WITH PASSWORD NULL;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Change a password expiration date, specifying that the password should expire at midday on 4th May 2015 using the time zone which is one hour ahead of
+UTC:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE chris VALID UNTIL \*(AqMay 4 12:00:00 2015 +1\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Make a password valid forever:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE fred VALID UNTIL \*(Aqinfinity\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Give a role the ability to create other roles and new databases:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE miriam CREATEROLE CREATEDB;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Give a role a non\-default setting of the
+maintenance_work_mem
+parameter:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE worker_bee SET maintenance_work_mem = 100000;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Give a role a non\-default, database\-specific setting of the
+client_min_messages
+parameter:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER ROLE fred IN DATABASE devel SET client_min_messages = DEBUG;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBALTER ROLE\fR
+statement is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE ROLE (\fBCREATE_ROLE\fR(7)), DROP ROLE (\fBDROP_ROLE\fR(7)), ALTER DATABASE (\fBALTER_DATABASE\fR(7)), \fBSET\fR(7)

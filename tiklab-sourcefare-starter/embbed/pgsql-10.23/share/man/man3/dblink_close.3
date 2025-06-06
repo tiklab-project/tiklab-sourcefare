@@ -1,0 +1,100 @@
+'\" t
+.\"     Title: dblink_close
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_CLOSE" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_close \- closes a cursor in a remote database
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_close(text cursorname [, bool fail_on_error]) returns text
+dblink_close(text connname, text cursorname [, bool fail_on_error]) returns text
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_close\fR
+closes a cursor previously opened with
+\fBdblink_open\fR\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+Name of the connection to use; omit this parameter to use the unnamed connection\&.
+.RE
+.PP
+\fIcursorname\fR
+.RS 4
+The name of the cursor to close\&.
+.RE
+.PP
+\fIfail_on_error\fR
+.RS 4
+If true (the default when omitted) then an error thrown on the remote side of the connection causes an error to also be thrown locally\&. If false, the remote error is locally reported as a NOTICE, and the function\*(Aqs return value is set to
+ERROR\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+Returns status, either
+OK
+or
+ERROR\&.
+.SH "NOTES"
+.PP
+If
+\fBdblink_open\fR
+started an explicit transaction block, and this is the last remaining open cursor in this connection,
+\fBdblink_close\fR
+will issue the matching
+\fBCOMMIT\fR\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_connect(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT dblink_open(\*(Aqfoo\*(Aq, \*(Aqselect proname, prosrc from pg_proc\*(Aq);
+ dblink_open
+\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT dblink_close(\*(Aqfoo\*(Aq);
+ dblink_close
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+.fi
+.if n \{\
+.RE
+.\}

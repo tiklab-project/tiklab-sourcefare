@@ -75,6 +75,10 @@ public class ScanRecord implements Serializable {
     private String execLog;
 
 
+    /*-----其他字段-----*/
+    @ApiProperty(name="storageCodePath",desc="代码存储位置,相对位置")
+    private String storageCodePath;
+
 
     public String getId() {
         return id;
@@ -197,4 +201,11 @@ public class ScanRecord implements Serializable {
         this.execLog = execLog;
     }
 
+    public String getStorageCodePath() {
+        return storageCodePath;
+    }
+
+    public void setStorageCodePath(String storageCodePath) {
+        this.storageCodePath = storageCodePath;
+    }
 }

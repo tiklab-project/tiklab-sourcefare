@@ -1,0 +1,150 @@
+'\" t
+.\"     Title: CREATE TABLESPACE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TABLESPACE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TABLESPACE \- define a new tablespace
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE TABLESPACE \fItablespace_name\fR
+    [ OWNER { \fInew_owner\fR | CURRENT_USER | SESSION_USER } ]
+    LOCATION \*(Aq\fIdirectory\fR\*(Aq
+    [ WITH ( \fItablespace_option\fR = \fIvalue\fR [, \&.\&.\&. ] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TABLESPACE\fR
+registers a new cluster\-wide tablespace\&. The tablespace name must be distinct from the name of any existing tablespace in the database cluster\&.
+.PP
+A tablespace allows superusers to define an alternative location on the file system where the data files containing database objects (such as tables and indexes) can reside\&.
+.PP
+A user with appropriate privileges can pass
+\fItablespace_name\fR
+to
+\fBCREATE DATABASE\fR,
+\fBCREATE TABLE\fR,
+\fBCREATE INDEX\fR
+or
+\fBADD CONSTRAINT\fR
+to have the data files for these objects stored within the specified tablespace\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBWarning\fR
+.ps -1
+.br
+.PP
+A tablespace cannot be used independently of the cluster in which it is defined; see
+Section\ \&22.6\&.
+.sp .5v
+.RE
+.SH "PARAMETERS"
+.PP
+\fItablespace_name\fR
+.RS 4
+The name of a tablespace to be created\&. The name cannot begin with
+pg_, as such names are reserved for system tablespaces\&.
+.RE
+.PP
+\fIuser_name\fR
+.RS 4
+The name of the user who will own the tablespace\&. If omitted, defaults to the user executing the command\&. Only superusers can create tablespaces, but they can assign ownership of tablespaces to non\-superusers\&.
+.RE
+.PP
+\fIdirectory\fR
+.RS 4
+The directory that will be used for the tablespace\&. The directory should be empty and must be owned by the
+PostgreSQL
+system user\&. The directory must be specified by an absolute path name\&.
+.RE
+.PP
+\fItablespace_option\fR
+.RS 4
+A tablespace parameter to be set or reset\&. Currently, the only available parameters are
+\fIseq_page_cost\fR,
+\fIrandom_page_cost\fR
+and
+\fIeffective_io_concurrency\fR\&. Setting either value for a particular tablespace will override the planner\*(Aqs usual estimate of the cost of reading pages from tables in that tablespace, as established by the configuration parameters of the same name (see
+seq_page_cost,
+random_page_cost,
+effective_io_concurrency)\&. This may be useful if one tablespace is located on a disk which is faster or slower than the remainder of the I/O subsystem\&.
+.RE
+.SH "NOTES"
+.PP
+Tablespaces are only supported on systems that support symbolic links\&.
+.PP
+\fBCREATE TABLESPACE\fR
+cannot be executed inside a transaction block\&.
+.SH "EXAMPLES"
+.PP
+Create a tablespace
+dbspace
+at
+/data/dbs:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TABLESPACE dbspace LOCATION \*(Aq/data/dbs\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a tablespace
+indexspace
+at
+/data/indexes
+owned by user
+genevieve:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TABLESPACE indexspace OWNER genevieve LOCATION \*(Aq/data/indexes\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE TABLESPACE\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE DATABASE (\fBCREATE_DATABASE\fR(7)), CREATE TABLE (\fBCREATE_TABLE\fR(7)), CREATE INDEX (\fBCREATE_INDEX\fR(7)), DROP TABLESPACE (\fBDROP_TABLESPACE\fR(7)), ALTER TABLESPACE (\fBALTER_TABLESPACE\fR(7))

@@ -1,0 +1,58 @@
+'\" t
+.\"     Title: SPI_repalloc
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_REPALLOC" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_repalloc \- reallocate memory in the upper executor context
+.SH "SYNOPSIS"
+.sp
+.nf
+void * SPI_repalloc(void * \fIpointer\fR, Size \fIsize\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_repalloc\fR
+changes the size of a memory segment previously allocated using
+\fBSPI_palloc\fR\&.
+.PP
+This function is no longer different from plain
+\fBrepalloc\fR\&. It\*(Aqs kept just for backward compatibility of existing code\&.
+.SH "ARGUMENTS"
+.PP
+void * \fIpointer\fR
+.RS 4
+pointer to existing storage to change
+.RE
+.PP
+Size \fIsize\fR
+.RS 4
+size in bytes of storage to allocate
+.RE
+.SH "RETURN VALUE"
+.PP
+pointer to new storage space of specified size with the contents copied from the existing area

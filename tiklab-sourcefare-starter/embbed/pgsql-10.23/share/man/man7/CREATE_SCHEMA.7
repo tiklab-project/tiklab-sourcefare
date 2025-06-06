@@ -1,0 +1,206 @@
+'\" t
+.\"     Title: CREATE SCHEMA
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE SCHEMA" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_SCHEMA \- define a new schema
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE SCHEMA \fIschema_name\fR [ AUTHORIZATION \fIrole_specification\fR ] [ \fIschema_element\fR [ \&.\&.\&. ] ]
+CREATE SCHEMA AUTHORIZATION \fIrole_specification\fR [ \fIschema_element\fR [ \&.\&.\&. ] ]
+CREATE SCHEMA IF NOT EXISTS \fIschema_name\fR [ AUTHORIZATION \fIrole_specification\fR ]
+CREATE SCHEMA IF NOT EXISTS AUTHORIZATION \fIrole_specification\fR
+
+where \fIrole_specification\fR can be:
+
+    \fIuser_name\fR
+  | CURRENT_USER
+  | SESSION_USER
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE SCHEMA\fR
+enters a new schema into the current database\&. The schema name must be distinct from the name of any existing schema in the current database\&.
+.PP
+A schema is essentially a namespace: it contains named objects (tables, data types, functions, and operators) whose names can duplicate those of other objects existing in other schemas\&. Named objects are accessed either by
+\(lqqualifying\(rq
+their names with the schema name as a prefix, or by setting a search path that includes the desired schema(s)\&. A
+CREATE
+command specifying an unqualified object name creates the object in the current schema (the one at the front of the search path, which can be determined with the function
+\fBcurrent_schema\fR)\&.
+.PP
+Optionally,
+\fBCREATE SCHEMA\fR
+can include subcommands to create objects within the new schema\&. The subcommands are treated essentially the same as separate commands issued after creating the schema, except that if the
+AUTHORIZATION
+clause is used, all the created objects will be owned by that user\&.
+.SH "PARAMETERS"
+.PP
+\fIschema_name\fR
+.RS 4
+The name of a schema to be created\&. If this is omitted, the
+\fIuser_name\fR
+is used as the schema name\&. The name cannot begin with
+pg_, as such names are reserved for system schemas\&.
+.RE
+.PP
+\fIuser_name\fR
+.RS 4
+The role name of the user who will own the new schema\&. If omitted, defaults to the user executing the command\&. To create a schema owned by another role, you must be a direct or indirect member of that role, or be a superuser\&.
+.RE
+.PP
+\fIschema_element\fR
+.RS 4
+An SQL statement defining an object to be created within the schema\&. Currently, only
+\fBCREATE TABLE\fR,
+\fBCREATE VIEW\fR,
+\fBCREATE INDEX\fR,
+\fBCREATE SEQUENCE\fR,
+\fBCREATE TRIGGER\fR
+and
+\fBGRANT\fR
+are accepted as clauses within
+\fBCREATE SCHEMA\fR\&. Other kinds of objects may be created in separate commands after the schema is created\&.
+.RE
+.PP
+IF NOT EXISTS
+.RS 4
+Do nothing (except issuing a notice) if a schema with the same name already exists\&.
+\fIschema_element\fR
+subcommands cannot be included when this option is used\&.
+.RE
+.SH "NOTES"
+.PP
+To create a schema, the invoking user must have the
+CREATE
+privilege for the current database\&. (Of course, superusers bypass this check\&.)
+.SH "EXAMPLES"
+.PP
+Create a schema:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SCHEMA myschema;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a schema for user
+joe; the schema will also be named
+joe:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SCHEMA AUTHORIZATION joe;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a schema named
+test
+that will be owned by user
+joe, unless there already is a schema named
+test\&. (It does not matter whether
+joe
+owns the pre\-existing schema\&.)
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SCHEMA IF NOT EXISTS test AUTHORIZATION joe;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a schema and create a table and view within it:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SCHEMA hollywood
+    CREATE TABLE films (title text, release date, awards text[])
+    CREATE VIEW winners AS
+        SELECT title, release FROM films WHERE awards IS NOT NULL;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Notice that the individual subcommands do not end with semicolons\&.
+.PP
+The following is an equivalent way of accomplishing the same result:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SCHEMA hollywood;
+CREATE TABLE hollywood\&.films (title text, release date, awards text[]);
+CREATE VIEW hollywood\&.winners AS
+    SELECT title, release FROM hollywood\&.films WHERE awards IS NOT NULL;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The SQL standard allows a
+DEFAULT CHARACTER SET
+clause in
+\fBCREATE SCHEMA\fR, as well as more subcommand types than are presently accepted by
+PostgreSQL\&.
+.PP
+The SQL standard specifies that the subcommands in
+\fBCREATE SCHEMA\fR
+can appear in any order\&. The present
+PostgreSQL
+implementation does not handle all cases of forward references in subcommands; it might sometimes be necessary to reorder the subcommands in order to avoid forward references\&.
+.PP
+According to the SQL standard, the owner of a schema always owns all objects within it\&.
+PostgreSQL
+allows schemas to contain objects owned by users other than the schema owner\&. This can happen only if the schema owner grants the
+CREATE
+privilege on their schema to someone else, or a superuser chooses to create objects in it\&.
+.PP
+The
+IF NOT EXISTS
+option is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+ALTER SCHEMA (\fBALTER_SCHEMA\fR(7)), DROP SCHEMA (\fBDROP_SCHEMA\fR(7))

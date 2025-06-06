@@ -1,0 +1,84 @@
+'\" t
+.\"     Title: DROP TABLESPACE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP TABLESPACE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_TABLESPACE \- remove a tablespace
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP TABLESPACE [ IF EXISTS ] \fIname\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP TABLESPACE\fR
+removes a tablespace from the system\&.
+.PP
+A tablespace can only be dropped by its owner or a superuser\&. The tablespace must be empty of all database objects before it can be dropped\&. It is possible that objects in other databases might still reside in the tablespace even if no objects in the current database are using the tablespace\&. Also, if the tablespace is listed in the
+temp_tablespaces
+setting of any active session, the
+\fBDROP\fR
+might fail due to temporary files residing in the tablespace\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the tablespace does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of a tablespace\&.
+.RE
+.SH "NOTES"
+.PP
+\fBDROP TABLESPACE\fR
+cannot be executed inside a transaction block\&.
+.SH "EXAMPLES"
+.PP
+To remove tablespace
+mystuff
+from the system:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP TABLESPACE mystuff;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBDROP TABLESPACE\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE TABLESPACE (\fBCREATE_TABLESPACE\fR(7)), ALTER TABLESPACE (\fBALTER_TABLESPACE\fR(7))

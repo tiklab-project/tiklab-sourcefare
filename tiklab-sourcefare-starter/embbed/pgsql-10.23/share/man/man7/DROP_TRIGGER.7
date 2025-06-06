@@ -1,0 +1,93 @@
+'\" t
+.\"     Title: DROP TRIGGER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP TRIGGER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_TRIGGER \- remove a trigger
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP TRIGGER [ IF EXISTS ] \fIname\fR ON \fItable_name\fR [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP TRIGGER\fR
+removes an existing trigger definition\&. To execute this command, the current user must be the owner of the table for which the trigger is defined\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the trigger does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of the trigger to remove\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the table for which the trigger is defined\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the trigger, and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the trigger if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Destroy the trigger
+if_dist_exists
+on the table
+films:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP TRIGGER if_dist_exists ON films;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBDROP TRIGGER\fR
+statement in
+PostgreSQL
+is incompatible with the SQL standard\&. In the SQL standard, trigger names are not local to tables, so the command is simply
+DROP TRIGGER \fIname\fR\&.
+.SH "SEE ALSO"
+CREATE TRIGGER (\fBCREATE_TRIGGER\fR(7))

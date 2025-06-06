@@ -1,0 +1,82 @@
+'\" t
+.\"     Title: SPI_register_relation
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_REGISTER_RELATION" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_register_relation \- make an ephemeral named relation available by name in SPI queries
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_register_relation(EphemeralNamedRelation \fIenr\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_register_relation\fR
+makes an ephemeral named relation, with associated information, available to queries planned and executed through the current SPI connection\&.
+.SH "ARGUMENTS"
+.PP
+EphemeralNamedRelation \fIenr\fR
+.RS 4
+the ephemeral named relation registry entry
+.RE
+.SH "RETURN VALUE"
+.PP
+If the execution of the command was successful then the following (nonnegative) value will be returned:
+.PP
+SPI_OK_REL_REGISTER
+.RS 4
+if the relation has been successfully registered by name
+.RE
+.PP
+On error, one of the following negative values is returned:
+.PP
+SPI_ERROR_ARGUMENT
+.RS 4
+if
+\fIenr\fR
+is
+NULL
+or its
+\fIname\fR
+field is
+NULL
+.RE
+.PP
+SPI_ERROR_UNCONNECTED
+.RS 4
+if called from an unconnected procedure
+.RE
+.PP
+SPI_ERROR_REL_DUPLICATE
+.RS 4
+if the name specified in the
+\fIname\fR
+field of
+\fIenr\fR
+is already registered for this connection
+.RE

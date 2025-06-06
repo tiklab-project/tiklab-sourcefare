@@ -27,10 +27,18 @@ public interface ScanRuleSetService {
     String createScanRuleSet(@NotNull @Valid ScanRuleSet scanRuleSet);
 
     /**
+     * 添加扫描规则
+     * @param sql
+     */
+    void createScanRuleSet(@NotNull String sql);
+
+    /**
     * 更新
     * @param scanRuleSet
     */
     void updateScanRuleSet(@NotNull @Valid ScanRuleSet scanRuleSet);
+
+
 
     /**
     * 删除

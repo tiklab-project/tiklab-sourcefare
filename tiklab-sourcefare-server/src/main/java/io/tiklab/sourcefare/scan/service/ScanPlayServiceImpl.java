@@ -7,15 +7,19 @@ import io.tiklab.sourcefare.scan.dao.ScanPlayDao;
 import io.tiklab.sourcefare.scan.entity.ScanPlayEntity;
 import io.tiklab.sourcefare.scan.model.ScanPlay;
 import io.tiklab.sourcefare.scan.model.ScanPlayQuery;
+import io.tiklab.sourcefare.scan.model.ScanRecord;
+import io.tiklab.sourcefare.scan.model.ScanRecordQuery;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -31,11 +35,11 @@ public class ScanPlayServiceImpl implements ScanPlayService {
     @Autowired
     JoinTemplate joinTemplate;
 
-/*    @Autowired
+    @Autowired
     ScanRecordService scanRecordService;
 
     @Autowired
-    ScanRecordInstanceService scanRecordInstanceService;*/
+    ScanRecordInstanceService scanRecordInstanceService;
 
     @Override
     public String createScanPlay(@NotNull @Valid ScanPlay openRecord) {
@@ -142,24 +146,19 @@ public class ScanPlayServiceImpl implements ScanPlayService {
         List<ScanPlay> openRecordList = BeanMapper.mapList(pagination.getDataList(), ScanPlay.class);
         joinTemplate.joinQuery(openRecordList);
 
-       /* if (CollectionUtils.isNotEmpty(openRecordList)){
+        if (CollectionUtils.isNotEmpty(openRecordList)){
             for (ScanPlay scanPlay:openRecordList){
                 List<ScanRecord> scanRecordList = scanRecordService.findScanRecordList(new ScanRecordQuery().setScanPlayId(scanPlay.getId()));
                 if (CollectionUtils.isNotEmpty(scanRecordList)){
-                    List<ScanRecord> scanRecords = scanRecordList.stream().sorted(Comparator.comparing(ScanRecord::getCreateTime).reversed()).collect(Collectors.toList());
+                    List<ScanRecord> scanRecords = scanRecordList.stream().sorted(Comparator.comparing(ScanRecord::getCreateTime).reversed()).toList();
                     ScanRecord scanRecord = scanRecords.get(0);
                     scanPlay.setScanTime(scanRecord.getCreateTime());
                     scanPlay.setScanWay(scanRecord.getScanWay());
-                    if (StringUtils.isNotEmpty(scanRecord.getScanUser().getNickname())){
-                        scanPlay.setUserName(scanRecord.getScanUser().getNickname());
-                    }else {
-                        scanPlay.setUserName(scanRecord.getScanUser().getName());
-                    }
                     scanPlay.setScanResult(scanRecord.getScanResult());scanPlay.setScanObject(scanRecord.getScanObject());
                     scanPlay.setRecordId(scanRecord.getId());
                 }
             }
-        }*/
+        }
 
         return PaginationBuilder.build(pagination,openRecordList);
     }

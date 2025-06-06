@@ -6,12 +6,16 @@ import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.condition.QueryCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.QueryBuilders;
 import io.tiklab.sourcefare.scan.entity.ScanRuleEntity;
+import io.tiklab.sourcefare.scan.model.ScanRule;
 import io.tiklab.sourcefare.scan.model.ScanRuleQuery;
+import org.apache.commons.codec.language.bm.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -32,6 +36,31 @@ public class ScanRuleDao {
      */
     public String createScanRule(ScanRuleEntity scanRuleEntity) {
         return jpaTemplate.save(scanRuleEntity,String.class);
+    }
+
+    public void addList(List<ScanRule> rules) {
+
+        String insertSQL = "INSERT INTO wair_scan_rule (id, rule_set_id, rule_name, rule_type, scan_tool, rule_overview, problem_level, create_time, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        jpaTemplate.getJdbcTemplate().batchUpdate(insertSQL, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(java.sql.PreparedStatement ps, int i) throws SQLException {
+                ScanRule scanRule = rules.get(i);
+                ps.setString(1, scanRule.getId());
+                ps.setString(2, scanRule.getRuleSetId());
+                ps.setString(3, scanRule.getRuleName());
+                ps.setString(4, scanRule.getRuleType());
+                ps.setString(5, scanRule.getScanTool());
+                ps.setString(6, scanRule.getRuleOverview());
+                ps.setInt(7, scanRule.getProblemLevel());
+                ps.setTimestamp(8, scanRule.getCreateTime());
+                ps.setString(9, scanRule.getDescription());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return rules.size();
+            }
+        });
     }
 
     /**
@@ -113,4 +142,6 @@ public class ScanRuleDao {
                  .get();
         return jpaTemplate.findPage(queryCondition, ScanRuleEntity.class);
     }
+
+
 }

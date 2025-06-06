@@ -1,0 +1,151 @@
+'\" t
+.\"     Title: vacuumlo
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "VACUUMLO" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+vacuumlo \- remove orphaned large objects from a PostgreSQL database
+.SH "SYNOPSIS"
+.HP \w'\fBvacuumlo\fR\ 'u
+\fBvacuumlo\fR [\fIoption\fR...] \fIdbname\fR...
+.SH "DESCRIPTION"
+.PP
+vacuumlo
+is a simple utility program that will remove any
+\(lqorphaned\(rq
+large objects from a
+PostgreSQL
+database\&. An orphaned large object (LO) is considered to be any LO whose OID does not appear in any
+oid
+or
+lo
+data column of the database\&.
+.PP
+If you use this, you may also be interested in the
+\fBlo_manage\fR
+trigger in the
+lo
+module\&.
+\fBlo_manage\fR
+is useful to try to avoid creating orphaned LOs in the first place\&.
+.PP
+All databases named on the command line are processed\&.
+.SH "OPTIONS"
+.PP
+vacuumlo
+accepts the following command\-line arguments:
+.PP
+\fB\-l\fR \fIlimit\fR
+.RS 4
+Remove no more than
+\fIlimit\fR
+large objects per transaction (default 1000)\&. Since the server acquires a lock per LO removed, removing too many LOs in one transaction risks exceeding
+max_locks_per_transaction\&. Set the limit to zero if you want all removals done in a single transaction\&.
+.RE
+.PP
+\fB\-n\fR
+.RS 4
+Don\*(Aqt remove anything, just show what would be done\&.
+.RE
+.PP
+\fB\-v\fR
+.RS 4
+Write a lot of progress messages\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+vacuumlo
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+vacuumlo
+command line arguments, and exit\&.
+.RE
+.PP
+vacuumlo
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h\fR \fIhostname\fR
+.RS 4
+Database server\*(Aqs host\&.
+.RE
+.PP
+\fB\-p\fR \fIport\fR
+.RS 4
+Database server\*(Aqs port\&.
+.RE
+.PP
+\fB\-U\fR \fIusername\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.RS 4
+Force
+vacuumlo
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+vacuumlo
+will automatically prompt for a password if the server demands password authentication\&. However,
+vacuumlo
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.SH "NOTES"
+.PP
+vacuumlo
+works by the following method: First,
+vacuumlo
+builds a temporary table which contains all of the OIDs of the large objects in the selected database\&. It then scans through all columns in the database that are of type
+oid
+or
+lo, and removes matching entries from the temporary table\&. (Note: Only types with these names are considered; in particular, domains over them are not considered\&.) The remaining entries in the temporary table identify orphaned LOs\&. These are removed\&.
+.SH "AUTHOR"
+.PP
+Peter Mount
+<peter@retep\&.org\&.uk>

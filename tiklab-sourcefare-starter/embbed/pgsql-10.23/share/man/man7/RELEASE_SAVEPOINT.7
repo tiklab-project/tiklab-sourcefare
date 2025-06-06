@@ -1,0 +1,90 @@
+'\" t
+.\"     Title: RELEASE SAVEPOINT
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "RELEASE SAVEPOINT" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+RELEASE_SAVEPOINT \- destroy a previously defined savepoint
+.SH "SYNOPSIS"
+.sp
+.nf
+RELEASE [ SAVEPOINT ] \fIsavepoint_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBRELEASE SAVEPOINT\fR
+destroys a savepoint previously defined in the current transaction\&.
+.PP
+Destroying a savepoint makes it unavailable as a rollback point, but it has no other user visible behavior\&. It does not undo the effects of commands executed after the savepoint was established\&. (To do that, see
+ROLLBACK TO SAVEPOINT (\fBROLLBACK_TO_SAVEPOINT\fR(7))\&.) Destroying a savepoint when it is no longer needed allows the system to reclaim some resources earlier than transaction end\&.
+.PP
+\fBRELEASE SAVEPOINT\fR
+also destroys all savepoints that were established after the named savepoint was established\&.
+.SH "PARAMETERS"
+.PP
+\fIsavepoint_name\fR
+.RS 4
+The name of the savepoint to destroy\&.
+.RE
+.SH "NOTES"
+.PP
+Specifying a savepoint name that was not previously defined is an error\&.
+.PP
+It is not possible to release a savepoint when the transaction is in an aborted state\&.
+.PP
+If multiple savepoints have the same name, only the most recently defined unreleased one is released\&. Repeated commands will release progressively older savepoints\&.
+.SH "EXAMPLES"
+.PP
+To establish and later destroy a savepoint:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+BEGIN;
+    INSERT INTO table1 VALUES (3);
+    SAVEPOINT my_savepoint;
+    INSERT INTO table1 VALUES (4);
+    RELEASE SAVEPOINT my_savepoint;
+COMMIT;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The above transaction will insert both 3 and 4\&.
+.SH "COMPATIBILITY"
+.PP
+This command conforms to the
+SQL
+standard\&. The standard specifies that the key word
+SAVEPOINT
+is mandatory, but
+PostgreSQL
+allows it to be omitted\&.
+.SH "SEE ALSO"
+\fBBEGIN\fR(7), \fBCOMMIT\fR(7), \fBROLLBACK\fR(7), ROLLBACK TO SAVEPOINT (\fBROLLBACK_TO_SAVEPOINT\fR(7)), \fBSAVEPOINT\fR(7)

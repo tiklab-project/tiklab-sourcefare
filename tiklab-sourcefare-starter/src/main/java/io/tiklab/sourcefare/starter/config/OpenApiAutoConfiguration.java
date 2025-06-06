@@ -1,10 +1,8 @@
 package io.tiklab.sourcefare.starter.config;
 
-import io.tiklab.openapi.router.Router;
-import io.tiklab.openapi.router.RouterBuilder;
-import io.tiklab.openapi.router.config.RouterConfig;
-import io.tiklab.openapi.router.config.RouterConfigBuilder;
-import org.springframework.beans.factory.annotation.Qualifier;
+import io.tiklab.openapi.config.AllowConfig;
+import io.tiklab.openapi.config.AllowConfigBuilder;
+import io.tiklab.openapi.config.OpenApiConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,21 +16,23 @@ public class OpenApiAutoConfiguration {
     Boolean enableEam;
 
     //路由
-    @Bean("routerForOpenApi")
-    Router router(@Qualifier("routerConfigForOpenApi") RouterConfig routerConfig){
-        return RouterBuilder.newRouter(routerConfig);
-    }
+    @Bean
+    OpenApiConfig openApiConfig(AllowConfig allowConfig){
+        OpenApiConfig openApiConfig = new OpenApiConfig();
+        openApiConfig.setAllowConfig(allowConfig);
 
+        return openApiConfig;
+    }
     //路由配置
-    @Bean("routerConfigForOpenApi")
-    RouterConfig routerConfig(){
+    @Bean
+    AllowConfig allowConfig(){
         String[] s =  new String[]{};
 
         if (enableEam){
             s = new String[]{};
         }
-        return RouterConfigBuilder.instance()
-                .preRoute(s, authAddress)
+        return AllowConfigBuilder.instance()
+                .allowUrls(s)
                 .get();
     }
 }

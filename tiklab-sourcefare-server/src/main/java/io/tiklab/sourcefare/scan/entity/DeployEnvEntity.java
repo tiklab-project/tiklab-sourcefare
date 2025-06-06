@@ -5,7 +5,7 @@ import io.tiklab.dal.jpa.annotation.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name="scan_deploy_env")
+@Table(name="wair_deploy_env")
 public class DeployEnvEntity {
 
 

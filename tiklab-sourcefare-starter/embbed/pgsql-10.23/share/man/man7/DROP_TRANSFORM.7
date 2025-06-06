@@ -1,0 +1,96 @@
+'\" t
+.\"     Title: DROP TRANSFORM
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP TRANSFORM" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_TRANSFORM \- remove a transform
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP TRANSFORM [ IF EXISTS ] FOR \fItype_name\fR LANGUAGE \fIlang_name\fR [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP TRANSFORM\fR
+removes a previously defined transform\&.
+.PP
+To be able to drop a transform, you must own the type and the language\&. These are the same privileges that are required to create a transform\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the transform does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fItype_name\fR
+.RS 4
+The name of the data type of the transform\&.
+.RE
+.PP
+\fIlang_name\fR
+.RS 4
+The name of the language of the transform\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the transform, and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the transform if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To drop the transform for type
+hstore
+and language
+plpythonu:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP TRANSFORM FOR hstore LANGUAGE plpythonu;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+This form of
+\fBDROP TRANSFORM\fR
+is a
+PostgreSQL
+extension\&. See
+CREATE TRANSFORM (\fBCREATE_TRANSFORM\fR(7))
+for details\&.
+.SH "SEE ALSO"
+CREATE TRANSFORM (\fBCREATE_TRANSFORM\fR(7))

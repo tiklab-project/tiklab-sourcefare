@@ -1,0 +1,113 @@
+'\" t
+.\"     Title: SET SESSION AUTHORIZATION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SET SESSION AUTHORIZATION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SET_SESSION_AUTHORIZATION \- set the session user identifier and the current user identifier of the current session
+.SH "SYNOPSIS"
+.sp
+.nf
+SET [ SESSION | LOCAL ] SESSION AUTHORIZATION \fIuser_name\fR
+SET [ SESSION | LOCAL ] SESSION AUTHORIZATION DEFAULT
+RESET SESSION AUTHORIZATION
+.fi
+.SH "DESCRIPTION"
+.PP
+This command sets the session user identifier and the current user identifier of the current SQL session to be
+\fIuser_name\fR\&. The user name can be written as either an identifier or a string literal\&. Using this command, it is possible, for example, to temporarily become an unprivileged user and later switch back to being a superuser\&.
+.PP
+The session user identifier is initially set to be the (possibly authenticated) user name provided by the client\&. The current user identifier is normally equal to the session user identifier, but might change temporarily in the context of
+SECURITY DEFINER
+functions and similar mechanisms; it can also be changed by
+SET ROLE (\fBSET_ROLE\fR(7))\&. The current user identifier is relevant for permission checking\&.
+.PP
+The session user identifier can be changed only if the initial session user (the
+authenticated user) had the superuser privilege\&. Otherwise, the command is accepted only if it specifies the authenticated user name\&.
+.PP
+The
+SESSION
+and
+LOCAL
+modifiers act the same as for the regular
+\fBSET\fR(7)
+command\&.
+.PP
+The
+DEFAULT
+and
+RESET
+forms reset the session and current user identifiers to be the originally authenticated user name\&. These forms can be executed by any user\&.
+.SH "NOTES"
+.PP
+\fBSET SESSION AUTHORIZATION\fR
+cannot be used within a
+SECURITY DEFINER
+function\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ peter        | peter
+
+SET SESSION AUTHORIZATION \*(Aqpaul\*(Aq;
+
+SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ paul         | paul
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The SQL standard allows some other expressions to appear in place of the literal
+\fIuser_name\fR, but these options are not important in practice\&.
+PostgreSQL
+allows identifier syntax ("\fIusername\fR"), which SQL does not\&. SQL does not allow this command during a transaction;
+PostgreSQL
+does not make this restriction because there is no reason to\&. The
+SESSION
+and
+LOCAL
+modifiers are a
+PostgreSQL
+extension, as is the
+RESET
+syntax\&.
+.PP
+The privileges necessary to execute this command are left implementation\-defined by the standard\&.
+.SH "SEE ALSO"
+SET ROLE (\fBSET_ROLE\fR(7))

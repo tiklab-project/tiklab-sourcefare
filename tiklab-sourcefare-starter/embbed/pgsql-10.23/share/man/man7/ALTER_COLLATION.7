@@ -1,0 +1,154 @@
+'\" t
+.\"     Title: ALTER COLLATION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER COLLATION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_COLLATION \- change the definition of a collation
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER COLLATION \fIname\fR REFRESH VERSION
+
+ALTER COLLATION \fIname\fR RENAME TO \fInew_name\fR
+ALTER COLLATION \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER COLLATION \fIname\fR SET SCHEMA \fInew_schema\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER COLLATION\fR
+changes the definition of a collation\&.
+.PP
+You must own the collation to use
+\fBALTER COLLATION\fR\&. To alter the owner, you must also be a direct or indirect member of the new owning role, and that role must have
+CREATE
+privilege on the collation\*(Aqs schema\&. (These restrictions enforce that altering the owner doesn\*(Aqt do anything you couldn\*(Aqt do by dropping and recreating the collation\&. However, a superuser can alter ownership of any collation anyway\&.)
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing collation\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the collation\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the collation\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the collation\&.
+.RE
+.PP
+REFRESH VERSION
+.RS 4
+Update the collation\*(Aqs version\&. See
+NOTES
+below\&.
+.RE
+.SH "NOTES"
+.PP
+When using collations provided by the ICU library, the ICU\-specific version of the collator is recorded in the system catalog when the collation object is created\&. When the collation is used, the current version is checked against the recorded version, and a warning is issued when there is a mismatch, for example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+WARNING:  collation "xx\-x\-icu" has version mismatch
+DETAIL:  The collation in the database was created using version 1\&.2\&.3\&.4, but the operating system provides version 2\&.3\&.4\&.5\&.
+HINT:  Rebuild all objects affected by this collation and run ALTER COLLATION pg_catalog\&."xx\-x\-icu" REFRESH VERSION, or build PostgreSQL with the right library version\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+A change in collation definitions can lead to corrupt indexes and other problems because the database system relies on stored objects having a certain sort order\&. Generally, this should be avoided, but it can happen in legitimate circumstances, such as when using
+\fBpg_upgrade\fR
+to upgrade to server binaries linked with a newer version of ICU\&. When this happens, all objects depending on the collation should be rebuilt, for example, using
+\fBREINDEX\fR\&. When that is done, the collation version can be refreshed using the command
+ALTER COLLATION \&.\&.\&. REFRESH VERSION\&. This will update the system catalog to record the current collator version and will make the warning go away\&. Note that this does not actually check whether all affected objects have been rebuilt correctly\&.
+.PP
+The following query can be used to identify all collations in the current database that need to be refreshed and the objects that depend on them:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT pg_describe_object(refclassid, refobjid, refobjsubid) AS "Collation",
+       pg_describe_object(classid, objid, objsubid) AS "Object"
+  FROM pg_depend d JOIN pg_collation c
+       ON refclassid = \*(Aqpg_collation\*(Aq::regclass AND refobjid = c\&.oid
+  WHERE c\&.collversion <> pg_collation_actual_version(c\&.oid)
+  ORDER BY 1, 2;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "EXAMPLES"
+.PP
+To rename the collation
+de_DE
+to
+german:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER COLLATION "de_DE" RENAME TO german;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change the owner of the collation
+en_US
+to
+joe:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER COLLATION "en_US" OWNER TO joe;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER COLLATION\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE COLLATION (\fBCREATE_COLLATION\fR(7)), DROP COLLATION (\fBDROP_COLLATION\fR(7))

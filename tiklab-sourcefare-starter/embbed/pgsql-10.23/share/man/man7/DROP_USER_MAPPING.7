@@ -1,0 +1,92 @@
+'\" t
+.\"     Title: DROP USER MAPPING
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP USER MAPPING" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_USER_MAPPING \- remove a user mapping for a foreign server
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP USER MAPPING [ IF EXISTS ] FOR { \fIuser_name\fR | USER | CURRENT_USER | PUBLIC } SERVER \fIserver_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP USER MAPPING\fR
+removes an existing user mapping from foreign server\&.
+.PP
+The owner of a foreign server can drop user mappings for that server for any user\&. Also, a user can drop a user mapping for their own user name if
+USAGE
+privilege on the server has been granted to the user\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the user mapping does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIuser_name\fR
+.RS 4
+User name of the mapping\&.
+CURRENT_USER
+and
+USER
+match the name of the current user\&.
+PUBLIC
+is used to match all present and future user names in the system\&.
+.RE
+.PP
+\fIserver_name\fR
+.RS 4
+Server name of the user mapping\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Drop a user mapping
+bob, server
+foo
+if it exists:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP USER MAPPING IF EXISTS FOR bob SERVER foo;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBDROP USER MAPPING\fR
+conforms to ISO/IEC 9075\-9 (SQL/MED)\&. The
+IF EXISTS
+clause is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE USER MAPPING (\fBCREATE_USER_MAPPING\fR(7)), ALTER USER MAPPING (\fBALTER_USER_MAPPING\fR(7))

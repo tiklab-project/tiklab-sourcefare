@@ -1,0 +1,105 @@
+'\" t
+.\"     Title: DROP OPERATOR CLASS
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP OPERATOR CLASS" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_OPERATOR_CLASS \- remove an operator class
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP OPERATOR CLASS [ IF EXISTS ] \fIname\fR USING \fIindex_method\fR [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP OPERATOR CLASS\fR
+drops an existing operator class\&. To execute this command you must be the owner of the operator class\&.
+.PP
+\fBDROP OPERATOR CLASS\fR
+does not drop any of the operators or functions referenced by the class\&. If there are any indexes depending on the operator class, you will need to specify
+CASCADE
+for the drop to complete\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the operator class does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing operator class\&.
+.RE
+.PP
+\fIindex_method\fR
+.RS 4
+The name of the index access method the operator class is for\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the operator class (such as indexes), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the operator class if any objects depend on it\&. This is the default\&.
+.RE
+.SH "NOTES"
+.PP
+\fBDROP OPERATOR CLASS\fR
+will not drop the operator family containing the class, even if there is nothing else left in the family (in particular, in the case where the family was implicitly created by
+\fBCREATE OPERATOR CLASS\fR)\&. An empty operator family is harmless, but for the sake of tidiness you might wish to remove the family with
+\fBDROP OPERATOR FAMILY\fR; or perhaps better, use
+\fBDROP OPERATOR FAMILY\fR
+in the first place\&.
+.SH "EXAMPLES"
+.PP
+Remove the B\-tree operator class
+widget_ops:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP OPERATOR CLASS widget_ops USING btree;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This command will not succeed if there are any existing indexes that use the operator class\&. Add
+CASCADE
+to drop such indexes along with the operator class\&.
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBDROP OPERATOR CLASS\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER OPERATOR CLASS (\fBALTER_OPERATOR_CLASS\fR(7)), CREATE OPERATOR CLASS (\fBCREATE_OPERATOR_CLASS\fR(7)), DROP OPERATOR FAMILY (\fBDROP_OPERATOR_FAMILY\fR(7))

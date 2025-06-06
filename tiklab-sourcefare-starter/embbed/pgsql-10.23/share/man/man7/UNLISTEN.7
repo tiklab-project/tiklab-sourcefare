@@ -1,0 +1,117 @@
+'\" t
+.\"     Title: UNLISTEN
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "UNLISTEN" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+UNLISTEN \- stop listening for a notification
+.SH "SYNOPSIS"
+.sp
+.nf
+UNLISTEN { \fIchannel\fR | * }
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBUNLISTEN\fR
+is used to remove an existing registration for
+\fBNOTIFY\fR
+events\&.
+\fBUNLISTEN\fR
+cancels any existing registration of the current
+PostgreSQL
+session as a listener on the notification channel named
+\fIchannel\fR\&. The special wildcard
+*
+cancels all listener registrations for the current session\&.
+.PP
+\fBNOTIFY\fR(7)
+contains a more extensive discussion of the use of
+\fBLISTEN\fR
+and
+\fBNOTIFY\fR\&.
+.SH "PARAMETERS"
+.PP
+\fIchannel\fR
+.RS 4
+Name of a notification channel (any identifier)\&.
+.RE
+.PP
+*
+.RS 4
+All current listen registrations for this session are cleared\&.
+.RE
+.SH "NOTES"
+.PP
+You can unlisten something you were not listening for; no warning or error will appear\&.
+.PP
+At the end of each session,
+\fBUNLISTEN *\fR
+is automatically executed\&.
+.PP
+A transaction that has executed
+\fBUNLISTEN\fR
+cannot be prepared for two\-phase commit\&.
+.SH "EXAMPLES"
+.PP
+To make a registration:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+LISTEN virtual;
+NOTIFY virtual;
+Asynchronous notification "virtual" received from server process with PID 8448\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Once
+\fBUNLISTEN\fR
+has been executed, further
+\fBNOTIFY\fR
+messages will be ignored:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+UNLISTEN virtual;
+NOTIFY virtual;
+\-\- no NOTIFY event is received
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBUNLISTEN\fR
+command in the SQL standard\&.
+.SH "SEE ALSO"
+\fBLISTEN\fR(7), \fBNOTIFY\fR(7)

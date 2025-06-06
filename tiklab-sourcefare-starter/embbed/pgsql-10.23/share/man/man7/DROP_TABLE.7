@@ -1,0 +1,96 @@
+'\" t
+.\"     Title: DROP TABLE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP TABLE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_TABLE \- remove a table
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP TABLE [ IF EXISTS ] \fIname\fR [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP TABLE\fR
+removes tables from the database\&. Only the table owner, the schema owner, and superuser can drop a table\&. To empty a table of rows without destroying the table, use
+\fBDELETE\fR(7)
+or
+\fBTRUNCATE\fR(7)\&.
+.PP
+\fBDROP TABLE\fR
+always removes any indexes, rules, triggers, and constraints that exist for the target table\&. However, to drop a table that is referenced by a view or a foreign\-key constraint of another table,
+CASCADE
+must be specified\&. (CASCADE
+will remove a dependent view entirely, but in the foreign\-key case it will only remove the foreign\-key constraint, not the other table entirely\&.)
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the table does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of the table to drop\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the table (such as views), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the table if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To destroy two tables,
+films
+and
+distributors:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP TABLE films, distributors;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+This command conforms to the SQL standard, except that the standard only allows one table to be dropped per command, and apart from the
+IF EXISTS
+option, which is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+ALTER TABLE (\fBALTER_TABLE\fR(7)), CREATE TABLE (\fBCREATE_TABLE\fR(7))

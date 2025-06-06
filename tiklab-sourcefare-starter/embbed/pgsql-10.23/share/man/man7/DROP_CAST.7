@@ -1,0 +1,88 @@
+'\" t
+.\"     Title: DROP CAST
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP CAST" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_CAST \- remove a cast
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP CAST [ IF EXISTS ] (\fIsource_type\fR AS \fItarget_type\fR) [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP CAST\fR
+removes a previously defined cast\&.
+.PP
+To be able to drop a cast, you must own the source or the target data type\&. These are the same privileges that are required to create a cast\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the cast does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIsource_type\fR
+.RS 4
+The name of the source data type of the cast\&.
+.RE
+.PP
+\fItarget_type\fR
+.RS 4
+The name of the target data type of the cast\&.
+.RE
+.PP
+CASCADE
+.br
+RESTRICT
+.RS 4
+These key words do not have any effect, since there are no dependencies on casts\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To drop the cast from type
+text
+to type
+int:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP CAST (text AS int);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBDROP CAST\fR
+command conforms to the SQL standard\&.
+.SH "SEE ALSO"
+CREATE CAST (\fBCREATE_CAST\fR(7))

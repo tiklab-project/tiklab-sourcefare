@@ -4,8 +4,7 @@ import io.tiklab.core.exception.ApplicationException;
 import io.tiklab.core.exception.SystemException;
 import io.tiklab.sourcefare.common.GitUntil;
 import io.tiklab.sourcefare.common.SourceFareUtil;
-import io.tiklab.sourcefare.common.SourceWairFinal;
-import io.tiklab.sourcefare.scan.common.ScanMapUtil;
+import io.tiklab.sourcefare.common.SourceWairServerFinal;
 import io.tiklab.sourcefare.scan.model.*;
 
 import io.tiklab.sourcefare.project.service.PathSetService;
@@ -15,7 +14,6 @@ import io.tiklab.sourcefare.scanner.model.ScanResult;
 import io.tiklab.sourcefare.scanner.scan.CodeScanGo;
 import io.tiklab.sourcefare.scanner.scan.CodeScanJava;
 import io.tiklab.sourcefare.scanner.scan.CodeScanJavaScript;
-import io.tiklab.sourcefare.scanner.scan.ScanExecute;
 import io.tiklab.toolkit.join.JoinTemplate;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -28,6 +26,7 @@ import org.springframework.util.ObjectUtils;
 import java.io.File;
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CodeScanServiceImpl implements CodeScanService {
@@ -96,7 +95,7 @@ public class CodeScanServiceImpl implements CodeScanService {
             List<ScanSchemeRuleSet> schemeRuleList = scanSchemeRuleSetService.findScanSchemeRuleSetList(new ScanSchemeRuleSetQuery().setScanSchemeId(scanScheme.getId()));
             if (CollectionUtils.isEmpty(schemeRuleList)){
                 ScanCommon.joinScanLog(scanPlayId,"关联的方案中没有添加规则");
-                throw new SystemException(SourceWairFinal.NOT_FOUNT_EXCEPTION,"关联的方案中没有添加规则");
+                throw new SystemException(SourceWairServerFinal.NOT_FOUNT_EXCEPTION,"关联的方案中没有添加规则");
             }
 
             //开始构建项目
@@ -108,6 +107,7 @@ public class CodeScanServiceImpl implements CodeScanService {
             try {
                 //clone代码
                 String clonePath = cloneCode(scanPlay);
+
 
                 String lowerCase = scanScheme.getLanguage().toLowerCase();
                 if (("java").equals(lowerCase)){
@@ -125,6 +125,8 @@ public class CodeScanServiceImpl implements CodeScanService {
 
                         //执行扫描
                         ScanResult  scanResult =  CodeScanJava.instance().serverScan(scanPlayId, clonePath);
+                        scanResult.setLanguage("java");
+                        scanResult.setCodeName(scanPlay.getRepositoryName());
                         //扫描完成后添加数据
                         scanCompleteAddData(scanResult,scanRecord,scanScheme.getId());
 
@@ -141,11 +143,12 @@ public class CodeScanServiceImpl implements CodeScanService {
                         //即没有关联的node也没有全局的node
                         ScanCommon.joinScanLog(scanPlayId, "Node.js未正确安装");
                         CodeScanCommon.updateFailScanRecord(scanRecordService,scanRecord);
-                        throw new ApplicationException("Node.js未正确安装");
+                        throw new ApplicationException("没有配置Node.js地址，也没有全局的Node.js环境");
                     }
                    //执行扫描
                     ScanResult scanResult = CodeScanJavaScript.instance().serverScan(scanPlayId, clonePath, deployEnv.getEnvAddress());
-
+                    scanResult.setLanguage("javascript");
+                    scanResult.setCodeName(scanPlay.getRepositoryName());
                     //扫描完成后添加数据
                     scanCompleteAddData(scanResult,scanRecord,scanScheme.getId());
                 }
@@ -154,6 +157,8 @@ public class CodeScanServiceImpl implements CodeScanService {
                 //go 语言扫描
                 if (("go").equals(lowerCase)){
                     ScanResult  scanResult = CodeScanGo.instance().serverScan(scanPlayId, clonePath);
+                    scanResult.setLanguage("go");
+                    scanResult.setCodeName(scanPlay.getRepositoryName());
                     //扫描完成后添加数据
                     scanCompleteAddData(scanResult,scanRecord,scanScheme.getId());
                 }
@@ -188,7 +193,7 @@ public class CodeScanServiceImpl implements CodeScanService {
 
                 //查询扫描方案关联的扫描规则
                 List<ScanSchemeRule> schemeRuleList = schemeRuleService.findScanSchemeRuleList(new ScanSchemeRuleQuery().setScanSchemeId(scanSchemeId));
-                List<ScanSchemeRule> scanSchemeRules = schemeRuleList.stream().filter(a -> a.getIsDisable() == 0).toList();
+                List<ScanSchemeRule> scanSchemeRules = schemeRuleList.stream().filter(a -> a.getIsDisable() == 0).collect(Collectors.toList());
 
                 //创建扫描结果文件
                 CodeScanCommon.createRecordInstance(scanSchemeRules,recordInstanceService,scanRecord,scanResult);
@@ -203,23 +208,7 @@ public class CodeScanServiceImpl implements CodeScanService {
 
 
 
-    @Override
-    public ScanRecord findScanState(String scanPlayId, String scanWay) {
-        java.sql.Date date = ScanMapUtil.getExecStarTime(scanPlayId);
-        String time=null;
-        if (!ObjectUtils.isEmpty(date)){
-            //计算扫描耗时
-             time = SourceFareUtil.time(date,"scan");
-        }
 
-        ScanRecord scanRecord = ScanMapUtil.getExecRecord(scanPlayId);
-        if (org.apache.commons.lang3.ObjectUtils.isNotEmpty(scanRecord)){
-            scanRecord.setScanTime(time);
-            scanRecord.setExecLog(ScanMapUtil.getScanLog(scanPlayId));
-        }
-
-        return   scanRecord;
-    }
 
 
 
@@ -228,24 +217,41 @@ public class CodeScanServiceImpl implements CodeScanService {
      * @param  scanPlay scanPlay
      */
     public String cloneCode(ScanPlay scanPlay)  {
-        try {
-            ScanCommon.joinScanLog(scanPlay.getId(),"执行代码clone");
-            //本地存储地址
-            String codePath = pathSetService.codePath() + "/" + scanPlay.getRepositoryName();
-            logger.info("SpotBugs扫描->git clone");
-            File file = new File(codePath);
-            if (file.exists()) {
-                FileUtils.deleteDirectory(new File(codePath));
+
+        String backupsPath = pathSetService.codePath() + "/" + scanPlay.getRepositoryName();
+
+        ScanCommon.joinScanLog(scanPlay.getId(),"执行代码clone");
+        //本地存储地址
+        String codePath = pathSetService.codePath() + "/" + scanPlay.getId();
+        logger.info("SpotBugs扫描->git clone");
+        File file = new File(codePath);
+        if (file.exists()) {
+            //界面中需要定位到错误在代码文件中具体的位置，防止删除后没有拉取到最新代码
+            boolean dirName = SourceFareUtil.updateDirName(codePath, backupsPath, 1);
+            if (!dirName){
+                logger.info("修改代码文件名失败");
+                ScanCommon.joinScanLog(scanPlay.getId(),"代码获取失败");
+                throw new RuntimeException("修改代码文件名失败");
             }
+            // FileUtils.deleteDirectory(new File(codePath));
+        }
+
         //克隆裸仓库中
-         GitUntil.cloneRepository(scanPlay.getRepositoryServer(),scanPlay.getRepositoryAddress(), scanPlay.getBranch(),codePath);
-         ScanCommon.joinScanLog(scanPlay.getId(),"拉取代码"+scanPlay.getRepositoryAddress()+"成功，开始执行编译");
-         return codePath;
+        try {
+             GitUntil.cloneRepository(scanPlay.getRepositoryServer(),scanPlay.getRepositoryAddress(), scanPlay.getBranch(),codePath);
+             ScanCommon.joinScanLog(scanPlay.getId(),"拉取代码"+scanPlay.getRepositoryAddress()+"成功，开始执行编译");
+
+             //拉取成功删除备份的数据
+             FileUtils.deleteDirectory(new File(backupsPath));
+             return codePath;
         } catch (Exception e) {
+            //拉取失败将原本的代码文件名恢复
+           SourceFareUtil.updateDirName(backupsPath,codePath , 1);
             ScanCommon.joinScanLog(scanPlay.getId(),"代码拉取失败:"+e.getMessage());
             throw new RuntimeException(e);
         }
     }
+
 
 
 }

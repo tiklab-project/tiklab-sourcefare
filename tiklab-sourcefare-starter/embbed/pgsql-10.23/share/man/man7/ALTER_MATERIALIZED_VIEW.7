@@ -1,0 +1,142 @@
+'\" t
+.\"     Title: ALTER MATERIALIZED VIEW
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER MATERIALIZED VIEW" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_MATERIALIZED_VIEW \- change the definition of a materialized view
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER MATERIALIZED VIEW [ IF EXISTS ] \fIname\fR
+    \fIaction\fR [, \&.\&.\&. ]
+ALTER MATERIALIZED VIEW \fIname\fR
+    DEPENDS ON EXTENSION \fIextension_name\fR
+ALTER MATERIALIZED VIEW [ IF EXISTS ] \fIname\fR
+    RENAME [ COLUMN ] \fIcolumn_name\fR TO \fInew_column_name\fR
+ALTER MATERIALIZED VIEW [ IF EXISTS ] \fIname\fR
+    RENAME TO \fInew_name\fR
+ALTER MATERIALIZED VIEW [ IF EXISTS ] \fIname\fR
+    SET SCHEMA \fInew_schema\fR
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE \fIname\fR [ OWNED BY \fIrole_name\fR [, \&.\&.\&. ] ]
+    SET TABLESPACE \fInew_tablespace\fR [ NOWAIT ]
+
+where \fIaction\fR is one of:
+
+    ALTER [ COLUMN ] \fIcolumn_name\fR SET STATISTICS \fIinteger\fR
+    ALTER [ COLUMN ] \fIcolumn_name\fR SET ( \fIattribute_option\fR = \fIvalue\fR [, \&.\&.\&. ] )
+    ALTER [ COLUMN ] \fIcolumn_name\fR RESET ( \fIattribute_option\fR [, \&.\&.\&. ] )
+    ALTER [ COLUMN ] \fIcolumn_name\fR SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+    CLUSTER ON \fIindex_name\fR
+    SET WITHOUT CLUSTER
+    SET TABLESPACE \fInew_tablespace\fR
+    SET ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+    RESET ( \fIstorage_parameter\fR [, \&.\&.\&. ] )
+    OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER MATERIALIZED VIEW\fR
+changes various auxiliary properties of an existing materialized view\&.
+.PP
+You must own the materialized view to use
+\fBALTER MATERIALIZED VIEW\fR\&. To change a materialized view\*(Aqs schema, you must also have
+CREATE
+privilege on the new schema\&. To alter the owner, you must also be a direct or indirect member of the new owning role, and that role must have
+CREATE
+privilege on the materialized view\*(Aqs schema\&. (These restrictions enforce that altering the owner doesn\*(Aqt do anything you couldn\*(Aqt do by dropping and recreating the materialized view\&. However, a superuser can alter ownership of any view anyway\&.)
+.PP
+The
+DEPENDS ON EXTENSION
+form marks the materialized view as dependent on an extension, such that the materialized view will automatically be dropped if the extension is dropped\&.
+.PP
+The statement subforms and actions available for
+\fBALTER MATERIALIZED VIEW\fR
+are a subset of those available for
+\fBALTER TABLE\fR, and have the same meaning when used for materialized views\&. See the descriptions for
+ALTER TABLE (\fBALTER_TABLE\fR(7))
+for details\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing materialized view\&.
+.RE
+.PP
+\fIcolumn_name\fR
+.RS 4
+Name of a new or existing column\&.
+.RE
+.PP
+\fIextension_name\fR
+.RS 4
+The name of the extension that the materialized view is to depend on\&.
+.RE
+.PP
+\fInew_column_name\fR
+.RS 4
+New name for an existing column\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the materialized view\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the materialized view\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the materialized view\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To rename the materialized view
+foo
+to
+bar:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER MATERIALIZED VIEW foo RENAME TO bar;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER MATERIALIZED VIEW\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE MATERIALIZED VIEW (\fBCREATE_MATERIALIZED_VIEW\fR(7)), DROP MATERIALIZED VIEW (\fBDROP_MATERIALIZED_VIEW\fR(7)), REFRESH MATERIALIZED VIEW (\fBREFRESH_MATERIALIZED_VIEW\fR(7))

@@ -49,6 +49,11 @@ public class ScanRuleSetServiceImpl implements ScanRuleSetService {
     }
 
     @Override
+    public void createScanRuleSet(String sql) {
+        scanRuleSetDao.execSql(sql);
+    }
+
+    @Override
     public void updateScanRuleSet(@NotNull @Valid ScanRuleSet openRecord) {
         ScanRuleSetEntity openRecordEntity = BeanMapper.map(openRecord, ScanRuleSetEntity.class);
 

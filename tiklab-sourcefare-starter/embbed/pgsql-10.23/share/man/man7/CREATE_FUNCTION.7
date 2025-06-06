@@ -1,0 +1,640 @@
+'\" t
+.\"     Title: CREATE FUNCTION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE FUNCTION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_FUNCTION \- define a new function
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE [ OR REPLACE ] FUNCTION
+    \fIname\fR ( [ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ { DEFAULT | = } \fIdefault_expr\fR ] [, \&.\&.\&.] ] )
+    [ RETURNS \fIrettype\fR
+      | RETURNS TABLE ( \fIcolumn_name\fR \fIcolumn_type\fR [, \&.\&.\&.] ) ]
+  { LANGUAGE \fIlang_name\fR
+    | TRANSFORM { FOR TYPE \fItype_name\fR } [, \&.\&.\&. ]
+    | WINDOW
+    | { IMMUTABLE | STABLE | VOLATILE }
+    | [ NOT ] LEAKPROOF
+    | { CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT }
+    | { [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER }
+    | PARALLEL { UNSAFE | RESTRICTED | SAFE }
+    | COST \fIexecution_cost\fR
+    | ROWS \fIresult_rows\fR
+    | SET \fIconfiguration_parameter\fR { TO \fIvalue\fR | = \fIvalue\fR | FROM CURRENT }
+    | AS \*(Aq\fIdefinition\fR\*(Aq
+    | AS \*(Aq\fIobj_file\fR\*(Aq, \*(Aq\fIlink_symbol\fR\*(Aq
+  } \&.\&.\&.
+    [ WITH ( \fIattribute\fR [, \&.\&.\&.] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE FUNCTION\fR
+defines a new function\&.
+\fBCREATE OR REPLACE FUNCTION\fR
+will either create a new function, or replace an existing definition\&. To be able to define a function, the user must have the
+USAGE
+privilege on the language\&.
+.PP
+If a schema name is included, then the function is created in the specified schema\&. Otherwise it is created in the current schema\&. The name of the new function must not match any existing function with the same input argument types in the same schema\&. However, functions of different argument types can share a name (this is called
+overloading)\&.
+.PP
+To replace the current definition of an existing function, use
+\fBCREATE OR REPLACE FUNCTION\fR\&. It is not possible to change the name or argument types of a function this way (if you tried, you would actually be creating a new, distinct function)\&. Also,
+\fBCREATE OR REPLACE FUNCTION\fR
+will not let you change the return type of an existing function\&. To do that, you must drop and recreate the function\&. (When using
+OUT
+parameters, that means you cannot change the types of any
+OUT
+parameters except by dropping the function\&.)
+.PP
+When
+\fBCREATE OR REPLACE FUNCTION\fR
+is used to replace an existing function, the ownership and permissions of the function do not change\&. All other function properties are assigned the values specified or implied in the command\&. You must own the function to replace it (this includes being a member of the owning role)\&.
+.PP
+If you drop and then recreate a function, the new function is not the same entity as the old; you will have to drop existing rules, views, triggers, etc\&. that refer to the old function\&. Use
+\fBCREATE OR REPLACE FUNCTION\fR
+to change a function definition without breaking objects that refer to the function\&. Also,
+\fBALTER FUNCTION\fR
+can be used to change most of the auxiliary properties of an existing function\&.
+.PP
+The user that creates the function becomes the owner of the function\&.
+.PP
+To be able to create a function, you must have
+USAGE
+privilege on the argument types and the return type\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of the function to create\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of an argument:
+IN,
+OUT,
+INOUT, or
+VARIADIC\&. If omitted, the default is
+IN\&. Only
+OUT
+arguments can follow a
+VARIADIC
+one\&. Also,
+OUT
+and
+INOUT
+arguments cannot be used together with the
+RETURNS TABLE
+notation\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of an argument\&. Some languages (including SQL and PL/pgSQL) let you use the name in the function body\&. For other languages the name of an input argument is just extra documentation, so far as the function itself is concerned; but you can use input argument names when calling a function to improve readability (see
+Section\ \&4.3)\&. In any case, the name of an output argument is significant, because it defines the column name in the result row type\&. (If you omit the name for an output argument, the system will choose a default column name\&.)
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+The data type(s) of the function\*(Aqs arguments (optionally schema\-qualified), if any\&. The argument types can be base, composite, or domain types, or can reference the type of a table column\&.
+.sp
+Depending on the implementation language it might also be allowed to specify
+\(lqpseudo\-types\(rq
+such as
+cstring\&. Pseudo\-types indicate that the actual argument type is either incompletely specified, or outside the set of ordinary SQL data types\&.
+.sp
+The type of a column is referenced by writing
+\fItable_name\fR\&.\fIcolumn_name\fR%TYPE\&. Using this feature can sometimes help make a function independent of changes to the definition of a table\&.
+.RE
+.PP
+\fIdefault_expr\fR
+.RS 4
+An expression to be used as default value if the parameter is not specified\&. The expression has to be coercible to the argument type of the parameter\&. Only input (including
+INOUT) parameters can have a default value\&. All input parameters following a parameter with a default value must have default values as well\&.
+.RE
+.PP
+\fIrettype\fR
+.RS 4
+The return data type (optionally schema\-qualified)\&. The return type can be a base, composite, or domain type, or can reference the type of a table column\&. Depending on the implementation language it might also be allowed to specify
+\(lqpseudo\-types\(rq
+such as
+cstring\&. If the function is not supposed to return a value, specify
+void
+as the return type\&.
+.sp
+When there are
+OUT
+or
+INOUT
+parameters, the
+RETURNS
+clause can be omitted\&. If present, it must agree with the result type implied by the output parameters:
+RECORD
+if there are multiple output parameters, or the same type as the single output parameter\&.
+.sp
+The
+SETOF
+modifier indicates that the function will return a set of items, rather than a single item\&.
+.sp
+The type of a column is referenced by writing
+\fItable_name\fR\&.\fIcolumn_name\fR%TYPE\&.
+.RE
+.PP
+\fIcolumn_name\fR
+.RS 4
+The name of an output column in the
+RETURNS TABLE
+syntax\&. This is effectively another way of declaring a named
+OUT
+parameter, except that
+RETURNS TABLE
+also implies
+RETURNS SETOF\&.
+.RE
+.PP
+\fIcolumn_type\fR
+.RS 4
+The data type of an output column in the
+RETURNS TABLE
+syntax\&.
+.RE
+.PP
+\fIlang_name\fR
+.RS 4
+The name of the language that the function is implemented in\&. It can be
+sql,
+c,
+internal, or the name of a user\-defined procedural language, e\&.g\&.,
+plpgsql\&. Enclosing the name in single quotes is deprecated and requires matching case\&.
+.RE
+.PP
+TRANSFORM { FOR TYPE \fItype_name\fR } [, \&.\&.\&. ] }
+.RS 4
+Lists which transforms a call to the function should apply\&. Transforms convert between SQL types and language\-specific data types; see
+CREATE TRANSFORM (\fBCREATE_TRANSFORM\fR(7))\&. Procedural language implementations usually have hardcoded knowledge of the built\-in types, so those don\*(Aqt need to be listed here\&. If a procedural language implementation does not know how to handle a type and no transform is supplied, it will fall back to a default behavior for converting data types, but this depends on the implementation\&.
+.RE
+.PP
+WINDOW
+.RS 4
+WINDOW
+indicates that the function is a
+window function
+rather than a plain function\&. This is currently only useful for functions written in C\&. The
+WINDOW
+attribute cannot be changed when replacing an existing function definition\&.
+.RE
+.PP
+IMMUTABLE
+.br
+STABLE
+.br
+VOLATILE
+.RS 4
+These attributes inform the query optimizer about the behavior of the function\&. At most one choice can be specified\&. If none of these appear,
+VOLATILE
+is the default assumption\&.
+.sp
+IMMUTABLE
+indicates that the function cannot modify the database and always returns the same result when given the same argument values; that is, it does not do database lookups or otherwise use information not directly present in its argument list\&. If this option is given, any call of the function with all\-constant arguments can be immediately replaced with the function value\&.
+.sp
+STABLE
+indicates that the function cannot modify the database, and that within a single table scan it will consistently return the same result for the same argument values, but that its result could change across SQL statements\&. This is the appropriate selection for functions whose results depend on database lookups, parameter variables (such as the current time zone), etc\&. (It is inappropriate for
+AFTER
+triggers that wish to query rows modified by the current command\&.) Also note that the
+\fBcurrent_timestamp\fR
+family of functions qualify as stable, since their values do not change within a transaction\&.
+.sp
+VOLATILE
+indicates that the function value can change even within a single table scan, so no optimizations can be made\&. Relatively few database functions are volatile in this sense; some examples are
+random(),
+currval(),
+timeofday()\&. But note that any function that has side\-effects must be classified volatile, even if its result is quite predictable, to prevent calls from being optimized away; an example is
+setval()\&.
+.sp
+For additional details see
+Section\ \&37.6\&.
+.RE
+.PP
+LEAKPROOF
+.RS 4
+LEAKPROOF
+indicates that the function has no side effects\&. It reveals no information about its arguments other than by its return value\&. For example, a function which throws an error message for some argument values but not others, or which includes the argument values in any error message, is not leakproof\&. This affects how the system executes queries against views created with the
+security_barrier
+option or tables with row level security enabled\&. The system will enforce conditions from security policies and security barrier views before any user\-supplied conditions from the query itself that contain non\-leakproof functions, in order to prevent the inadvertent exposure of data\&. Functions and operators marked as leakproof are assumed to be trustworthy, and may be executed before conditions from security policies and security barrier views\&. In addition, functions which do not take arguments or which are not passed any arguments from the security barrier view or table do not have to be marked as leakproof to be executed before security conditions\&. See
+CREATE VIEW (\fBCREATE_VIEW\fR(7))
+and
+Section\ \&40.5\&. This option can only be set by the superuser\&.
+.RE
+.PP
+CALLED ON NULL INPUT
+.br
+RETURNS NULL ON NULL INPUT
+.br
+STRICT
+.RS 4
+CALLED ON NULL INPUT
+(the default) indicates that the function will be called normally when some of its arguments are null\&. It is then the function author\*(Aqs responsibility to check for null values if necessary and respond appropriately\&.
+.sp
+RETURNS NULL ON NULL INPUT
+or
+STRICT
+indicates that the function always returns null whenever any of its arguments are null\&. If this parameter is specified, the function is not executed when there are null arguments; instead a null result is assumed automatically\&.
+.RE
+.PP
+[EXTERNAL] SECURITY INVOKER
+.br
+[EXTERNAL] SECURITY DEFINER
+.RS 4
+SECURITY INVOKER
+indicates that the function is to be executed with the privileges of the user that calls it\&. That is the default\&.
+SECURITY DEFINER
+specifies that the function is to be executed with the privileges of the user that owns it\&.
+.sp
+The key word
+EXTERNAL
+is allowed for SQL conformance, but it is optional since, unlike in SQL, this feature applies to all functions not only external ones\&.
+.RE
+.PP
+PARALLEL
+.RS 4
+PARALLEL UNSAFE
+indicates that the function can\*(Aqt be executed in parallel mode and the presence of such a function in an SQL statement forces a serial execution plan\&. This is the default\&.
+PARALLEL RESTRICTED
+indicates that the function can be executed in parallel mode, but the execution is restricted to parallel group leader\&.
+PARALLEL SAFE
+indicates that the function is safe to run in parallel mode without restriction\&.
+.sp
+Functions should be labeled parallel unsafe if they modify any database state, or if they make changes to the transaction such as using sub\-transactions, or if they access sequences or attempt to make persistent changes to settings (e\&.g\&.,
+setval)\&. They should be labeled as parallel restricted if they access temporary tables, client connection state, cursors, prepared statements, or miscellaneous backend\-local state which the system cannot synchronize in parallel mode (e\&.g\&.,
+setseed
+cannot be executed other than by the group leader because a change made by another process would not be reflected in the leader)\&. In general, if a function is labeled as being safe when it is restricted or unsafe, or if it is labeled as being restricted when it is in fact unsafe, it may throw errors or produce wrong answers when used in a parallel query\&. C\-language functions could in theory exhibit totally undefined behavior if mislabeled, since there is no way for the system to protect itself against arbitrary C code, but in most likely cases the result will be no worse than for any other function\&. If in doubt, functions should be labeled as
+UNSAFE, which is the default\&.
+.RE
+.PP
+\fIexecution_cost\fR
+.RS 4
+A positive number giving the estimated execution cost for the function, in units of
+cpu_operator_cost\&. If the function returns a set, this is the cost per returned row\&. If the cost is not specified, 1 unit is assumed for C\-language and internal functions, and 100 units for functions in all other languages\&. Larger values cause the planner to try to avoid evaluating the function more often than necessary\&.
+.RE
+.PP
+\fIresult_rows\fR
+.RS 4
+A positive number giving the estimated number of rows that the planner should expect the function to return\&. This is only allowed when the function is declared to return a set\&. The default assumption is 1000 rows\&.
+.RE
+.PP
+\fIconfiguration_parameter\fR
+.br
+\fIvalue\fR
+.RS 4
+The
+SET
+clause causes the specified configuration parameter to be set to the specified value when the function is entered, and then restored to its prior value when the function exits\&.
+SET FROM CURRENT
+saves the value of the parameter that is current when
+\fBCREATE FUNCTION\fR
+is executed as the value to be applied when the function is entered\&.
+.sp
+If a
+SET
+clause is attached to a function, then the effects of a
+\fBSET LOCAL\fR
+command executed inside the function for the same variable are restricted to the function: the configuration parameter\*(Aqs prior value is still restored at function exit\&. However, an ordinary
+\fBSET\fR
+command (without
+LOCAL) overrides the
+SET
+clause, much as it would do for a previous
+\fBSET LOCAL\fR
+command: the effects of such a command will persist after function exit, unless the current transaction is rolled back\&.
+.sp
+See
+\fBSET\fR(7)
+and
+Chapter\ \&19
+for more information about allowed parameter names and values\&.
+.RE
+.PP
+\fIdefinition\fR
+.RS 4
+A string constant defining the function; the meaning depends on the language\&. It can be an internal function name, the path to an object file, an SQL command, or text in a procedural language\&.
+.sp
+It is often helpful to use dollar quoting (see
+Section\ \&4.1.2.4) to write the function definition string, rather than the normal single quote syntax\&. Without dollar quoting, any single quotes or backslashes in the function definition must be escaped by doubling them\&.
+.RE
+.PP
+\fIobj_file\fR, \fIlink_symbol\fR
+.RS 4
+This form of the
+AS
+clause is used for dynamically loadable C language functions when the function name in the C language source code is not the same as the name of the SQL function\&. The string
+\fIobj_file\fR
+is the name of the shared library file containing the compiled C function, and is interpreted as for the
+\fBLOAD\fR(7)
+command\&. The string
+\fIlink_symbol\fR
+is the function\*(Aqs link symbol, that is, the name of the function in the C language source code\&. If the link symbol is omitted, it is assumed to be the same as the name of the SQL function being defined\&. The C names of all functions must be different, so you must give overloaded C functions different C names (for example, use the argument types as part of the C names)\&.
+.sp
+When repeated
+\fBCREATE FUNCTION\fR
+calls refer to the same object file, the file is only loaded once per session\&. To unload and reload the file (perhaps during development), start a new session\&.
+.RE
+.PP
+\fIattribute\fR
+.RS 4
+The historical way to specify optional pieces of information about the function\&. The following attributes can appear here:
+.PP
+isStrict
+.RS 4
+Equivalent to
+STRICT
+or
+RETURNS NULL ON NULL INPUT\&.
+.RE
+.PP
+isCachable
+.RS 4
+isCachable
+is an obsolete equivalent of
+IMMUTABLE; it\*(Aqs still accepted for backwards\-compatibility reasons\&.
+.RE
+.sp
+Attribute names are not case\-sensitive\&.
+.RE
+.PP
+Refer to
+Section\ \&37.3
+for further information on writing functions\&.
+.SH "OVERLOADING"
+.PP
+PostgreSQL
+allows function
+overloading; that is, the same name can be used for several different functions so long as they have distinct input argument types\&. Whether or not you use it, this capability entails security precautions when calling functions in databases where some users mistrust other users; see
+Section\ \&10.3\&.
+.PP
+Two functions are considered the same if they have the same names and
+\fIinput\fR
+argument types, ignoring any
+OUT
+parameters\&. Thus for example these declarations conflict:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION foo(int) \&.\&.\&.
+CREATE FUNCTION foo(int, out text) \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Functions that have different argument type lists will not be considered to conflict at creation time, but if defaults are provided they might conflict in use\&. For example, consider
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION foo(int) \&.\&.\&.
+CREATE FUNCTION foo(int, int default 42) \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+A call
+foo(10)
+will fail due to the ambiguity about which function should be called\&.
+.SH "NOTES"
+.PP
+The full
+SQL
+type syntax is allowed for declaring a function\*(Aqs arguments and return value\&. However, parenthesized type modifiers (e\&.g\&., the precision field for type
+numeric) are discarded by
+\fBCREATE FUNCTION\fR\&. Thus for example
+CREATE FUNCTION foo (varchar(10)) \&.\&.\&.
+is exactly the same as
+CREATE FUNCTION foo (varchar) \&.\&.\&.\&.
+.PP
+When replacing an existing function with
+\fBCREATE OR REPLACE FUNCTION\fR, there are restrictions on changing parameter names\&. You cannot change the name already assigned to any input parameter (although you can add names to parameters that had none before)\&. If there is more than one output parameter, you cannot change the names of the output parameters, because that would change the column names of the anonymous composite type that describes the function\*(Aqs result\&. These restrictions are made to ensure that existing calls of the function do not stop working when it is replaced\&.
+.PP
+If a function is declared
+STRICT
+with a
+VARIADIC
+argument, the strictness check tests that the variadic array
+\fIas a whole\fR
+is non\-null\&. The function will still be called if the array has null elements\&.
+.SH "EXAMPLES"
+.PP
+Here are some trivial examples to help you get started\&. For more information and examples, see
+Section\ \&37.3\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION add(integer, integer) RETURNS integer
+    AS \*(Aqselect $1 + $2;\*(Aq
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Increment an integer, making use of an argument name, in
+PL/pgSQL:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE OR REPLACE FUNCTION increment(i integer) RETURNS integer AS $$
+        BEGIN
+                RETURN i + 1;
+        END;
+$$ LANGUAGE plpgsql;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Return a record containing multiple output parameters:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION dup(in int, out f1 int, out f2 text)
+    AS $$ SELECT $1, CAST($1 AS text) || \*(Aq is text\*(Aq $$
+    LANGUAGE SQL;
+
+SELECT * FROM dup(42);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+You can do the same thing more verbosely with an explicitly named composite type:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TYPE dup_result AS (f1 int, f2 text);
+
+CREATE FUNCTION dup(int) RETURNS dup_result
+    AS $$ SELECT $1, CAST($1 AS text) || \*(Aq is text\*(Aq $$
+    LANGUAGE SQL;
+
+SELECT * FROM dup(42);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Another way to return multiple columns is to use a
+TABLE
+function:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION dup(int) RETURNS TABLE(f1 int, f2 text)
+    AS $$ SELECT $1, CAST($1 AS text) || \*(Aq is text\*(Aq $$
+    LANGUAGE SQL;
+
+SELECT * FROM dup(42);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+However, a
+TABLE
+function is different from the preceding examples, because it actually returns a
+\fIset\fR
+of records, not just one record\&.
+.SH "WRITING SECURITY DEFINER FUNCTIONS SAFELY"
+.PP
+Because a
+SECURITY DEFINER
+function is executed with the privileges of the user that owns it, care is needed to ensure that the function cannot be misused\&. For security,
+search_path
+should be set to exclude any schemas writable by untrusted users\&. This prevents malicious users from creating objects (e\&.g\&., tables, functions, and operators) that mask objects intended to be used by the function\&. Particularly important in this regard is the temporary\-table schema, which is searched first by default, and is normally writable by anyone\&. A secure arrangement can be obtained by forcing the temporary schema to be searched last\&. To do this, write
+pg_temp
+as the last entry in
+\fIsearch_path\fR\&. This function illustrates safe usage:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FUNCTION check_password(uname TEXT, pass TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE passed BOOLEAN;
+BEGIN
+        SELECT  (pwd = $2) INTO passed
+        FROM    pwds
+        WHERE   username = $1;
+
+        RETURN passed;
+END;
+$$  LANGUAGE plpgsql
+    SECURITY DEFINER
+    \-\- Set a secure search_path: trusted schema(s), then \*(Aqpg_temp\*(Aq\&.
+    SET search_path = admin, pg_temp;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This function\*(Aqs intention is to access a table
+admin\&.pwds\&. But without the
+SET
+clause, or with a
+SET
+clause mentioning only
+admin, the function could be subverted by creating a temporary table named
+pwds\&.
+.PP
+Before
+PostgreSQL
+version 8\&.3, the
+SET
+clause was not available, and so older functions may contain rather complicated logic to save, set, and restore
+\fIsearch_path\fR\&. The
+SET
+clause is far easier to use for this purpose\&.
+.PP
+Another point to keep in mind is that by default, execute privilege is granted to
+PUBLIC
+for newly created functions (see
+\fBGRANT\fR(7)
+for more information)\&. Frequently you will wish to restrict use of a security definer function to only some users\&. To do that, you must revoke the default
+PUBLIC
+privileges and then grant execute privilege selectively\&. To avoid having a window where the new function is accessible to all, create it and set the privileges within a single transaction\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+BEGIN;
+CREATE FUNCTION check_password(uname TEXT, pass TEXT) \&.\&.\&. SECURITY DEFINER;
+REVOKE ALL ON FUNCTION check_password(uname TEXT, pass TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION check_password(uname TEXT, pass TEXT) TO admins;
+COMMIT;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+A
+\fBCREATE FUNCTION\fR
+command is defined in SQL:1999 and later\&. The
+PostgreSQL
+version is similar but not fully compatible\&. The attributes are not portable, neither are the different available languages\&.
+.PP
+For compatibility with some other database systems,
+\fIargmode\fR
+can be written either before or after
+\fIargname\fR\&. But only the first way is standard\-compliant\&.
+.PP
+For parameter defaults, the SQL standard specifies only the syntax with the
+DEFAULT
+key word\&. The syntax with
+=
+is used in T\-SQL and Firebird\&.
+.SH "SEE ALSO"
+ALTER FUNCTION (\fBALTER_FUNCTION\fR(7)), DROP FUNCTION (\fBDROP_FUNCTION\fR(7)), \fBGRANT\fR(7), \fBLOAD\fR(7), \fBREVOKE\fR(7)

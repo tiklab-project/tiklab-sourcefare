@@ -1,0 +1,78 @@
+'\" t
+.\"     Title: ROLLBACK
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ROLLBACK" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ROLLBACK \- abort the current transaction
+.SH "SYNOPSIS"
+.sp
+.nf
+ROLLBACK [ WORK | TRANSACTION ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBROLLBACK\fR
+rolls back the current transaction and causes all the updates made by the transaction to be discarded\&.
+.SH "PARAMETERS"
+.PP
+WORK
+.br
+TRANSACTION
+.RS 4
+Optional key words\&. They have no effect\&.
+.RE
+.SH "NOTES"
+.PP
+Use
+\fBCOMMIT\fR(7)
+to successfully terminate a transaction\&.
+.PP
+Issuing
+\fBROLLBACK\fR
+outside of a transaction block emits a warning and otherwise has no effect\&.
+.SH "EXAMPLES"
+.PP
+To abort all changes:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ROLLBACK;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The SQL standard only specifies the two forms
+ROLLBACK
+and
+ROLLBACK WORK\&. Otherwise, this command is fully conforming\&.
+.SH "SEE ALSO"
+\fBBEGIN\fR(7), \fBCOMMIT\fR(7), ROLLBACK TO SAVEPOINT (\fBROLLBACK_TO_SAVEPOINT\fR(7))

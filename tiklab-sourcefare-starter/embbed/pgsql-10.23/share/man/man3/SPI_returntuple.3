@@ -1,0 +1,73 @@
+'\" t
+.\"     Title: SPI_returntuple
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_RETURNTUPLE" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_returntuple \- prepare to return a tuple as a Datum
+.SH "SYNOPSIS"
+.sp
+.nf
+HeapTupleHeader SPI_returntuple(HeapTuple \fIrow\fR, TupleDesc \fIrowdesc\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_returntuple\fR
+makes a copy of a row in the upper executor context, returning it in the form of a row type
+Datum\&. The returned pointer need only be converted to
+Datum
+via
+\fBPointerGetDatum\fR
+before returning\&.
+.PP
+This function can only be used while connected to SPI\&. Otherwise, it returns NULL and sets
+\fISPI_result\fR
+to
+SPI_ERROR_UNCONNECTED\&.
+.PP
+Note that this should be used for functions that are declared to return composite types\&. It is not used for triggers; use
+\fBSPI_copytuple\fR
+for returning a modified row in a trigger\&.
+.SH "ARGUMENTS"
+.PP
+HeapTuple \fIrow\fR
+.RS 4
+row to be copied
+.RE
+.PP
+TupleDesc \fIrowdesc\fR
+.RS 4
+descriptor for row (pass the same descriptor each time for most effective caching)
+.RE
+.SH "RETURN VALUE"
+.PP
+HeapTupleHeader
+pointing to copied row, or
+NULL
+on error (see
+\fISPI_result\fR
+for an error indication)

@@ -30,14 +30,6 @@ public class CodeScanController {
         return Result.ok(scanExec);
     }
 
-    @RequestMapping(path="/findScanState",method = RequestMethod.POST)
-    @ApiMethod(name = "findScanState",desc = "获取扫描状态")
-    @ApiParam(name = "scanPlayId",desc = "scanPlayId",required = true)
-    public Result<ScanRecord> findScanState(@NotNull String  scanPlayId, @NotNull String scanWay){
-        ScanRecord scanResult = codeScanService.findScanState(scanPlayId,scanWay);
-
-        return Result.ok(scanResult);
-    }
 
 
 

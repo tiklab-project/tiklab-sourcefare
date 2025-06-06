@@ -1,0 +1,208 @@
+'\" t
+.\"     Title: ecpg
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ECPG" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ecpg \- embedded SQL C preprocessor
+.SH "SYNOPSIS"
+.HP \w'\fBecpg\fR\ 'u
+\fBecpg\fR [\fIoption\fR...] \fIfile\fR...
+.SH "DESCRIPTION"
+.PP
+\fBecpg\fR
+is the embedded SQL preprocessor for C programs\&. It converts C programs with embedded SQL statements to normal C code by replacing the SQL invocations with special function calls\&. The output files can then be processed with any C compiler tool chain\&.
+.PP
+\fBecpg\fR
+will convert each input file given on the command line to the corresponding C output file\&. If an input file name does not have any extension,
+\&.pgc
+is assumed\&. The file\*(Aqs extension will be replaced by
+\&.c
+to construct the output file name\&. But the output file name can be overridden using the
+\fB\-o\fR
+option\&.
+.PP
+If an input file name is just
+\-,
+\fBecpg\fR
+reads the program from standard input (and writes to standard output, unless that is overridden with
+\fB\-o\fR)\&.
+.PP
+This reference page does not describe the embedded SQL language\&. See
+Chapter\ \&35
+for more information on that topic\&.
+.SH "OPTIONS"
+.PP
+\fBecpg\fR
+accepts the following command\-line arguments:
+.PP
+\fB\-c\fR
+.RS 4
+Automatically generate certain C code from SQL code\&. Currently, this works for
+EXEC SQL TYPE\&.
+.RE
+.PP
+\fB\-C \fR\fB\fImode\fR\fR
+.RS 4
+Set a compatibility mode\&.
+\fImode\fR
+can be
+INFORMIX
+or
+INFORMIX_SE\&.
+.RE
+.PP
+\fB\-D \fR\fB\fIsymbol\fR\fR
+.RS 4
+Define a C preprocessor symbol\&.
+.RE
+.PP
+\fB\-h\fR
+.RS 4
+Process header files\&. When this option is specified, the output file extension becomes
+\&.h
+not
+\&.c, and the default input file extension is
+\&.pgh
+not
+\&.pgc\&. Also, the
+\fB\-c\fR
+option is forced on\&.
+.RE
+.PP
+\fB\-i\fR
+.RS 4
+Parse system include files as well\&.
+.RE
+.PP
+\fB\-I \fR\fB\fIdirectory\fR\fR
+.RS 4
+Specify an additional include path, used to find files included via
+EXEC SQL INCLUDE\&. Defaults are
+\&.
+(current directory),
+/usr/local/include, the
+PostgreSQL
+include directory which is defined at compile time (default:
+/usr/local/pgsql/include), and
+/usr/include, in that order\&.
+.RE
+.PP
+\fB\-o \fR\fB\fIfilename\fR\fR
+.RS 4
+Specifies that
+\fBecpg\fR
+should write all its output to the given
+\fIfilename\fR\&. Write
+\-o \-
+to send all output to standard output\&.
+.RE
+.PP
+\fB\-r \fR\fB\fIoption\fR\fR
+.RS 4
+Selects run\-time behavior\&.
+\fIOption\fR
+can be one of the following:
+.PP
+\fBno_indicator\fR
+.RS 4
+Do not use indicators but instead use special values to represent null values\&. Historically there have been databases using this approach\&.
+.RE
+.PP
+\fBprepare\fR
+.RS 4
+Prepare all statements before using them\&. Libecpg will keep a cache of prepared statements and reuse a statement if it gets executed again\&. If the cache runs full, libecpg will free the least used statement\&.
+.RE
+.PP
+\fBquestionmarks\fR
+.RS 4
+Allow question mark as placeholder for compatibility reasons\&. This used to be the default long ago\&.
+.RE
+.RE
+.PP
+\fB\-t\fR
+.RS 4
+Turn on autocommit of transactions\&. In this mode, each SQL command is automatically committed unless it is inside an explicit transaction block\&. In the default mode, commands are committed only when
+\fBEXEC SQL COMMIT\fR
+is issued\&.
+.RE
+.PP
+\fB\-v\fR
+.RS 4
+Print additional information including the version and the "include" path\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print the
+ecpg
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+ecpg
+command line arguments, and exit\&.
+.RE
+.SH "NOTES"
+.PP
+When compiling the preprocessed C code files, the compiler needs to be able to find the
+ECPG
+header files in the
+PostgreSQL
+include directory\&. Therefore, you might have to use the
+\fB\-I\fR
+option when invoking the compiler (e\&.g\&.,
+\-I/usr/local/pgsql/include)\&.
+.PP
+Programs using C code with embedded SQL have to be linked against the
+libecpg
+library, for example using the linker options
+\-L/usr/local/pgsql/lib \-lecpg\&.
+.PP
+The value of either of these directories that is appropriate for the installation can be found out using
+\fBpg_config\fR(1)\&.
+.SH "EXAMPLES"
+.PP
+If you have an embedded SQL C source file named
+prog1\&.pgc, you can create an executable program using the following sequence of commands:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ecpg prog1\&.pgc
+cc \-I/usr/local/pgsql/include \-c prog1\&.c
+cc \-o prog1 prog1\&.o \-L/usr/local/pgsql/lib \-lecpg
+.fi
+.if n \{\
+.RE
+.\}
+

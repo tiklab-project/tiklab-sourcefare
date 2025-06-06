@@ -26,17 +26,10 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CodeScanCommon {
-    //执行扫描执行开始时间
-    public static Map<String , Date> scanExecStarTime = new HashMap<>();
-    // 添加扫描的开始时间
-    public static void putExecStarTime (String key, Date value) {scanExecStarTime.put(key, value);}
 
-    // 获取扫描开始时间
-    public static Date getExecStarTime (String key) {
-        return scanExecStarTime.get(key);
-    }
 
 
     public static String executeCommand(String command) {
@@ -209,7 +202,7 @@ public class CodeScanCommon {
             int noticeNum=0;
             int suggestNum=0;
             for (ScanResultFile scanResultFile:scanResultFiles) {
-                List<ScanSchemeRule> schemeRuleList = scanSchemeRuleList.stream().filter(a -> (scanResultFile.getErrorRuleName()).equals(a.getScanRule().getRuleName())).toList();
+                List<ScanSchemeRule> schemeRuleList = scanSchemeRuleList.stream().filter(a -> (scanResultFile.getErrorRuleName()).equals(a.getScanRule().getRuleName())).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(schemeRuleList)){
                     ScanSchemeRule scanSchemeRule = schemeRuleList.get(0);
 
@@ -231,6 +224,24 @@ public class CodeScanCommon {
                     instance.setScanPlayId(scanRecord.getScanPlay().getId());
                     instance.setScanRecordId(scanRecord.getId());
                     instance.setRuleName(scanResultFile.getErrorRuleName());
+
+                    //获取code存储的位置
+                    String playId = scanRecord.getScanPlay().getId();
+                    String filePath = scanResultFile.getFilePath();
+
+
+                    String relativePath;
+                    if (("client").equals(scanResult.getScanWay())){
+                        relativePath = StringUtils.substringAfter(filePath, scanResult.getCodeName());
+                    }else {
+                        relativePath = StringUtils.substringAfter(filePath, playId);
+                    }
+
+                    //Java语言就用默认的
+                    if (!("java").equals(scanResult.getLanguage())){
+                        instance.setFileName(scanRecord.getScanPlay().getRepositoryName()+relativePath);
+                    }
+                    instance.setFilePath(playId+relativePath);
                     recordInstanceService.createScanRecordInstance(instance);
 
                     //根据自定义的扫描方案添加错误数量

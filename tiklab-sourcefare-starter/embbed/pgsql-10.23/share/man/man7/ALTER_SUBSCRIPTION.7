@@ -1,0 +1,167 @@
+'\" t
+.\"     Title: ALTER SUBSCRIPTION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER SUBSCRIPTION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_SUBSCRIPTION \- change the definition of a subscription
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER SUBSCRIPTION \fIname\fR CONNECTION \*(Aq\fIconninfo\fR\*(Aq
+ALTER SUBSCRIPTION \fIname\fR SET PUBLICATION \fIpublication_name\fR [, \&.\&.\&.] [ WITH ( \fIset_publication_option\fR [= \fIvalue\fR] [, \&.\&.\&. ] ) ]
+ALTER SUBSCRIPTION \fIname\fR REFRESH PUBLICATION [ WITH ( \fIrefresh_option\fR [= \fIvalue\fR] [, \&.\&.\&. ] ) ]
+ALTER SUBSCRIPTION \fIname\fR ENABLE
+ALTER SUBSCRIPTION \fIname\fR DISABLE
+ALTER SUBSCRIPTION \fIname\fR SET ( \fIsubscription_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+ALTER SUBSCRIPTION \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER SUBSCRIPTION \fIname\fR RENAME TO \fInew_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER SUBSCRIPTION\fR
+can change most of the subscription properties that can be specified in
+CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7))\&.
+.PP
+You must own the subscription to use
+\fBALTER SUBSCRIPTION\fR\&. To alter the owner, you must also be a direct or indirect member of the new owning role\&. The new owner has to be a superuser\&. (Currently, all subscription owners must be superusers, so the owner checks will be bypassed in practice\&. But this might change in the future\&.)
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of a subscription whose properties are to be altered\&.
+.RE
+.PP
+CONNECTION \*(Aq\fIconninfo\fR\*(Aq
+.RS 4
+This clause alters the connection property originally set by
+CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7))\&. See there for more information\&.
+.RE
+.PP
+SET PUBLICATION \fIpublication_name\fR
+.RS 4
+Changes list of subscribed publications\&. See
+CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7))
+for more information\&. By default this command will also act like
+REFRESH PUBLICATION\&.
+.sp
+\fIset_publication_option\fR
+specifies additional options for this operation\&. The supported options are:
+.PP
+refresh (boolean)
+.RS 4
+When false, the command will not try to refresh table information\&.
+REFRESH PUBLICATION
+should then be executed separately\&. The default is
+true\&.
+.RE
+.sp
+Additionally, refresh options as described under
+REFRESH PUBLICATION
+may be specified\&.
+.RE
+.PP
+REFRESH PUBLICATION
+.RS 4
+Fetch missing table information from publisher\&. This will start replication of tables that were added to the subscribed\-to publications since the last invocation of
+\fBREFRESH PUBLICATION\fR
+or since
+\fBCREATE SUBSCRIPTION\fR\&.
+.sp
+\fIrefresh_option\fR
+specifies additional options for the refresh operation\&. The supported options are:
+.PP
+copy_data (boolean)
+.RS 4
+Specifies whether the existing data in the publications that are being subscribed to should be copied once the replication starts\&. The default is
+true\&. (Previously subscribed tables are not copied\&.)
+.RE
+.sp
+.RE
+.PP
+ENABLE
+.RS 4
+Enables the previously disabled subscription, starting the logical replication worker at the end of transaction\&.
+.RE
+.PP
+DISABLE
+.RS 4
+Disables the running subscription, stopping the logical replication worker at the end of transaction\&.
+.RE
+.PP
+SET ( \fIsubscription_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+.RS 4
+This clause alters parameters originally set by
+CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7))\&. See there for more information\&. The allowed options are
+slot_name
+and
+synchronous_commit
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the subscription\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the subscription\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Change the publication subscribed by a subscription to
+insert_only:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER SUBSCRIPTION mysub SET PUBLICATION insert_only;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Disable (stop) the subscription:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER SUBSCRIPTION mysub DISABLE;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER SUBSCRIPTION\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7)), DROP SUBSCRIPTION (\fBDROP_SUBSCRIPTION\fR(7)), CREATE PUBLICATION (\fBCREATE_PUBLICATION\fR(7)), ALTER PUBLICATION (\fBALTER_PUBLICATION\fR(7))

@@ -1,0 +1,268 @@
+'\" t
+.\"     Title: CREATE FOREIGN TABLE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE FOREIGN TABLE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_FOREIGN_TABLE \- define a new foreign table
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE FOREIGN TABLE [ IF NOT EXISTS ] \fItable_name\fR ( [
+  { \fIcolumn_name\fR \fIdata_type\fR [ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] ) ] [ COLLATE \fIcollation\fR ] [ \fIcolumn_constraint\fR [ \&.\&.\&. ] ]
+    | \fItable_constraint\fR }
+    [, \&.\&.\&. ]
+] )
+[ INHERITS ( \fIparent_table\fR [, \&.\&.\&. ] ) ]
+  SERVER \fIserver_name\fR
+[ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] ) ]
+
+CREATE FOREIGN TABLE [ IF NOT EXISTS ] \fItable_name\fR
+  PARTITION OF \fIparent_table\fR [ (
+  { \fIcolumn_name\fR [ WITH OPTIONS ] [ \fIcolumn_constraint\fR [ \&.\&.\&. ] ]
+    | \fItable_constraint\fR }
+    [, \&.\&.\&. ]
+) ]
+  FOR VALUES \fIpartition_bound_spec\fR
+  SERVER \fIserver_name\fR
+[ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] ) ]
+
+where \fIcolumn_constraint\fR is:
+
+[ CONSTRAINT \fIconstraint_name\fR ]
+{ NOT NULL |
+  NULL |
+  CHECK ( \fIexpression\fR ) [ NO INHERIT ] |
+  DEFAULT \fIdefault_expr\fR }
+
+and \fItable_constraint\fR is:
+
+[ CONSTRAINT \fIconstraint_name\fR ]
+CHECK ( \fIexpression\fR ) [ NO INHERIT ]
+
+and \fIpartition_bound_spec\fR is:
+
+IN ( { \fInumeric_literal\fR | \fIstring_literal\fR | TRUE | FALSE | NULL } [, \&.\&.\&.] ) |
+FROM ( { \fInumeric_literal\fR | \fIstring_literal\fR | TRUE | FALSE | MINVALUE | MAXVALUE } [, \&.\&.\&.] )
+  TO ( { \fInumeric_literal\fR | \fIstring_literal\fR | TRUE | FALSE | MINVALUE | MAXVALUE } [, \&.\&.\&.] )
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE FOREIGN TABLE\fR
+creates a new foreign table in the current database\&. The table will be owned by the user issuing the command\&.
+.PP
+If a schema name is given (for example,
+CREATE FOREIGN TABLE myschema\&.mytable \&.\&.\&.) then the table is created in the specified schema\&. Otherwise it is created in the current schema\&. The name of the foreign table must be distinct from the name of any other foreign table, table, sequence, index, view, or materialized view in the same schema\&.
+.PP
+\fBCREATE FOREIGN TABLE\fR
+also automatically creates a data type that represents the composite type corresponding to one row of the foreign table\&. Therefore, foreign tables cannot have the same name as any existing data type in the same schema\&.
+.PP
+If
+PARTITION OF
+clause is specified then the table is created as a partition of
+parent_table
+with specified bounds\&.
+.PP
+To be able to create a foreign table, you must have
+USAGE
+privilege on the foreign server, as well as
+USAGE
+privilege on all column types used in the table\&.
+.SH "PARAMETERS"
+.PP
+IF NOT EXISTS
+.RS 4
+Do not throw an error if a relation with the same name already exists\&. A notice is issued in this case\&. Note that there is no guarantee that the existing relation is anything like the one that would have been created\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the table to be created\&.
+.RE
+.PP
+\fIcolumn_name\fR
+.RS 4
+The name of a column to be created in the new table\&.
+.RE
+.PP
+\fIdata_type\fR
+.RS 4
+The data type of the column\&. This can include array specifiers\&. For more information on the data types supported by
+PostgreSQL, refer to
+Chapter\ \&8\&.
+.RE
+.PP
+COLLATE \fIcollation\fR
+.RS 4
+The
+COLLATE
+clause assigns a collation to the column (which must be of a collatable data type)\&. If not specified, the column data type\*(Aqs default collation is used\&.
+.RE
+.PP
+INHERITS ( \fIparent_table\fR [, \&.\&.\&. ] )
+.RS 4
+The optional
+INHERITS
+clause specifies a list of tables from which the new foreign table automatically inherits all columns\&. Parent tables can be plain tables or foreign tables\&. See the similar form of
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for more details\&.
+.RE
+.PP
+PARTITION OF \fIparent_table\fR FOR VALUES \fIpartition_bound_spec\fR
+.RS 4
+This form can be used to create the foreign table as partition of the given parent table with specified partition bound values\&. See the similar form of
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for more details\&.
+.RE
+.PP
+CONSTRAINT \fIconstraint_name\fR
+.RS 4
+An optional name for a column or table constraint\&. If the constraint is violated, the constraint name is present in error messages, so constraint names like
+col must be positive
+can be used to communicate helpful constraint information to client applications\&. (Double\-quotes are needed to specify constraint names that contain spaces\&.) If a constraint name is not specified, the system generates a name\&.
+.RE
+.PP
+NOT NULL
+.RS 4
+The column is not allowed to contain null values\&.
+.RE
+.PP
+NULL
+.RS 4
+The column is allowed to contain null values\&. This is the default\&.
+.sp
+This clause is only provided for compatibility with non\-standard SQL databases\&. Its use is discouraged in new applications\&.
+.RE
+.PP
+CHECK ( \fIexpression\fR ) [ NO INHERIT ]
+.RS 4
+The
+CHECK
+clause specifies an expression producing a Boolean result which each row in the foreign table is expected to satisfy; that is, the expression should produce TRUE or UNKNOWN, never FALSE, for all rows in the foreign table\&. A check constraint specified as a column constraint should reference that column\*(Aqs value only, while an expression appearing in a table constraint can reference multiple columns\&.
+.sp
+Currently,
+CHECK
+expressions cannot contain subqueries nor refer to variables other than columns of the current row\&. The system column
+tableoid
+may be referenced, but not any other system column\&.
+.sp
+A constraint marked with
+NO INHERIT
+will not propagate to child tables\&.
+.RE
+.PP
+DEFAULT \fIdefault_expr\fR
+.RS 4
+The
+DEFAULT
+clause assigns a default data value for the column whose column definition it appears within\&. The value is any variable\-free expression (subqueries and cross\-references to other columns in the current table are not allowed)\&. The data type of the default expression must match the data type of the column\&.
+.sp
+The default expression will be used in any insert operation that does not specify a value for the column\&. If there is no default for a column, then the default is null\&.
+.RE
+.PP
+\fIserver_name\fR
+.RS 4
+The name of an existing foreign server to use for the foreign table\&. For details on defining a server, see
+CREATE SERVER (\fBCREATE_SERVER\fR(7))\&.
+.RE
+.PP
+OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&.] )
+.RS 4
+Options to be associated with the new foreign table or one of its columns\&. The allowed option names and values are specific to each foreign data wrapper and are validated using the foreign\-data wrapper\*(Aqs validator function\&. Duplicate option names are not allowed (although it\*(Aqs OK for a table option and a column option to have the same name)\&.
+.RE
+.SH "NOTES"
+.PP
+Constraints on foreign tables (such as
+CHECK
+or
+NOT NULL
+clauses) are not enforced by the core
+PostgreSQL
+system, and most foreign data wrappers do not attempt to enforce them either; that is, the constraint is simply assumed to hold true\&. There would be little point in such enforcement since it would only apply to rows inserted or updated via the foreign table, and not to rows modified by other means, such as directly on the remote server\&. Instead, a constraint attached to a foreign table should represent a constraint that is being enforced by the remote server\&.
+.PP
+Some special\-purpose foreign data wrappers might be the only access mechanism for the data they access, and in that case it might be appropriate for the foreign data wrapper itself to perform constraint enforcement\&. But you should not assume that a wrapper does that unless its documentation says so\&.
+.PP
+Although
+PostgreSQL
+does not attempt to enforce constraints on foreign tables, it does assume that they are correct for purposes of query optimization\&. If there are rows visible in the foreign table that do not satisfy a declared constraint, queries on the table might produce incorrect answers\&. It is the user\*(Aqs responsibility to ensure that the constraint definition matches reality\&.
+.PP
+Although foreign tables can be specified as partitions, routing of tuples to foreign\-table partitions is not supported\&.
+.SH "EXAMPLES"
+.PP
+Create foreign table
+films, which will be accessed through the server
+film_server:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FOREIGN TABLE films (
+    code        char(5) NOT NULL,
+    title       varchar(40) NOT NULL,
+    did         integer NOT NULL,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute
+)
+SERVER film_server;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create foreign table
+measurement_y2016m07, which will be accessed through the server
+server_07, as a partition of the range partitioned table
+measurement:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FOREIGN TABLE measurement_y2016m07
+    PARTITION OF measurement FOR VALUES FROM (\*(Aq2016\-07\-01\*(Aq) TO (\*(Aq2016\-08\-01\*(Aq)
+    SERVER server_07;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBCREATE FOREIGN TABLE\fR
+command largely conforms to the
+SQL
+standard; however, much as with
+\fBCREATE TABLE\fR,
+NULL
+constraints and zero\-column foreign tables are permitted\&. The ability to specify column default values is also a
+PostgreSQL
+extension\&. Table inheritance, in the form defined by
+PostgreSQL, is nonstandard\&.
+.SH "SEE ALSO"
+ALTER FOREIGN TABLE (\fBALTER_FOREIGN_TABLE\fR(7)), DROP FOREIGN TABLE (\fBDROP_FOREIGN_TABLE\fR(7)), CREATE TABLE (\fBCREATE_TABLE\fR(7)), CREATE SERVER (\fBCREATE_SERVER\fR(7)), IMPORT FOREIGN SCHEMA (\fBIMPORT_FOREIGN_SCHEMA\fR(7))

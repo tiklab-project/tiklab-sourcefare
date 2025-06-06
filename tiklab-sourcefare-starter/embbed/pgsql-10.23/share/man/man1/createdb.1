@@ -1,0 +1,282 @@
+'\" t
+.\"     Title: createdb
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATEDB" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+createdb \- create a new PostgreSQL database
+.SH "SYNOPSIS"
+.HP \w'\fBcreatedb\fR\ 'u
+\fBcreatedb\fR [\fIconnection\-option\fR...] [\fIoption\fR...] [\fIdbname\fR\ [\fIdescription\fR]]
+.SH "DESCRIPTION"
+.PP
+createdb
+creates a new
+PostgreSQL
+database\&.
+.PP
+Normally, the database user who executes this command becomes the owner of the new database\&. However, a different owner can be specified via the
+\fB\-O\fR
+option, if the executing user has appropriate privileges\&.
+.PP
+createdb
+is a wrapper around the
+SQL
+command
+CREATE DATABASE (\fBCREATE_DATABASE\fR(7))\&. There is no effective difference between creating databases via this utility and via other methods for accessing the server\&.
+.SH "OPTIONS"
+.PP
+createdb
+accepts the following command\-line arguments:
+.PP
+\fIdbname\fR
+.RS 4
+Specifies the name of the database to be created\&. The name must be unique among all
+PostgreSQL
+databases in this cluster\&. The default is to create a database with the same name as the current system user\&.
+.RE
+.PP
+\fIdescription\fR
+.RS 4
+Specifies a comment to be associated with the newly created database\&.
+.RE
+.PP
+\fB\-D \fR\fB\fItablespace\fR\fR
+.br
+\fB\-\-tablespace=\fR\fB\fItablespace\fR\fR
+.RS 4
+Specifies the default tablespace for the database\&. (This name is processed as a double\-quoted identifier\&.)
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\fR
+.RS 4
+Echo the commands that
+createdb
+generates and sends to the server\&.
+.RE
+.PP
+\fB\-E \fR\fB\fIencoding\fR\fR
+.br
+\fB\-\-encoding=\fR\fB\fIencoding\fR\fR
+.RS 4
+Specifies the character encoding scheme to be used in this database\&. The character sets supported by the
+PostgreSQL
+server are described in
+Section\ \&23.3.1\&.
+.RE
+.PP
+\fB\-l \fR\fB\fIlocale\fR\fR
+.br
+\fB\-\-locale=\fR\fB\fIlocale\fR\fR
+.RS 4
+Specifies the locale to be used in this database\&. This is equivalent to specifying both
+\fB\-\-lc\-collate\fR
+and
+\fB\-\-lc\-ctype\fR\&.
+.RE
+.PP
+\fB\-\-lc\-collate=\fR\fB\fIlocale\fR\fR
+.RS 4
+Specifies the LC_COLLATE setting to be used in this database\&.
+.RE
+.PP
+\fB\-\-lc\-ctype=\fR\fB\fIlocale\fR\fR
+.RS 4
+Specifies the LC_CTYPE setting to be used in this database\&.
+.RE
+.PP
+\fB\-O \fR\fB\fIowner\fR\fR
+.br
+\fB\-\-owner=\fR\fB\fIowner\fR\fR
+.RS 4
+Specifies the database user who will own the new database\&. (This name is processed as a double\-quoted identifier\&.)
+.RE
+.PP
+\fB\-T \fR\fB\fItemplate\fR\fR
+.br
+\fB\-\-template=\fR\fB\fItemplate\fR\fR
+.RS 4
+Specifies the template database from which to build this database\&. (This name is processed as a double\-quoted identifier\&.)
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+createdb
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+createdb
+command line arguments, and exit\&.
+.RE
+.PP
+The options
+\fB\-D\fR,
+\fB\-l\fR,
+\fB\-E\fR,
+\fB\-O\fR, and
+\fB\-T\fR
+correspond to options of the underlying SQL command
+CREATE DATABASE (\fBCREATE_DATABASE\fR(7)); see there for more information about them\&.
+.PP
+createdb
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or the local Unix domain socket file extension on which the server is listening for connections\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+createdb
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+createdb
+will automatically prompt for a password if the server demands password authentication\&. However,
+createdb
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+\fB\-\-maintenance\-db=\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to connect to when creating the new database\&. If not specified, the
+postgres
+database will be used; if that does not exist (or if it is the name of the new database being created),
+template1
+will be used\&. This can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBPGDATABASE\fR
+.RS 4
+If set, the name of the database to create, unless overridden on the command line\&.
+.RE
+.PP
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters\&.
+\fBPGUSER\fR
+also determines the name of the database to create, if it is not specified on the command line or by
+\fBPGDATABASE\fR\&.
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "DIAGNOSTICS"
+.PP
+In case of difficulty, see
+CREATE DATABASE (\fBCREATE_DATABASE\fR(7))
+and
+\fBpsql\fR(1)
+for discussions of potential problems and error messages\&. The database server must be running at the targeted host\&. Also, any default connection settings and environment variables used by the
+libpq
+front\-end library will apply\&.
+.SH "EXAMPLES"
+.PP
+To create the database
+demo
+using the default database server:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBcreatedb demo\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To create the database
+demo
+using the server on host
+eden, port 5000, using the
+template0
+template database, here is the command\-line command and the underlying SQL command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBcreatedb \-p 5000 \-h eden \-T template0 \-e demo\fR
+CREATE DATABASE demo TEMPLATE template0;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+\fBdropdb\fR(1), CREATE DATABASE (\fBCREATE_DATABASE\fR(7))

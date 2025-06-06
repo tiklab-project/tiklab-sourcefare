@@ -4,9 +4,11 @@ import io.tiklab.sourcefare.common.SourceFareUtil;
 import io.tiklab.sourcefare.project.service.PathSetService;
 import io.tiklab.sourcefare.scan.common.CodeScanCommon;
 import io.tiklab.sourcefare.scan.model.*;
+import io.tiklab.sourcefare.scanner.common.ProjectUtil;
 import io.tiklab.sourcefare.scanner.common.ScanCommon;
 import io.tiklab.sourcefare.scanner.model.ScanResult;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.util.IO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.beans.BeanUtils.copyProperties;
 
@@ -47,6 +50,7 @@ public class AcceptClientServiceImpl {
     PathSetService pathSetService;
 
 
+    //接受客户端扫描的结果
     public void acceptClient(ScanResult scanResult) {
         String scanObjectId = scanResult.getScanObjectId();
         ScanPlay scanPlay = scanPlayService.findOne(scanObjectId);
@@ -62,11 +66,7 @@ public class AcceptClientServiceImpl {
 
                 //查询扫描方案关联的扫描规则
                 List<ScanSchemeRule> schemeRuleList = schemeRuleService.findScanSchemeRuleList(new ScanSchemeRuleQuery().setScanSchemeId(scanScheme.getId()));
-                List<ScanSchemeRule> scanSchemeRules = schemeRuleList.stream().filter(a -> a.getIsDisable() == 0).toList();
-
-             /*   io.tiklab.sourcefare.scanner.model.ScanResult result = new io.tiklab.sourcefare.scanner.model.ScanResult();
-                copyProperties(scanResult, result);*/
-
+                List<ScanSchemeRule> scanSchemeRules = schemeRuleList.stream().filter(a -> a.getIsDisable() == 0).collect(Collectors.toList());
 
                 //创建扫描结果文件
                 CodeScanCommon.createRecordInstance(scanSchemeRules,recordInstanceService,scanRecord,scanResult);
@@ -80,14 +80,27 @@ public class AcceptClientServiceImpl {
     }
 
 
+    //接受客户端发送的代码
     public void acceptScanCode(MultipartFile file) {
         try {
-            String codePath = pathSetService.codePath() +"/"+ file.getOriginalFilename() ;
+            String originalFilename = file.getOriginalFilename();
+            String codePath = pathSetService.codePath() +"/"+ originalFilename;
             file.transferTo(new File(codePath));
 
+            //解压
+            String name = StringUtils.substringBefore(originalFilename, ".zip");
+            String outputFolderPath = pathSetService.codePath() +"/"+ name;
+            ProjectUtil.decompressionZip(codePath,outputFolderPath);
+            new File(codePath).delete();
 
+            String lastName = StringUtils.substringBefore(originalFilename, "-scanner");
+            String lastCodePath = pathSetService.codePath() +"/"+ lastName;
+            File repositoryFile = new File(lastCodePath);
+            if (repositoryFile.exists() ){
+                FileUtils.deleteDirectory(repositoryFile);
+            }
 
-
+          SourceFareUtil.updateDirName(outputFolderPath, lastCodePath, 1);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

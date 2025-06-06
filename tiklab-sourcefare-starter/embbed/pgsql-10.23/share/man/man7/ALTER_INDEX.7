@@ -1,0 +1,188 @@
+'\" t
+.\"     Title: ALTER INDEX
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER INDEX" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_INDEX \- change the definition of an index
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER INDEX [ IF EXISTS ] \fIname\fR RENAME TO \fInew_name\fR
+ALTER INDEX [ IF EXISTS ] \fIname\fR SET TABLESPACE \fItablespace_name\fR
+ALTER INDEX \fIname\fR DEPENDS ON EXTENSION \fIextension_name\fR
+ALTER INDEX [ IF EXISTS ] \fIname\fR SET ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+ALTER INDEX [ IF EXISTS ] \fIname\fR RESET ( \fIstorage_parameter\fR [, \&.\&.\&. ] )
+ALTER INDEX ALL IN TABLESPACE \fIname\fR [ OWNED BY \fIrole_name\fR [, \&.\&.\&. ] ]
+    SET TABLESPACE \fInew_tablespace\fR [ NOWAIT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER INDEX\fR
+changes the definition of an existing index\&. There are several subforms:
+.PP
+RENAME
+.RS 4
+The
+RENAME
+form changes the name of the index\&. There is no effect on the stored data\&.
+.RE
+.PP
+SET TABLESPACE
+.RS 4
+This form changes the index\*(Aqs tablespace to the specified tablespace and moves the data file(s) associated with the index to the new tablespace\&. To change the tablespace of an index, you must own the index and have
+CREATE
+privilege on the new tablespace\&. All indexes in the current database in a tablespace can be moved by using the
+ALL IN TABLESPACE
+form, which will lock all indexes to be moved and then move each one\&. This form also supports
+OWNED BY, which will only move indexes owned by the roles specified\&. If the
+NOWAIT
+option is specified then the command will fail if it is unable to acquire all of the locks required immediately\&. Note that system catalogs will not be moved by this command, use
+\fBALTER DATABASE\fR
+or explicit
+\fBALTER INDEX\fR
+invocations instead if desired\&. See also
+CREATE TABLESPACE (\fBCREATE_TABLESPACE\fR(7))\&.
+.RE
+.PP
+DEPENDS ON EXTENSION
+.RS 4
+This form marks the index as dependent on the extension, such that if the extension is dropped, the index will automatically be dropped as well\&.
+.RE
+.PP
+SET ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+.RS 4
+This form changes one or more index\-method\-specific storage parameters for the index\&. See
+CREATE INDEX (\fBCREATE_INDEX\fR(7))
+for details on the available parameters\&. Note that the index contents will not be modified immediately by this command; depending on the parameter you might need to rebuild the index with
+\fBREINDEX\fR(7)
+to get the desired effects\&.
+.RE
+.PP
+RESET ( \fIstorage_parameter\fR [, \&.\&.\&. ] )
+.RS 4
+This form resets one or more index\-method\-specific storage parameters to their defaults\&. As with
+SET, a
+REINDEX
+might be needed to update the index entirely\&.
+.RE
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the index does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (possibly schema\-qualified) of an existing index to alter\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the index\&.
+.RE
+.PP
+\fItablespace_name\fR
+.RS 4
+The tablespace to which the index will be moved\&.
+.RE
+.PP
+\fIextension_name\fR
+.RS 4
+The name of the extension that the index is to depend on\&.
+.RE
+.PP
+\fIstorage_parameter\fR
+.RS 4
+The name of an index\-method\-specific storage parameter\&.
+.RE
+.PP
+\fIvalue\fR
+.RS 4
+The new value for an index\-method\-specific storage parameter\&. This might be a number or a word depending on the parameter\&.
+.RE
+.SH "NOTES"
+.PP
+These operations are also possible using
+ALTER TABLE (\fBALTER_TABLE\fR(7))\&.
+\fBALTER INDEX\fR
+is in fact just an alias for the forms of
+\fBALTER TABLE\fR
+that apply to indexes\&.
+.PP
+There was formerly an
+\fBALTER INDEX OWNER\fR
+variant, but this is now ignored (with a warning)\&. An index cannot have an owner different from its table\*(Aqs owner\&. Changing the table\*(Aqs owner automatically changes the index as well\&.
+.PP
+Changing any part of a system catalog index is not permitted\&.
+.SH "EXAMPLES"
+.PP
+To rename an existing index:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER INDEX distributors RENAME TO suppliers;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To move an index to a different tablespace:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER INDEX distributors SET TABLESPACE fasttablespace;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change an index\*(Aqs fill factor (assuming that the index method supports it):
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER INDEX distributors SET (fillfactor = 75);
+REINDEX INDEX distributors;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER INDEX\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE INDEX (\fBCREATE_INDEX\fR(7)), \fBREINDEX\fR(7)

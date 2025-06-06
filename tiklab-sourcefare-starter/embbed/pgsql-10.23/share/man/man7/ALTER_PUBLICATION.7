@@ -1,0 +1,134 @@
+'\" t
+.\"     Title: ALTER PUBLICATION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER PUBLICATION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_PUBLICATION \- change the definition of a publication
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER PUBLICATION \fIname\fR ADD TABLE [ ONLY ] \fItable_name\fR [ * ] [, \&.\&.\&.]
+ALTER PUBLICATION \fIname\fR SET TABLE [ ONLY ] \fItable_name\fR [ * ] [, \&.\&.\&.]
+ALTER PUBLICATION \fIname\fR DROP TABLE [ ONLY ] \fItable_name\fR [ * ] [, \&.\&.\&.]
+ALTER PUBLICATION \fIname\fR SET ( \fIpublication_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+ALTER PUBLICATION \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER PUBLICATION \fIname\fR RENAME TO \fInew_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+The command
+\fBALTER PUBLICATION\fR
+can change the attributes of a publication\&.
+.PP
+The first three variants change which tables are part of the publication\&. The
+SET TABLE
+clause will replace the list of tables in the publication with the specified one\&. The
+ADD TABLE
+and
+DROP TABLE
+clauses will add and remove one or more tables from the publication\&. Note that adding tables to a publication that is already subscribed to will require a
+ALTER SUBSCRIPTION \&.\&.\&. REFRESH PUBLICATION
+action on the subscribing side in order to become effective\&.
+.PP
+The fourth variant of this command listed in the synopsis can change all of the publication properties specified in
+CREATE PUBLICATION (\fBCREATE_PUBLICATION\fR(7))\&. Properties not mentioned in the command retain their previous settings\&.
+.PP
+The remaining variants change the owner and the name of the publication\&.
+.PP
+You must own the publication to use
+\fBALTER PUBLICATION\fR\&. Adding a table to a publication additionally requires owning that table\&. To alter the owner, you must also be a direct or indirect member of the new owning role\&. The new owner must have
+CREATE
+privilege on the database\&. Also, the new owner of a
+FOR ALL TABLES
+publication must be a superuser\&. However, a superuser can change the ownership of a publication regardless of these restrictions\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing publication whose definition is to be altered\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+Name of an existing table\&. If
+ONLY
+is specified before the table name, only that table is affected\&. If
+ONLY
+is not specified, the table and all its descendant tables (if any) are affected\&. Optionally,
+*
+can be specified after the table name to explicitly indicate that descendant tables are included\&.
+.RE
+.PP
+SET ( \fIpublication_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+.RS 4
+This clause alters publication parameters originally set by
+CREATE PUBLICATION (\fBCREATE_PUBLICATION\fR(7))\&. See there for more information\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the publication\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the publication\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Change the publication to publish only deletes and updates:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER PUBLICATION noinsert SET (publish = \*(Aqupdate, delete\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Add some tables to the publication:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER PUBLICATION mypublication ADD TABLE users, departments;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER PUBLICATION\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE PUBLICATION (\fBCREATE_PUBLICATION\fR(7)), DROP PUBLICATION (\fBDROP_PUBLICATION\fR(7)), CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7)), ALTER SUBSCRIPTION (\fBALTER_SUBSCRIPTION\fR(7))

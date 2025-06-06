@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.tiklab.core.exception.ApplicationException;
 import io.tiklab.core.exception.SystemException;
 import io.tiklab.sourcefare.common.SourceFareUtil;
-import io.tiklab.sourcefare.common.SourceWairFinal;
+import io.tiklab.sourcefare.common.SourceWairServerFinal;
 import io.tiklab.sourcefare.server.model.RepositoryServer;
 import io.tiklab.sourcefare.server.model.ThirdBranch;
 import io.tiklab.sourcefare.server.model.ThirdRepository;
@@ -38,7 +38,7 @@ public class ServerGitPukServiceImpl implements ServerGitPukService {
 
         try {
             //查询仓库地址
-            String findPath = serverAddress + SourceWairFinal.FIND_REPOSITORY_GIT_PUK;
+            String findPath = serverAddress + SourceWairServerFinal.FIND_REPOSITORY_GIT_PUK;
 
             // 创建请求头对象
             HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, new HashMap<>());
@@ -89,7 +89,7 @@ public class ServerGitPukServiceImpl implements ServerGitPukService {
 
         try {
             //查询仓库地址
-            String findPath = serverAddress + SourceWairFinal.FIND_REPOSITORY_BRANCH_GIT_PUK;
+            String findPath = serverAddress + SourceWairServerFinal.FIND_REPOSITORY_BRANCH_GIT_PUK;
 
             // 创建请求头对象
             HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, new HashMap<>());

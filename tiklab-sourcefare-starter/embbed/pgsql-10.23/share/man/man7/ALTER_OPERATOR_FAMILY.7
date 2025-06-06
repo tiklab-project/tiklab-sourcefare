@@ -1,0 +1,259 @@
+'\" t
+.\"     Title: ALTER OPERATOR FAMILY
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER OPERATOR FAMILY" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_OPERATOR_FAMILY \- change the definition of an operator family
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER OPERATOR FAMILY \fIname\fR USING \fIindex_method\fR ADD
+  {  OPERATOR \fIstrategy_number\fR \fIoperator_name\fR ( \fIop_type\fR, \fIop_type\fR )
+              [ FOR SEARCH | FOR ORDER BY \fIsort_family_name\fR ]
+   | FUNCTION \fIsupport_number\fR [ ( \fIop_type\fR [ , \fIop_type\fR ] ) ]
+              \fIfunction_name\fR [ ( \fIargument_type\fR [, \&.\&.\&.] ) ]
+  } [, \&.\&.\&. ]
+
+ALTER OPERATOR FAMILY \fIname\fR USING \fIindex_method\fR DROP
+  {  OPERATOR \fIstrategy_number\fR ( \fIop_type\fR [ , \fIop_type\fR ] )
+   | FUNCTION \fIsupport_number\fR ( \fIop_type\fR [ , \fIop_type\fR ] )
+  } [, \&.\&.\&. ]
+
+ALTER OPERATOR FAMILY \fIname\fR USING \fIindex_method\fR
+    RENAME TO \fInew_name\fR
+
+ALTER OPERATOR FAMILY \fIname\fR USING \fIindex_method\fR
+    OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+
+ALTER OPERATOR FAMILY \fIname\fR USING \fIindex_method\fR
+    SET SCHEMA \fInew_schema\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER OPERATOR FAMILY\fR
+changes the definition of an operator family\&. You can add operators and support functions to the family, remove them from the family, or change the family\*(Aqs name or owner\&.
+.PP
+When operators and support functions are added to a family with
+\fBALTER OPERATOR FAMILY\fR, they are not part of any specific operator class within the family, but are just
+\(lqloose\(rq
+within the family\&. This indicates that these operators and functions are compatible with the family\*(Aqs semantics, but are not required for correct functioning of any specific index\&. (Operators and functions that are so required should be declared as part of an operator class, instead; see
+CREATE OPERATOR CLASS (\fBCREATE_OPERATOR_CLASS\fR(7))\&.)
+PostgreSQL
+will allow loose members of a family to be dropped from the family at any time, but members of an operator class cannot be dropped without dropping the whole class and any indexes that depend on it\&. Typically, single\-data\-type operators and functions are part of operator classes because they are needed to support an index on that specific data type, while cross\-data\-type operators and functions are made loose members of the family\&.
+.PP
+You must be a superuser to use
+\fBALTER OPERATOR FAMILY\fR\&. (This restriction is made because an erroneous operator family definition could confuse or even crash the server\&.)
+.PP
+\fBALTER OPERATOR FAMILY\fR
+does not presently check whether the operator family definition includes all the operators and functions required by the index method, nor whether the operators and functions form a self\-consistent set\&. It is the user\*(Aqs responsibility to define a valid operator family\&.
+.PP
+Refer to
+Section\ \&37.14
+for further information\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing operator family\&.
+.RE
+.PP
+\fIindex_method\fR
+.RS 4
+The name of the index method this operator family is for\&.
+.RE
+.PP
+\fIstrategy_number\fR
+.RS 4
+The index method\*(Aqs strategy number for an operator associated with the operator family\&.
+.RE
+.PP
+\fIoperator_name\fR
+.RS 4
+The name (optionally schema\-qualified) of an operator associated with the operator family\&.
+.RE
+.PP
+\fIop_type\fR
+.RS 4
+In an
+OPERATOR
+clause, the operand data type(s) of the operator, or
+NONE
+to signify a left\-unary or right\-unary operator\&. Unlike the comparable syntax in
+\fBCREATE OPERATOR CLASS\fR, the operand data types must always be specified\&.
+.sp
+In an
+ADD FUNCTION
+clause, the operand data type(s) the function is intended to support, if different from the input data type(s) of the function\&. For B\-tree comparison functions and hash functions it is not necessary to specify
+\fIop_type\fR
+since the function\*(Aqs input data type(s) are always the correct ones to use\&. For B\-tree sort support functions and all functions in GiST, SP\-GiST and GIN operator classes, it is necessary to specify the operand data type(s) the function is to be used with\&.
+.sp
+In a
+DROP FUNCTION
+clause, the operand data type(s) the function is intended to support must be specified\&.
+.RE
+.PP
+\fIsort_family_name\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing
+btree
+operator family that describes the sort ordering associated with an ordering operator\&.
+.sp
+If neither
+FOR SEARCH
+nor
+FOR ORDER BY
+is specified,
+FOR SEARCH
+is the default\&.
+.RE
+.PP
+\fIsupport_number\fR
+.RS 4
+The index method\*(Aqs support procedure number for a function associated with the operator family\&.
+.RE
+.PP
+\fIfunction_name\fR
+.RS 4
+The name (optionally schema\-qualified) of a function that is an index method support procedure for the operator family\&. If no argument list is specified, the name must be unique in its schema\&.
+.RE
+.PP
+\fIargument_type\fR
+.RS 4
+The parameter data type(s) of the function\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the operator family\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the operator family\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the operator family\&.
+.RE
+.PP
+The
+OPERATOR
+and
+FUNCTION
+clauses can appear in any order\&.
+.SH "NOTES"
+.PP
+Notice that the
+DROP
+syntax only specifies the
+\(lqslot\(rq
+in the operator family, by strategy or support number and input data type(s)\&. The name of the operator or function occupying the slot is not mentioned\&. Also, for
+DROP FUNCTION
+the type(s) to specify are the input data type(s) the function is intended to support; for GiST, SP\-GiST and GIN indexes this might have nothing to do with the actual input argument types of the function\&.
+.PP
+Because the index machinery does not check access permissions on functions before using them, including a function or operator in an operator family is tantamount to granting public execute permission on it\&. This is usually not an issue for the sorts of functions that are useful in an operator family\&.
+.PP
+The operators should not be defined by SQL functions\&. A SQL function is likely to be inlined into the calling query, which will prevent the optimizer from recognizing that the query matches an index\&.
+.PP
+Before
+PostgreSQL
+8\&.4, the
+OPERATOR
+clause could include a
+RECHECK
+option\&. This is no longer supported because whether an index operator is
+\(lqlossy\(rq
+is now determined on\-the\-fly at run time\&. This allows efficient handling of cases where an operator might or might not be lossy\&.
+.SH "EXAMPLES"
+.PP
+The following example command adds cross\-data\-type operators and support functions to an operator family that already contains B\-tree operator classes for data types
+int4
+and
+int2\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER OPERATOR FAMILY integer_ops USING btree ADD
+
+  \-\- int4 vs int2
+  OPERATOR 1 < (int4, int2) ,
+  OPERATOR 2 <= (int4, int2) ,
+  OPERATOR 3 = (int4, int2) ,
+  OPERATOR 4 >= (int4, int2) ,
+  OPERATOR 5 > (int4, int2) ,
+  FUNCTION 1 btint42cmp(int4, int2) ,
+
+  \-\- int2 vs int4
+  OPERATOR 1 < (int2, int4) ,
+  OPERATOR 2 <= (int2, int4) ,
+  OPERATOR 3 = (int2, int4) ,
+  OPERATOR 4 >= (int2, int4) ,
+  OPERATOR 5 > (int2, int4) ,
+  FUNCTION 1 btint24cmp(int2, int4) ;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To remove these entries again:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER OPERATOR FAMILY integer_ops USING btree DROP
+
+  \-\- int4 vs int2
+  OPERATOR 1 (int4, int2) ,
+  OPERATOR 2 (int4, int2) ,
+  OPERATOR 3 (int4, int2) ,
+  OPERATOR 4 (int4, int2) ,
+  OPERATOR 5 (int4, int2) ,
+  FUNCTION 1 (int4, int2) ,
+
+  \-\- int2 vs int4
+  OPERATOR 1 (int2, int4) ,
+  OPERATOR 2 (int2, int4) ,
+  OPERATOR 3 (int2, int4) ,
+  OPERATOR 4 (int2, int4) ,
+  OPERATOR 5 (int2, int4) ,
+  FUNCTION 1 (int2, int4) ;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER OPERATOR FAMILY\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE OPERATOR FAMILY (\fBCREATE_OPERATOR_FAMILY\fR(7)), DROP OPERATOR FAMILY (\fBDROP_OPERATOR_FAMILY\fR(7)), CREATE OPERATOR CLASS (\fBCREATE_OPERATOR_CLASS\fR(7)), ALTER OPERATOR CLASS (\fBALTER_OPERATOR_CLASS\fR(7)), DROP OPERATOR CLASS (\fBDROP_OPERATOR_CLASS\fR(7))

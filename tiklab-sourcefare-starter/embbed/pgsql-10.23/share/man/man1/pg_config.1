@@ -1,0 +1,257 @@
+'\" t
+.\"     Title: pg_config
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PG_CONFIG" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pg_config \- retrieve information about the installed version of PostgreSQL
+.SH "SYNOPSIS"
+.HP \w'\fBpg_config\fR\ 'u
+\fBpg_config\fR [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+The
+pg_config
+utility prints configuration parameters of the currently installed version of
+PostgreSQL\&. It is intended, for example, to be used by software packages that want to interface to
+PostgreSQL
+to facilitate finding the required header files and libraries\&.
+.SH "OPTIONS"
+.PP
+To use
+pg_config, supply one or more of the following options:
+.PP
+\fB\-\-bindir\fR
+.RS 4
+Print the location of user executables\&. Use this, for example, to find the
+\fBpsql\fR
+program\&. This is normally also the location where the
+pg_config
+program resides\&.
+.RE
+.PP
+\fB\-\-docdir\fR
+.RS 4
+Print the location of documentation files\&.
+.RE
+.PP
+\fB\-\-htmldir\fR
+.RS 4
+Print the location of HTML documentation files\&.
+.RE
+.PP
+\fB\-\-includedir\fR
+.RS 4
+Print the location of C header files of the client interfaces\&.
+.RE
+.PP
+\fB\-\-pkgincludedir\fR
+.RS 4
+Print the location of other C header files\&.
+.RE
+.PP
+\fB\-\-includedir\-server\fR
+.RS 4
+Print the location of C header files for server programming\&.
+.RE
+.PP
+\fB\-\-libdir\fR
+.RS 4
+Print the location of object code libraries\&.
+.RE
+.PP
+\fB\-\-pkglibdir\fR
+.RS 4
+Print the location of dynamically loadable modules, or where the server would search for them\&. (Other architecture\-dependent data files might also be installed in this directory\&.)
+.RE
+.PP
+\fB\-\-localedir\fR
+.RS 4
+Print the location of locale support files\&. (This will be an empty string if locale support was not configured when
+PostgreSQL
+was built\&.)
+.RE
+.PP
+\fB\-\-mandir\fR
+.RS 4
+Print the location of manual pages\&.
+.RE
+.PP
+\fB\-\-sharedir\fR
+.RS 4
+Print the location of architecture\-independent support files\&.
+.RE
+.PP
+\fB\-\-sysconfdir\fR
+.RS 4
+Print the location of system\-wide configuration files\&.
+.RE
+.PP
+\fB\-\-pgxs\fR
+.RS 4
+Print the location of extension makefiles\&.
+.RE
+.PP
+\fB\-\-configure\fR
+.RS 4
+Print the options that were given to the
+configure
+script when
+PostgreSQL
+was configured for building\&. This can be used to reproduce the identical configuration, or to find out with what options a binary package was built\&. (Note however that binary packages often contain vendor\-specific custom patches\&.) See also the examples below\&.
+.RE
+.PP
+\fB\-\-cc\fR
+.RS 4
+Print the value of the
+\fICC\fR
+variable that was used for building
+PostgreSQL\&. This shows the C compiler used\&.
+.RE
+.PP
+\fB\-\-cppflags\fR
+.RS 4
+Print the value of the
+\fICPPFLAGS\fR
+variable that was used for building
+PostgreSQL\&. This shows C compiler switches needed at preprocessing time (typically,
+\-I
+switches)\&.
+.RE
+.PP
+\fB\-\-cflags\fR
+.RS 4
+Print the value of the
+\fICFLAGS\fR
+variable that was used for building
+PostgreSQL\&. This shows C compiler switches\&.
+.RE
+.PP
+\fB\-\-cflags_sl\fR
+.RS 4
+Print the value of the
+\fICFLAGS_SL\fR
+variable that was used for building
+PostgreSQL\&. This shows extra C compiler switches used for building shared libraries\&.
+.RE
+.PP
+\fB\-\-ldflags\fR
+.RS 4
+Print the value of the
+\fILDFLAGS\fR
+variable that was used for building
+PostgreSQL\&. This shows linker switches\&.
+.RE
+.PP
+\fB\-\-ldflags_ex\fR
+.RS 4
+Print the value of the
+\fILDFLAGS_EX\fR
+variable that was used for building
+PostgreSQL\&. This shows linker switches used for building executables only\&.
+.RE
+.PP
+\fB\-\-ldflags_sl\fR
+.RS 4
+Print the value of the
+\fILDFLAGS_SL\fR
+variable that was used for building
+PostgreSQL\&. This shows linker switches used for building shared libraries only\&.
+.RE
+.PP
+\fB\-\-libs\fR
+.RS 4
+Print the value of the
+\fILIBS\fR
+variable that was used for building
+PostgreSQL\&. This normally contains
+\-l
+switches for external libraries linked into
+PostgreSQL\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print the version of
+PostgreSQL\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+pg_config
+command line arguments, and exit\&.
+.RE
+If more than one option is given, the information is printed in that order, one item per line\&. If no options are given, all available information is printed, with labels\&.
+.SH "NOTES"
+.PP
+The options
+\fB\-\-docdir\fR,
+\fB\-\-pkgincludedir\fR,
+\fB\-\-localedir\fR,
+\fB\-\-mandir\fR,
+\fB\-\-sharedir\fR,
+\fB\-\-sysconfdir\fR,
+\fB\-\-cc\fR,
+\fB\-\-cppflags\fR,
+\fB\-\-cflags\fR,
+\fB\-\-cflags_sl\fR,
+\fB\-\-ldflags\fR,
+\fB\-\-ldflags_sl\fR, and
+\fB\-\-libs\fR
+were added in
+PostgreSQL
+8\&.1\&. The option
+\fB\-\-htmldir\fR
+was added in
+PostgreSQL
+8\&.4\&. The option
+\fB\-\-ldflags_ex\fR
+was added in
+PostgreSQL
+9\&.0\&.
+.SH "EXAMPLE"
+.PP
+To reproduce the build configuration of the current PostgreSQL installation, run the following command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+eval \&./configure `pg_config \-\-configure`
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The output of
+pg_config \-\-configure
+contains shell quotation marks so arguments with spaces are represented correctly\&. Therefore, using
+eval
+is required for proper results\&.

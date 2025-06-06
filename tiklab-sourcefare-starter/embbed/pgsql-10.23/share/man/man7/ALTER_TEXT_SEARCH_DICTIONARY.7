@@ -1,0 +1,132 @@
+'\" t
+.\"     Title: ALTER TEXT SEARCH DICTIONARY
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER TEXT SEARCH DICTIONARY" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_TEXT_SEARCH_DICTIONARY \- change the definition of a text search dictionary
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER TEXT SEARCH DICTIONARY \fIname\fR (
+    \fIoption\fR [ = \fIvalue\fR ] [, \&.\&.\&. ]
+)
+ALTER TEXT SEARCH DICTIONARY \fIname\fR RENAME TO \fInew_name\fR
+ALTER TEXT SEARCH DICTIONARY \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER TEXT SEARCH DICTIONARY \fIname\fR SET SCHEMA \fInew_schema\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER TEXT SEARCH DICTIONARY\fR
+changes the definition of a text search dictionary\&. You can change the dictionary\*(Aqs template\-specific options, or change the dictionary\*(Aqs name or owner\&.
+.PP
+You must be the owner of the dictionary to use
+\fBALTER TEXT SEARCH DICTIONARY\fR\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing text search dictionary\&.
+.RE
+.PP
+\fIoption\fR
+.RS 4
+The name of a template\-specific option to be set for this dictionary\&.
+.RE
+.PP
+\fIvalue\fR
+.RS 4
+The new value to use for a template\-specific option\&. If the equal sign and value are omitted, then any previous setting for the option is removed from the dictionary, allowing the default to be used\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the text search dictionary\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the text search dictionary\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the text search dictionary\&.
+.RE
+.PP
+Template\-specific options can appear in any order\&.
+.SH "EXAMPLES"
+.PP
+The following example command changes the stopword list for a Snowball\-based dictionary\&. Other parameters remain unchanged\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TEXT SEARCH DICTIONARY my_dict ( StopWords = newrussian );
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The following example command changes the language option to
+dutch, and removes the stopword option entirely\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TEXT SEARCH DICTIONARY my_dict ( language = dutch, StopWords );
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The following example command
+\(lqupdates\(rq
+the dictionary\*(Aqs definition without actually changing anything\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TEXT SEARCH DICTIONARY my_dict ( dummy );
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+(The reason this works is that the option removal code doesn\*(Aqt complain if there is no such option\&.) This trick is useful when changing configuration files for the dictionary: the
+\fBALTER\fR
+will force existing database sessions to re\-read the configuration files, which otherwise they would never do if they had read them earlier\&.
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER TEXT SEARCH DICTIONARY\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE TEXT SEARCH DICTIONARY (\fBCREATE_TEXT_SEARCH_DICTIONARY\fR(7)), DROP TEXT SEARCH DICTIONARY (\fBDROP_TEXT_SEARCH_DICTIONARY\fR(7))

@@ -1,0 +1,106 @@
+'\" t
+.\"     Title: ALTER CONVERSION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER CONVERSION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_CONVERSION \- change the definition of a conversion
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER CONVERSION \fIname\fR RENAME TO \fInew_name\fR
+ALTER CONVERSION \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER CONVERSION \fIname\fR SET SCHEMA \fInew_schema\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER CONVERSION\fR
+changes the definition of a conversion\&.
+.PP
+You must own the conversion to use
+\fBALTER CONVERSION\fR\&. To alter the owner, you must also be a direct or indirect member of the new owning role, and that role must have
+CREATE
+privilege on the conversion\*(Aqs schema\&. (These restrictions enforce that altering the owner doesn\*(Aqt do anything you couldn\*(Aqt do by dropping and recreating the conversion\&. However, a superuser can alter ownership of any conversion anyway\&.)
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing conversion\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the conversion\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the conversion\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the conversion\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To rename the conversion
+iso_8859_1_to_utf8
+to
+latin1_to_unicode:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER CONVERSION iso_8859_1_to_utf8 RENAME TO latin1_to_unicode;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change the owner of the conversion
+iso_8859_1_to_utf8
+to
+joe:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER CONVERSION iso_8859_1_to_utf8 OWNER TO joe;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER CONVERSION\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE CONVERSION (\fBCREATE_CONVERSION\fR(7)), DROP CONVERSION (\fBDROP_CONVERSION\fR(7))

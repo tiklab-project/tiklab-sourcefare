@@ -1,0 +1,99 @@
+'\" t
+.\"     Title: SPI_execp
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_EXECP" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_execp \- execute a statement in read/write mode
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_execp(SPIPlanPtr \fIplan\fR, Datum * \fIvalues\fR, const char * \fInulls\fR, long \fIcount\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_execp\fR
+is the same as
+\fBSPI_execute_plan\fR, with the latter\*(Aqs
+\fIread_only\fR
+parameter always taken as
+false\&.
+.SH "ARGUMENTS"
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+prepared statement (returned by
+\fBSPI_prepare\fR)
+.RE
+.PP
+Datum * \fIvalues\fR
+.RS 4
+An array of actual parameter values\&. Must have same length as the statement\*(Aqs number of arguments\&.
+.RE
+.PP
+const char * \fInulls\fR
+.RS 4
+An array describing which parameters are null\&. Must have same length as the statement\*(Aqs number of arguments\&.
+.sp
+If
+\fInulls\fR
+is
+NULL
+then
+\fBSPI_execp\fR
+assumes that no parameters are null\&. Otherwise, each entry of the
+\fInulls\fR
+array should be
+\*(Aq\ \&\*(Aq
+if the corresponding parameter value is non\-null, or
+\*(Aqn\*(Aq
+if the corresponding parameter value is null\&. (In the latter case, the actual value in the corresponding
+\fIvalues\fR
+entry doesn\*(Aqt matter\&.) Note that
+\fInulls\fR
+is not a text string, just an array: it does not need a
+\*(Aq\e0\*(Aq
+terminator\&.
+.RE
+.PP
+long \fIcount\fR
+.RS 4
+maximum number of rows to return, or
+0
+for no limit
+.RE
+.SH "RETURN VALUE"
+.PP
+See
+\fBSPI_execute_plan\fR\&.
+.PP
+\fISPI_processed\fR
+and
+\fISPI_tuptable\fR
+are set as in
+\fBSPI_execute\fR
+if successful\&.

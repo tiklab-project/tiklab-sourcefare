@@ -1,0 +1,145 @@
+'\" t
+.\"     Title: DROP AGGREGATE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP AGGREGATE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_AGGREGATE \- remove an aggregate function
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP AGGREGATE [ IF EXISTS ] \fIname\fR ( \fIaggregate_signature\fR ) [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+
+where \fIaggregate_signature\fR is:
+
+* |
+[ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] |
+[ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] ] ORDER BY [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP AGGREGATE\fR
+removes an existing aggregate function\&. To execute this command the current user must be the owner of the aggregate function\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the aggregate does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing aggregate function\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of an argument:
+IN
+or
+VARIADIC\&. If omitted, the default is
+IN\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of an argument\&. Note that
+\fBDROP AGGREGATE\fR
+does not actually pay any attention to argument names, since only the argument data types are needed to determine the aggregate function\*(Aqs identity\&.
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+An input data type on which the aggregate function operates\&. To reference a zero\-argument aggregate function, write
+*
+in place of the list of argument specifications\&. To reference an ordered\-set aggregate function, write
+ORDER BY
+between the direct and aggregated argument specifications\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the aggregate function (such as views using it), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the aggregate function if any objects depend on it\&. This is the default\&.
+.RE
+.SH "NOTES"
+.PP
+Alternative syntaxes for referencing ordered\-set aggregates are described under
+ALTER AGGREGATE (\fBALTER_AGGREGATE\fR(7))\&.
+.SH "EXAMPLES"
+.PP
+To remove the aggregate function
+myavg
+for type
+integer:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP AGGREGATE myavg(integer);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To remove the hypothetical\-set aggregate function
+myrank, which takes an arbitrary list of ordering columns and a matching list of direct arguments:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP AGGREGATE myrank(VARIADIC "any" ORDER BY VARIADIC "any");
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To remove multiple aggregate functions in one command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP AGGREGATE myavg(integer), myavg(bigint);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBDROP AGGREGATE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER AGGREGATE (\fBALTER_AGGREGATE\fR(7)), CREATE AGGREGATE (\fBCREATE_AGGREGATE\fR(7))

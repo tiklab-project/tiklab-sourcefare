@@ -31,7 +31,8 @@ public class SourceFareSqlLoad {
                 "backups_1.0.0",
 
                 "scan_1.0.0",
-
+                "scan-message_1.0.0",
+                "scan-role_1.0.0",
         });
 
         dsmConfig.newVersion("1.0.1", new String[]{

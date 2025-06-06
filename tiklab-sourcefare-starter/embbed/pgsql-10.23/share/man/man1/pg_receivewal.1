@@ -1,0 +1,325 @@
+'\" t
+.\"     Title: pg_receivewal
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PG_RECEIVEWAL" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pg_receivewal \- stream write\-ahead logs from a PostgreSQL server
+.SH "SYNOPSIS"
+.HP \w'\fBpg_receivewal\fR\ 'u
+\fBpg_receivewal\fR [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+pg_receivewal
+is used to stream the write\-ahead log from a running
+PostgreSQL
+cluster\&. The write\-ahead log is streamed using the streaming replication protocol, and is written to a local directory of files\&. This directory can be used as the archive location for doing a restore using point\-in\-time recovery (see
+Section\ \&25.3)\&.
+.PP
+pg_receivewal
+streams the write\-ahead log in real time as it\*(Aqs being generated on the server, and does not wait for segments to complete like
+archive_command
+does\&. For this reason, it is not necessary to set
+archive_timeout
+when using
+pg_receivewal\&.
+.PP
+Unlike the WAL receiver of a PostgreSQL standby server,
+pg_receivewal
+by default flushes WAL data only when a WAL file is closed\&. The option
+\fB\-\-synchronous\fR
+must be specified to flush WAL data in real time\&. Since
+pg_receivewal
+does not apply WAL, you should not allow it to become a synchronous standby when
+synchronous_commit
+equals
+remote_apply\&. If it does, it will appear to be a standby that never catches up, and will cause transaction commits to block\&. To avoid this, you should either configure an appropriate value for
+synchronous_standby_names, or specify
+\fIapplication_name\fR
+for
+pg_receivewal
+that does not match it, or change the value of
+\fIsynchronous_commit\fR
+to something other than
+remote_apply\&.
+.PP
+The write\-ahead log is streamed over a regular
+PostgreSQL
+connection and uses the replication protocol\&. The connection must be made with a superuser or a user having
+REPLICATION
+permissions (see
+Section\ \&21.2), and
+pg_hba\&.conf
+must permit the replication connection\&. The server must also be configured with
+max_wal_senders
+set high enough to leave at least one session available for the stream\&.
+.PP
+The starting point of the write\-ahead log streaming is calculated when
+pg_receivewal
+starts:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+First, scan the directory where the WAL segment files are written and find the newest completed segment file, using as the starting point the beginning of the next WAL segment file\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+If a starting point cannot be calculated with the previous method, the latest WAL flush location is used as reported by the server from an
+IDENTIFY_SYSTEM
+command\&.
+.RE
+.PP
+If the connection is lost, or if it cannot be initially established, with a non\-fatal error,
+pg_receivewal
+will retry the connection indefinitely, and reestablish streaming as soon as possible\&. To avoid this behavior, use the
+\-n
+parameter\&.
+.SH "OPTIONS"
+.PP
+\fB\-D \fR\fB\fIdirectory\fR\fR
+.br
+\fB\-\-directory=\fR\fB\fIdirectory\fR\fR
+.RS 4
+Directory to write the output to\&.
+.sp
+This parameter is required\&.
+.RE
+.PP
+\fB\-\-if\-not\-exists\fR
+.RS 4
+Do not error out when
+\fB\-\-create\-slot\fR
+is specified and a slot with the specified name already exists\&.
+.RE
+.PP
+\fB\-n\fR
+.br
+\fB\-\-no\-loop\fR
+.RS 4
+Don\*(Aqt loop on connection errors\&. Instead, exit right away with an error\&.
+.RE
+.PP
+\fB\-s \fR\fB\fIinterval\fR\fR
+.br
+\fB\-\-status\-interval=\fR\fB\fIinterval\fR\fR
+.RS 4
+Specifies the number of seconds between status packets sent back to the server\&. This allows for easier monitoring of the progress from server\&. A value of zero disables the periodic status updates completely, although an update will still be sent when requested by the server, to avoid timeout disconnect\&. The default value is 10 seconds\&.
+.RE
+.PP
+\fB\-S \fR\fB\fIslotname\fR\fR
+.br
+\fB\-\-slot=\fR\fB\fIslotname\fR\fR
+.RS 4
+Require
+pg_receivewal
+to use an existing replication slot (see
+Section\ \&26.2.6)\&. When this option is used,
+pg_receivewal
+will report a flush position to the server, indicating when each segment has been synchronized to disk so that the server can remove that segment if it is not otherwise needed\&.
+.sp
+When the replication client of
+pg_receivewal
+is configured on the server as a synchronous standby, then using a replication slot will report the flush position to the server, but only when a WAL file is closed\&. Therefore, that configuration will cause transactions on the primary to wait for a long time and effectively not work satisfactorily\&. The option
+\-\-synchronous
+(see below) must be specified in addition to make this work correctly\&.
+.RE
+.PP
+\fB\-\-synchronous\fR
+.RS 4
+Flush the WAL data to disk immediately after it has been received\&. Also send a status packet back to the server immediately after flushing, regardless of
+\-\-status\-interval\&.
+.sp
+This option should be specified if the replication client of
+pg_receivewal
+is configured on the server as a synchronous standby, to ensure that timely feedback is sent to the server\&.
+.RE
+.PP
+\fB\-v\fR
+.br
+\fB\-\-verbose\fR
+.RS 4
+Enables verbose mode\&.
+.RE
+.PP
+\fB\-Z \fR\fB\fIlevel\fR\fR
+.br
+\fB\-\-compress=\fR\fB\fIlevel\fR\fR
+.RS 4
+Enables gzip compression of write\-ahead logs, and specifies the compression level (0 through 9, 0 being no compression and 9 being best compression)\&. The suffix
+\&.gz
+will automatically be added to all filenames\&.
+.RE
+.PP
+The following command\-line options control the database connection parameters\&.
+.PP
+\fB\-d \fR\fB\fIconnstr\fR\fR
+.br
+\fB\-\-dbname=\fR\fB\fIconnstr\fR\fR
+.RS 4
+Specifies parameters used to connect to the server, as a
+connection string; these will override any conflicting command line options\&.
+.sp
+The option is called
+\-\-dbname
+for consistency with other client applications, but because
+pg_receivewal
+doesn\*(Aqt connect to any particular database in the cluster, database name in the connection string will be ignored\&.
+.RE
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&. The default is taken from the
+\fBPGHOST\fR
+environment variable, if set, else a Unix domain socket connection is attempted\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&. Defaults to the
+\fBPGPORT\fR
+environment variable, if set, or a compiled\-in default\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+pg_receivewal
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+pg_receivewal
+will automatically prompt for a password if the server demands password authentication\&. However,
+pg_receivewal
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+pg_receivewal
+can perform one of the two following actions in order to control physical replication slots:
+.PP
+\fB\-\-create\-slot\fR
+.RS 4
+Create a new physical replication slot with the name specified in
+\fB\-\-slot\fR, then exit\&.
+.RE
+.PP
+\fB\-\-drop\-slot\fR
+.RS 4
+Drop the replication slot with the name specified in
+\fB\-\-slot\fR, then exit\&.
+.RE
+.PP
+Other options are also available:
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+pg_receivewal
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+pg_receivewal
+command line arguments, and exit\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+This utility, like most other
+PostgreSQL
+utilities, uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "NOTES"
+.PP
+When using
+pg_receivewal
+instead of
+archive_command
+as the main WAL backup method, it is strongly recommended to use replication slots\&. Otherwise, the server is free to recycle or remove write\-ahead log files before they are backed up, because it does not have any information, either from
+archive_command
+or the replication slots, about how far the WAL stream has been archived\&. Note, however, that a replication slot will fill up the server\*(Aqs disk space if the receiver does not keep up with fetching the WAL data\&.
+.SH "EXAMPLES"
+.PP
+To stream the write\-ahead log from the server at
+mydbserver
+and store it in the local directory
+/usr/local/pgsql/archive:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_receivewal \-h mydbserver \-D /usr/local/pgsql/archive\fR
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+\fBpg_basebackup\fR(1)

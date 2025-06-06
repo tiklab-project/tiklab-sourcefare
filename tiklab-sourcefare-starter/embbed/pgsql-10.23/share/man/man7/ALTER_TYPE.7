@@ -1,0 +1,276 @@
+'\" t
+.\"     Title: ALTER TYPE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER TYPE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_TYPE \- change the definition of a type
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER TYPE \fIname\fR \fIaction\fR [, \&.\&.\&. ]
+ALTER TYPE \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER TYPE \fIname\fR RENAME ATTRIBUTE \fIattribute_name\fR TO \fInew_attribute_name\fR [ CASCADE | RESTRICT ]
+ALTER TYPE \fIname\fR RENAME TO \fInew_name\fR
+ALTER TYPE \fIname\fR SET SCHEMA \fInew_schema\fR
+ALTER TYPE \fIname\fR ADD VALUE [ IF NOT EXISTS ] \fInew_enum_value\fR [ { BEFORE | AFTER } \fIneighbor_enum_value\fR ]
+ALTER TYPE \fIname\fR RENAME VALUE \fIexisting_enum_value\fR TO \fInew_enum_value\fR
+
+where \fIaction\fR is one of:
+
+    ADD ATTRIBUTE \fIattribute_name\fR \fIdata_type\fR [ COLLATE \fIcollation\fR ] [ CASCADE | RESTRICT ]
+    DROP ATTRIBUTE [ IF EXISTS ] \fIattribute_name\fR [ CASCADE | RESTRICT ]
+    ALTER ATTRIBUTE \fIattribute_name\fR [ SET DATA ] TYPE \fIdata_type\fR [ COLLATE \fIcollation\fR ] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER TYPE\fR
+changes the definition of an existing type\&. There are several subforms:
+.PP
+ADD ATTRIBUTE
+.RS 4
+This form adds a new attribute to a composite type, using the same syntax as
+CREATE TYPE (\fBCREATE_TYPE\fR(7))\&.
+.RE
+.PP
+DROP ATTRIBUTE [ IF EXISTS ]
+.RS 4
+This form drops an attribute from a composite type\&. If
+IF EXISTS
+is specified and the attribute does not exist, no error is thrown\&. In this case a notice is issued instead\&.
+.RE
+.PP
+SET DATA TYPE
+.RS 4
+This form changes the type of an attribute of a composite type\&.
+.RE
+.PP
+OWNER
+.RS 4
+This form changes the owner of the type\&.
+.RE
+.PP
+RENAME
+.RS 4
+This form changes the name of the type or the name of an individual attribute of a composite type\&.
+.RE
+.PP
+SET SCHEMA
+.RS 4
+This form moves the type into another schema\&.
+.RE
+.PP
+ADD VALUE [ IF NOT EXISTS ] [ BEFORE | AFTER ]
+.RS 4
+This form adds a new value to an enum type\&. The new value\*(Aqs place in the enum\*(Aqs ordering can be specified as being
+BEFORE
+or
+AFTER
+one of the existing values\&. Otherwise, the new item is added at the end of the list of values\&.
+.sp
+If
+IF NOT EXISTS
+is specified, it is not an error if the type already contains the new value: a notice is issued but no other action is taken\&. Otherwise, an error will occur if the new value is already present\&.
+.RE
+.PP
+RENAME VALUE
+.RS 4
+This form renames a value of an enum type\&. The value\*(Aqs place in the enum\*(Aqs ordering is not affected\&. An error will occur if the specified value is not present or the new name is already present\&.
+.RE
+.PP
+The
+ADD ATTRIBUTE,
+DROP ATTRIBUTE, and
+ALTER ATTRIBUTE
+actions can be combined into a list of multiple alterations to apply in parallel\&. For example, it is possible to add several attributes and/or alter the type of several attributes in a single command\&.
+.PP
+You must own the type to use
+\fBALTER TYPE\fR\&. To change the schema of a type, you must also have
+CREATE
+privilege on the new schema\&. To alter the owner, you must also be a direct or indirect member of the new owning role, and that role must have
+CREATE
+privilege on the type\*(Aqs schema\&. (These restrictions enforce that altering the owner doesn\*(Aqt do anything you couldn\*(Aqt do by dropping and recreating the type\&. However, a superuser can alter ownership of any type anyway\&.) To add an attribute or alter an attribute type, you must also have
+USAGE
+privilege on the data type\&.
+.SH "PARAMETERS"
+.PP
+.PP
+\fIname\fR
+.RS 4
+The name (possibly schema\-qualified) of an existing type to alter\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the type\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the type\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the type\&.
+.RE
+.PP
+\fIattribute_name\fR
+.RS 4
+The name of the attribute to add, alter, or drop\&.
+.RE
+.PP
+\fInew_attribute_name\fR
+.RS 4
+The new name of the attribute to be renamed\&.
+.RE
+.PP
+\fIdata_type\fR
+.RS 4
+The data type of the attribute to add, or the new type of the attribute to alter\&.
+.RE
+.PP
+\fInew_enum_value\fR
+.RS 4
+The new value to be added to an enum type\*(Aqs list of values, or the new name to be given to an existing value\&. Like all enum literals, it needs to be quoted\&.
+.RE
+.PP
+\fIneighbor_enum_value\fR
+.RS 4
+The existing enum value that the new value should be added immediately before or after in the enum type\*(Aqs sort ordering\&. Like all enum literals, it needs to be quoted\&.
+.RE
+.PP
+\fIexisting_enum_value\fR
+.RS 4
+The existing enum value that should be renamed\&. Like all enum literals, it needs to be quoted\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically propagate the operation to typed tables of the type being altered, and their descendants\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse the operation if the type being altered is the type of a typed table\&. This is the default\&.
+.RE
+.SH "NOTES"
+.PP
+\fBALTER TYPE \&.\&.\&. ADD VALUE\fR
+(the form that adds a new value to an enum type) cannot be executed inside a transaction block\&.
+.PP
+Comparisons involving an added enum value will sometimes be slower than comparisons involving only original members of the enum type\&. This will usually only occur if
+BEFORE
+or
+AFTER
+is used to set the new value\*(Aqs sort position somewhere other than at the end of the list\&. However, sometimes it will happen even though the new value is added at the end (this occurs if the OID counter
+\(lqwrapped around\(rq
+since the original creation of the enum type)\&. The slowdown is usually insignificant; but if it matters, optimal performance can be regained by dropping and recreating the enum type, or by dumping and reloading the database\&.
+.SH "EXAMPLES"
+.PP
+To rename a data type:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TYPE electronic_mail RENAME TO email;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change the owner of the type
+email
+to
+joe:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TYPE email OWNER TO joe;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change the schema of the type
+email
+to
+customers:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TYPE email SET SCHEMA customers;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To add a new attribute to a type:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TYPE compfoo ADD ATTRIBUTE f3 int;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To add a new value to an enum type in a particular sort position:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TYPE colors ADD VALUE \*(Aqorange\*(Aq AFTER \*(Aqred\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To rename an enum value:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TYPE colors RENAME VALUE \*(Aqpurple\*(Aq TO \*(Aqmauve\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The variants to add and drop attributes are part of the SQL standard; the other variants are PostgreSQL extensions\&.
+.SH "SEE ALSO"
+CREATE TYPE (\fBCREATE_TYPE\fR(7)), DROP TYPE (\fBDROP_TYPE\fR(7))

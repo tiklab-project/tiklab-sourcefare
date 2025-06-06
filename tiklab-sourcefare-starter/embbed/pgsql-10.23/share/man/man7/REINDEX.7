@@ -1,0 +1,250 @@
+'\" t
+.\"     Title: REINDEX
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "REINDEX" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+REINDEX \- rebuild indexes
+.SH "SYNOPSIS"
+.sp
+.nf
+REINDEX [ ( VERBOSE ) ] { INDEX | TABLE | SCHEMA | DATABASE | SYSTEM } \fIname\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBREINDEX\fR
+rebuilds an index using the data stored in the index\*(Aqs table, replacing the old copy of the index\&. There are several scenarios in which to use
+\fBREINDEX\fR:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+An index has become corrupted, and no longer contains valid data\&. Although in theory this should never happen, in practice indexes can become corrupted due to software bugs or hardware failures\&.
+\fBREINDEX\fR
+provides a recovery method\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+An index has become
+\(lqbloated\(rq, that is it contains many empty or nearly\-empty pages\&. This can occur with B\-tree indexes in
+PostgreSQL
+under certain uncommon access patterns\&.
+\fBREINDEX\fR
+provides a way to reduce the space consumption of the index by writing a new version of the index without the dead pages\&. See
+Section\ \&24.2
+for more information\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+You have altered a storage parameter (such as fillfactor) for an index, and wish to ensure that the change has taken full effect\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+An index build with the
+CONCURRENTLY
+option failed, leaving an
+\(lqinvalid\(rq
+index\&. Such indexes are useless but it can be convenient to use
+\fBREINDEX\fR
+to rebuild them\&. Note that
+\fBREINDEX\fR
+will not perform a concurrent build\&. To build the index without interfering with production you should drop the index and reissue the
+\fBCREATE INDEX CONCURRENTLY\fR
+command\&.
+.RE
+.SH "PARAMETERS"
+.PP
+INDEX
+.RS 4
+Recreate the specified index\&.
+.RE
+.PP
+TABLE
+.RS 4
+Recreate all indexes of the specified table\&. If the table has a secondary
+\(lqTOAST\(rq
+table, that is reindexed as well\&.
+.RE
+.PP
+SCHEMA
+.RS 4
+Recreate all indexes of the specified schema\&. If a table of this schema has a secondary
+\(lqTOAST\(rq
+table, that is reindexed as well\&. Indexes on shared system catalogs are also processed\&. This form of
+\fBREINDEX\fR
+cannot be executed inside a transaction block\&.
+.RE
+.PP
+DATABASE
+.RS 4
+Recreate all indexes within the current database\&. Indexes on shared system catalogs are also processed\&. This form of
+\fBREINDEX\fR
+cannot be executed inside a transaction block\&.
+.RE
+.PP
+SYSTEM
+.RS 4
+Recreate all indexes on system catalogs within the current database\&. Indexes on shared system catalogs are included\&. Indexes on user tables are not processed\&. This form of
+\fBREINDEX\fR
+cannot be executed inside a transaction block\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of the specific index, table, or database to be reindexed\&. Index and table names can be schema\-qualified\&. Presently,
+\fBREINDEX DATABASE\fR
+and
+\fBREINDEX SYSTEM\fR
+can only reindex the current database, so their parameter must match the current database\*(Aqs name\&.
+.RE
+.PP
+VERBOSE
+.RS 4
+Prints a progress report as each index is reindexed\&.
+.RE
+.SH "NOTES"
+.PP
+If you suspect corruption of an index on a user table, you can simply rebuild that index, or all indexes on the table, using
+\fBREINDEX INDEX\fR
+or
+\fBREINDEX TABLE\fR\&.
+.PP
+Things are more difficult if you need to recover from corruption of an index on a system table\&. In this case it\*(Aqs important for the system to not have used any of the suspect indexes itself\&. (Indeed, in this sort of scenario you might find that server processes are crashing immediately at start\-up, due to reliance on the corrupted indexes\&.) To recover safely, the server must be started with the
+\fB\-P\fR
+option, which prevents it from using indexes for system catalog lookups\&.
+.PP
+One way to do this is to shut down the server and start a single\-user
+PostgreSQL
+server with the
+\fB\-P\fR
+option included on its command line\&. Then,
+\fBREINDEX DATABASE\fR,
+\fBREINDEX SYSTEM\fR,
+\fBREINDEX TABLE\fR, or
+\fBREINDEX INDEX\fR
+can be issued, depending on how much you want to reconstruct\&. If in doubt, use
+\fBREINDEX SYSTEM\fR
+to select reconstruction of all system indexes in the database\&. Then quit the single\-user server session and restart the regular server\&. See the
+\fBpostgres\fR(1)
+reference page for more information about how to interact with the single\-user server interface\&.
+.PP
+Alternatively, a regular server session can be started with
+\fB\-P\fR
+included in its command line options\&. The method for doing this varies across clients, but in all
+libpq\-based clients, it is possible to set the
+\fBPGOPTIONS\fR
+environment variable to
+\-P
+before starting the client\&. Note that while this method does not require locking out other clients, it might still be wise to prevent other users from connecting to the damaged database until repairs have been completed\&.
+.PP
+\fBREINDEX\fR
+is similar to a drop and recreate of the index in that the index contents are rebuilt from scratch\&. However, the locking considerations are rather different\&.
+\fBREINDEX\fR
+locks out writes but not reads of the index\*(Aqs parent table\&. It also takes an
+ACCESS EXCLUSIVE
+lock on the specific index being processed, which will block reads that attempt to use that index\&. In contrast,
+\fBDROP INDEX\fR
+momentarily takes an
+ACCESS EXCLUSIVE
+lock on the parent table, blocking both writes and reads\&. The subsequent
+\fBCREATE INDEX\fR
+locks out writes but not reads; since the index is not there, no read will attempt to use it, meaning that there will be no blocking but reads might be forced into expensive sequential scans\&.
+.PP
+Reindexing a single index or table requires being the owner of that index or table\&. Reindexing a database requires being the owner of the database (note that the owner can therefore rebuild indexes of tables owned by other users)\&. Of course, superusers can always reindex anything\&.
+.SH "EXAMPLES"
+.PP
+Rebuild a single index:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+REINDEX INDEX my_index;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Rebuild all the indexes on the table
+my_table:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+REINDEX TABLE my_table;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Rebuild all indexes in a particular database, without trusting the system indexes to be valid already:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBexport PGOPTIONS="\-P"\fR
+$ \fBpsql broken_db\fR
+\&.\&.\&.
+broken_db=> REINDEX DATABASE broken_db;
+broken_db=> \eq
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBREINDEX\fR
+command in the SQL standard\&.

@@ -1,0 +1,13 @@
+<FindBugsFilter>
+    <!-- 排除所有 JAR 文件（依赖库） -->
+    <Match>
+        <Class name="~.*\.jar!.*"/>
+    </Match>
+
+    <Match>
+    <Class name="org/**" />
+</Match>
+<Match>
+<Class name="**/com/**" />
+</Match>
+</FindBugsFilter>

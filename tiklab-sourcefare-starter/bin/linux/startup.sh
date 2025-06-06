@@ -3,7 +3,7 @@
 DIRS=$(dirname "$PWD")
 
 APP_MAIN="io.tiklab.sourcefare.starter.SourceFareApplication"
-APPLY=hadess-ee
+APPLY=sourceFare
 
 DATA_HOME=""
 YAML=${DIRS}/conf/application.yaml

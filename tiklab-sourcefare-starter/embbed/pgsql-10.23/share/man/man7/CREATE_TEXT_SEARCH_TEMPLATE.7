@@ -1,0 +1,81 @@
+'\" t
+.\"     Title: CREATE TEXT SEARCH TEMPLATE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TEXT SEARCH TEMPLATE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TEXT_SEARCH_TEMPLATE \- define a new text search template
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE TEXT SEARCH TEMPLATE \fIname\fR (
+    [ INIT = \fIinit_function\fR , ]
+    LEXIZE = \fIlexize_function\fR
+)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TEXT SEARCH TEMPLATE\fR
+creates a new text search template\&. Text search templates define the functions that implement text search dictionaries\&. A template is not useful by itself, but must be instantiated as a dictionary to be used\&. The dictionary typically specifies parameters to be given to the template functions\&.
+.PP
+If a schema name is given then the text search template is created in the specified schema\&. Otherwise it is created in the current schema\&.
+.PP
+You must be a superuser to use
+\fBCREATE TEXT SEARCH TEMPLATE\fR\&. This restriction is made because an erroneous text search template definition could confuse or even crash the server\&. The reason for separating templates from dictionaries is that a template encapsulates the
+\(lqunsafe\(rq
+aspects of defining a dictionary\&. The parameters that can be set when defining a dictionary are safe for unprivileged users to set, and so creating a dictionary need not be a privileged operation\&.
+.PP
+Refer to
+Chapter\ \&12
+for further information\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the text search template to be created\&. The name can be schema\-qualified\&.
+.RE
+.PP
+\fIinit_function\fR
+.RS 4
+The name of the init function for the template\&.
+.RE
+.PP
+\fIlexize_function\fR
+.RS 4
+The name of the lexize function for the template\&.
+.RE
+.PP
+The function names can be schema\-qualified if necessary\&. Argument types are not given, since the argument list for each type of function is predetermined\&. The lexize function is required, but the init function is optional\&.
+.PP
+The arguments can appear in any order, not only the one shown above\&.
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCREATE TEXT SEARCH TEMPLATE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER TEXT SEARCH TEMPLATE (\fBALTER_TEXT_SEARCH_TEMPLATE\fR(7)), DROP TEXT SEARCH TEMPLATE (\fBDROP_TEXT_SEARCH_TEMPLATE\fR(7))

@@ -1,0 +1,63 @@
+'\" t
+.\"     Title: SPI_keepplan
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_KEEPPLAN" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_keepplan \- save a prepared statement
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_keepplan(SPIPlanPtr \fIplan\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_keepplan\fR
+saves a passed statement (prepared by
+\fBSPI_prepare\fR) so that it will not be freed by
+\fBSPI_finish\fR
+nor by the transaction manager\&. This gives you the ability to reuse prepared statements in the subsequent invocations of your procedure in the current session\&.
+.SH "ARGUMENTS"
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+the prepared statement to be saved
+.RE
+.SH "RETURN VALUE"
+.PP
+0 on success;
+SPI_ERROR_ARGUMENT
+if
+\fIplan\fR
+is
+NULL
+or invalid
+.SH "NOTES"
+.PP
+The passed\-in statement is relocated to permanent storage by means of pointer adjustment (no data copying is required)\&. If you later wish to delete it, use
+\fBSPI_freeplan\fR
+on it\&.

@@ -130,7 +130,7 @@ public class ScanRecordServiceImpl implements ScanRecordService {
             return null;
         }
 
-        List<ScanRecord> scanRecords = openRecordList.stream().sorted(Comparator.comparing(ScanRecord::getCreateTime).reversed()).toList();
+        List<ScanRecord> scanRecords = openRecordList.stream().sorted(Comparator.comparing(ScanRecord::getCreateTime).reversed()).collect(Collectors.toList());
 
         return scanRecords.get(0);
     }

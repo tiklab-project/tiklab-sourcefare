@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 * 扫描问题
 * */
 @Entity
-@Table(name="scan_issues")
+@Table(name="wair_scan_issues")
 public class ScanIssuesEntity {
     @Id
     @GeneratorValue(length=12)

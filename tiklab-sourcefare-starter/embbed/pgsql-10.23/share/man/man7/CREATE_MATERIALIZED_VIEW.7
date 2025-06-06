@@ -1,0 +1,115 @@
+'\" t
+.\"     Title: CREATE MATERIALIZED VIEW
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE MATERIALIZED VIEW" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_MATERIALIZED_VIEW \- define a new materialized view
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE MATERIALIZED VIEW [ IF NOT EXISTS ] \fItable_name\fR
+    [ (\fIcolumn_name\fR [, \&.\&.\&.] ) ]
+    [ WITH ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] ) ]
+    [ TABLESPACE \fItablespace_name\fR ]
+    AS \fIquery\fR
+    [ WITH [ NO ] DATA ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE MATERIALIZED VIEW\fR
+defines a materialized view of a query\&. The query is executed and used to populate the view at the time the command is issued (unless
+\fBWITH NO DATA\fR
+is used) and may be refreshed later using
+\fBREFRESH MATERIALIZED VIEW\fR\&.
+.PP
+\fBCREATE MATERIALIZED VIEW\fR
+is similar to
+\fBCREATE TABLE AS\fR, except that it also remembers the query used to initialize the view, so that it can be refreshed later upon demand\&. A materialized view has many of the same properties as a table, but there is no support for temporary materialized views or automatic generation of OIDs\&.
+.SH "PARAMETERS"
+.PP
+IF NOT EXISTS
+.RS 4
+Do not throw an error if a materialized view with the same name already exists\&. A notice is issued in this case\&. Note that there is no guarantee that the existing materialized view is anything like the one that would have been created\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the materialized view to be created\&.
+.RE
+.PP
+\fIcolumn_name\fR
+.RS 4
+The name of a column in the new materialized view\&. If column names are not provided, they are taken from the output column names of the query\&.
+.RE
+.PP
+WITH ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+.RS 4
+This clause specifies optional storage parameters for the new materialized view; see
+Storage Parameters
+for more information\&. All parameters supported for
+CREATE TABLE
+are also supported for
+CREATE MATERIALIZED VIEW
+with the exception of
+OIDS\&. See
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for more information\&.
+.RE
+.PP
+TABLESPACE \fItablespace_name\fR
+.RS 4
+The
+\fItablespace_name\fR
+is the name of the tablespace in which the new materialized view is to be created\&. If not specified,
+default_tablespace
+is consulted\&.
+.RE
+.PP
+\fIquery\fR
+.RS 4
+A
+\fBSELECT\fR(7),
+TABLE, or
+\fBVALUES\fR(7)
+command\&. This query will run within a security\-restricted operation; in particular, calls to functions that themselves create temporary tables will fail\&.
+.RE
+.PP
+WITH [ NO ] DATA
+.RS 4
+This clause specifies whether or not the materialized view should be populated at creation time\&. If not, the materialized view will be flagged as unscannable and cannot be queried until
+\fBREFRESH MATERIALIZED VIEW\fR
+is used\&.
+.RE
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE MATERIALIZED VIEW\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+ALTER MATERIALIZED VIEW (\fBALTER_MATERIALIZED_VIEW\fR(7)), CREATE TABLE AS (\fBCREATE_TABLE_AS\fR(7)), CREATE VIEW (\fBCREATE_VIEW\fR(7)), DROP MATERIALIZED VIEW (\fBDROP_MATERIALIZED_VIEW\fR(7)), REFRESH MATERIALIZED VIEW (\fBREFRESH_MATERIALIZED_VIEW\fR(7))

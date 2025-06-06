@@ -5,7 +5,7 @@ import io.tiklab.dal.jpa.annotation.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name="scan_scheme_rule")
+@Table(name="wair_scan_scheme_rule")
 public class ScanSchemeRuleEntity {
     @Id
     @GeneratorValue(length=12)

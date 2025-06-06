@@ -1,0 +1,143 @@
+'\" t
+.\"     Title: SET ROLE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SET ROLE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SET_ROLE \- set the current user identifier of the current session
+.SH "SYNOPSIS"
+.sp
+.nf
+SET [ SESSION | LOCAL ] ROLE \fIrole_name\fR
+SET [ SESSION | LOCAL ] ROLE NONE
+RESET ROLE
+.fi
+.SH "DESCRIPTION"
+.PP
+This command sets the current user identifier of the current SQL session to be
+\fIrole_name\fR\&. The role name can be written as either an identifier or a string literal\&. After
+\fBSET ROLE\fR, permissions checking for SQL commands is carried out as though the named role were the one that had logged in originally\&.
+.PP
+The specified
+\fIrole_name\fR
+must be a role that the current session user is a member of\&. (If the session user is a superuser, any role can be selected\&.)
+.PP
+The
+SESSION
+and
+LOCAL
+modifiers act the same as for the regular
+\fBSET\fR(7)
+command\&.
+.PP
+SET ROLE NONE
+sets the current user identifier to the current session user identifier, as returned by
+\fBsession_user\fR\&.
+RESET ROLE
+sets the current user identifier to the connection\-time setting specified by the
+command\-line options,
+\fBALTER ROLE\fR, or
+\fBALTER DATABASE\fR, if any such settings exist\&. Otherwise,
+RESET ROLE
+sets the current user identifier to the current session user identifier\&. These forms can be executed by any user\&.
+.SH "NOTES"
+.PP
+Using this command, it is possible to either add privileges or restrict one\*(Aqs privileges\&. If the session user role has the
+INHERIT
+attribute, then it automatically has all the privileges of every role that it could
+\fBSET ROLE\fR
+to; in this case
+\fBSET ROLE\fR
+effectively drops all the privileges assigned directly to the session user and to the other roles it is a member of, leaving only the privileges available to the named role\&. On the other hand, if the session user role has the
+NOINHERIT
+attribute,
+\fBSET ROLE\fR
+drops the privileges assigned directly to the session user and instead acquires the privileges available to the named role\&.
+.PP
+In particular, when a superuser chooses to
+\fBSET ROLE\fR
+to a non\-superuser role, they lose their superuser privileges\&.
+.PP
+\fBSET ROLE\fR
+has effects comparable to
+SET SESSION AUTHORIZATION (\fBSET_SESSION_AUTHORIZATION\fR(7)), but the privilege checks involved are quite different\&. Also,
+\fBSET SESSION AUTHORIZATION\fR
+determines which roles are allowable for later
+\fBSET ROLE\fR
+commands, whereas changing roles with
+\fBSET ROLE\fR
+does not change the set of roles allowed to a later
+\fBSET ROLE\fR\&.
+.PP
+\fBSET ROLE\fR
+does not process session variables as specified by the role\*(Aqs
+ALTER ROLE (\fBALTER_ROLE\fR(7))
+settings; this only happens during login\&.
+.PP
+\fBSET ROLE\fR
+cannot be used within a
+SECURITY DEFINER
+function\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ peter        | peter
+
+SET ROLE \*(Aqpaul\*(Aq;
+
+SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ peter        | paul
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+PostgreSQL
+allows identifier syntax ("\fIrolename\fR"), while the SQL standard requires the role name to be written as a string literal\&. SQL does not allow this command during a transaction;
+PostgreSQL
+does not make this restriction because there is no reason to\&. The
+SESSION
+and
+LOCAL
+modifiers are a
+PostgreSQL
+extension, as is the
+RESET
+syntax\&.
+.SH "SEE ALSO"
+SET SESSION AUTHORIZATION (\fBSET_SESSION_AUTHORIZATION\fR(7))

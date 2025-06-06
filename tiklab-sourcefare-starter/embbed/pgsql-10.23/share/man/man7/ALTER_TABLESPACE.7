@@ -1,0 +1,110 @@
+'\" t
+.\"     Title: ALTER TABLESPACE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER TABLESPACE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_TABLESPACE \- change the definition of a tablespace
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER TABLESPACE \fIname\fR RENAME TO \fInew_name\fR
+ALTER TABLESPACE \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER TABLESPACE \fIname\fR SET ( \fItablespace_option\fR = \fIvalue\fR [, \&.\&.\&. ] )
+ALTER TABLESPACE \fIname\fR RESET ( \fItablespace_option\fR [, \&.\&.\&. ] )
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER TABLESPACE\fR
+can be used to change the definition of a tablespace\&.
+.PP
+You must own the tablespace to change the definition of a tablespace\&. To alter the owner, you must also be a direct or indirect member of the new owning role\&. (Note that superusers have these privileges automatically\&.)
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing tablespace\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the tablespace\&. The new name cannot begin with
+pg_, as such names are reserved for system tablespaces\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the tablespace\&.
+.RE
+.PP
+\fItablespace_option\fR
+.RS 4
+A tablespace parameter to be set or reset\&. Currently, the only available parameters are
+\fIseq_page_cost\fR,
+\fIrandom_page_cost\fR
+and
+\fIeffective_io_concurrency\fR\&. Setting either value for a particular tablespace will override the planner\*(Aqs usual estimate of the cost of reading pages from tables in that tablespace, as established by the configuration parameters of the same name (see
+seq_page_cost,
+random_page_cost,
+effective_io_concurrency)\&. This may be useful if one tablespace is located on a disk which is faster or slower than the remainder of the I/O subsystem\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Rename tablespace
+index_space
+to
+fast_raid:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TABLESPACE index_space RENAME TO fast_raid;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Change the owner of tablespace
+index_space:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TABLESPACE index_space OWNER TO mary;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER TABLESPACE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE TABLESPACE (\fBCREATE_TABLESPACE\fR(7)), DROP TABLESPACE (\fBDROP_TABLESPACE\fR(7))

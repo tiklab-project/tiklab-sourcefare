@@ -1,0 +1,120 @@
+'\" t
+.\"     Title: CREATE EVENT TRIGGER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE EVENT TRIGGER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_EVENT_TRIGGER \- define a new event trigger
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE EVENT TRIGGER \fIname\fR
+    ON \fIevent\fR
+    [ WHEN \fIfilter_variable\fR IN (\fIfilter_value\fR [, \&.\&.\&. ]) [ AND \&.\&.\&. ] ]
+    EXECUTE PROCEDURE \fIfunction_name\fR()
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE EVENT TRIGGER\fR
+creates a new event trigger\&. Whenever the designated event occurs and the
+WHEN
+condition associated with the trigger, if any, is satisfied, the trigger function will be executed\&. For a general introduction to event triggers, see
+Chapter\ \&39\&. The user who creates an event trigger becomes its owner\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name to give the new trigger\&. This name must be unique within the database\&.
+.RE
+.PP
+\fIevent\fR
+.RS 4
+The name of the event that triggers a call to the given function\&. See
+Section\ \&39.1
+for more information on event names\&.
+.RE
+.PP
+\fIfilter_variable\fR
+.RS 4
+The name of a variable used to filter events\&. This makes it possible to restrict the firing of the trigger to a subset of the cases in which it is supported\&. Currently the only supported
+\fIfilter_variable\fR
+is
+TAG\&.
+.RE
+.PP
+\fIfilter_value\fR
+.RS 4
+A list of values for the associated
+\fIfilter_variable\fR
+for which the trigger should fire\&. For
+TAG, this means a list of command tags (e\&.g\&.,
+\*(AqDROP FUNCTION\*(Aq)\&.
+.RE
+.PP
+\fIfunction_name\fR
+.RS 4
+A user\-supplied function that is declared as taking no argument and returning type
+event_trigger\&.
+.RE
+.SH "NOTES"
+.PP
+Only superusers can create event triggers\&.
+.PP
+Event triggers are disabled in single\-user mode (see
+\fBpostgres\fR(1))\&. If an erroneous event trigger disables the database so much that you can\*(Aqt even drop the trigger, restart in single\-user mode and you\*(Aqll be able to do that\&.
+.SH "EXAMPLES"
+.PP
+Forbid the execution of any
+DDL
+command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE OR REPLACE FUNCTION abort_any_command()
+  RETURNS event_trigger
+ LANGUAGE plpgsql
+  AS $$
+BEGIN
+  RAISE EXCEPTION \*(Aqcommand % is disabled\*(Aq, tg_tag;
+END;
+$$;
+
+CREATE EVENT TRIGGER abort_ddl ON ddl_command_start
+   EXECUTE PROCEDURE abort_any_command();
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCREATE EVENT TRIGGER\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER EVENT TRIGGER (\fBALTER_EVENT_TRIGGER\fR(7)), DROP EVENT TRIGGER (\fBDROP_EVENT_TRIGGER\fR(7)), CREATE FUNCTION (\fBCREATE_FUNCTION\fR(7))

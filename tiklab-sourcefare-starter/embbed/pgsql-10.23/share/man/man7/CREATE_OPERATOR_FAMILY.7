@@ -1,0 +1,79 @@
+'\" t
+.\"     Title: CREATE OPERATOR FAMILY
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE OPERATOR FAMILY" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_OPERATOR_FAMILY \- define a new operator family
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE OPERATOR FAMILY \fIname\fR USING \fIindex_method\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE OPERATOR FAMILY\fR
+creates a new operator family\&. An operator family defines a collection of related operator classes, and perhaps some additional operators and support functions that are compatible with these operator classes but not essential for the functioning of any individual index\&. (Operators and functions that are essential to indexes should be grouped within the relevant operator class, rather than being
+\(lqloose\(rq
+in the operator family\&. Typically, single\-data\-type operators are bound to operator classes, while cross\-data\-type operators can be loose in an operator family containing operator classes for both data types\&.)
+.PP
+The new operator family is initially empty\&. It should be populated by issuing subsequent
+\fBCREATE OPERATOR CLASS\fR
+commands to add contained operator classes, and optionally
+\fBALTER OPERATOR FAMILY\fR
+commands to add
+\(lqloose\(rq
+operators and their corresponding support functions\&.
+.PP
+If a schema name is given then the operator family is created in the specified schema\&. Otherwise it is created in the current schema\&. Two operator families in the same schema can have the same name only if they are for different index methods\&.
+.PP
+The user who defines an operator family becomes its owner\&. Presently, the creating user must be a superuser\&. (This restriction is made because an erroneous operator family definition could confuse or even crash the server\&.)
+.PP
+Refer to
+Section\ \&37.14
+for further information\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the operator family to be created\&. The name can be schema\-qualified\&.
+.RE
+.PP
+\fIindex_method\fR
+.RS 4
+The name of the index method this operator family is for\&.
+.RE
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE OPERATOR FAMILY\fR
+is a
+PostgreSQL
+extension\&. There is no
+\fBCREATE OPERATOR FAMILY\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER OPERATOR FAMILY (\fBALTER_OPERATOR_FAMILY\fR(7)), DROP OPERATOR FAMILY (\fBDROP_OPERATOR_FAMILY\fR(7)), CREATE OPERATOR CLASS (\fBCREATE_OPERATOR_CLASS\fR(7)), ALTER OPERATOR CLASS (\fBALTER_OPERATOR_CLASS\fR(7)), DROP OPERATOR CLASS (\fBDROP_OPERATOR_CLASS\fR(7))

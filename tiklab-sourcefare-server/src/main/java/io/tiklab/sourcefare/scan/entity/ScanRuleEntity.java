@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 * 扫描规则实体
 * */
 @Entity
-@Table(name="scan_rule")
+@Table(name="wair_scan_rule")
 public class ScanRuleEntity {
     @Id
     @GeneratorValue(length=12)
@@ -33,8 +33,8 @@ public class ScanRuleEntity {
     @Column(name = "problem_level")
     private Integer problemLevel;
 
-    @Column(name = "describe")
-    private String describe;
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "create_time")
     private Timestamp createTime;
@@ -88,12 +88,12 @@ public class ScanRuleEntity {
         this.problemLevel = problemLevel;
     }
 
-    public String getDescribe() {
-        return describe;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescribe(String describe) {
-        this.describe = describe;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Timestamp getCreateTime() {

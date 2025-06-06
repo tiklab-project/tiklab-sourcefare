@@ -1,0 +1,86 @@
+'\" t
+.\"     Title: DROP FOREIGN DATA WRAPPER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP FOREIGN DATA WRAPPER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_FOREIGN_DATA_WRAPPER \- remove a foreign\-data wrapper
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP FOREIGN DATA WRAPPER [ IF EXISTS ] \fIname\fR [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP FOREIGN DATA WRAPPER\fR
+removes an existing foreign\-data wrapper\&. To execute this command, the current user must be the owner of the foreign\-data wrapper\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the foreign\-data wrapper does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of an existing foreign\-data wrapper\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the foreign\-data wrapper (such as foreign tables and servers), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the foreign\-data wrapper if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Drop the foreign\-data wrapper
+dbi:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP FOREIGN DATA WRAPPER dbi;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBDROP FOREIGN DATA WRAPPER\fR
+conforms to ISO/IEC 9075\-9 (SQL/MED)\&. The
+IF EXISTS
+clause is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE FOREIGN DATA WRAPPER (\fBCREATE_FOREIGN_DATA_WRAPPER\fR(7)), ALTER FOREIGN DATA WRAPPER (\fBALTER_FOREIGN_DATA_WRAPPER\fR(7))

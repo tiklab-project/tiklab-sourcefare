@@ -26,6 +26,14 @@ public class ScanRuleSetDao {
     JpaTemplate jpaTemplate;
 
     /**
+     * 执行sql
+     * @param sql
+     */
+    public void execSql(String sql) {
+          jpaTemplate.getJdbcTemplate().execute(sql);;
+    }
+
+    /**
      * 创建
      * @param scanRuleSetEntity
      * @return

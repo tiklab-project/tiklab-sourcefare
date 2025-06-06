@@ -1,0 +1,243 @@
+'\" t
+.\"     Title: clusterdb
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CLUSTERDB" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+clusterdb \- cluster a PostgreSQL database
+.SH "SYNOPSIS"
+.HP \w'\fBclusterdb\fR\ 'u
+\fBclusterdb\fR [\fIconnection\-option\fR...] [\fB\-\-verbose\fR | \fB\-v\fR] [\ \fB\-\-table\fR\ |\ \fB\-t\fR\ \fItable\fR\ ]...  [\fIdbname\fR]
+.HP \w'\fBclusterdb\fR\ 'u
+\fBclusterdb\fR [\fIconnection\-option\fR...] [\fB\-\-verbose\fR | \fB\-v\fR] \fB\-\-all\fR | \fB\-a\fR 
+.SH "DESCRIPTION"
+.PP
+clusterdb
+is a utility for reclustering tables in a
+PostgreSQL
+database\&. It finds tables that have previously been clustered, and clusters them again on the same index that was last used\&. Tables that have never been clustered are not affected\&.
+.PP
+clusterdb
+is a wrapper around the SQL command
+\fBCLUSTER\fR(7)\&. There is no effective difference between clustering databases via this utility and via other methods for accessing the server\&.
+.SH "OPTIONS"
+.PP
+clusterdb
+accepts the following command\-line arguments:
+.PP
+\fB\-a\fR
+.br
+\fB\-\-all\fR
+.RS 4
+Cluster all databases\&.
+.RE
+.PP
+\fB[\-d]\fR\fB \fR\fB\fIdbname\fR\fR
+.br
+\fB[\-\-dbname=]\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to be clustered, when
+\fB\-a\fR/\fB\-\-all\fR
+is not used\&. If this is not specified, the database name is read from the environment variable
+\fBPGDATABASE\fR\&. If that is not set, the user name specified for the connection is used\&. The
+\fIdbname\fR
+can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&.
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\fR
+.RS 4
+Echo the commands that
+clusterdb
+generates and sends to the server\&.
+.RE
+.PP
+\fB\-q\fR
+.br
+\fB\-\-quiet\fR
+.RS 4
+Do not display progress messages\&.
+.RE
+.PP
+\fB\-t \fR\fB\fItable\fR\fR
+.br
+\fB\-\-table=\fR\fB\fItable\fR\fR
+.RS 4
+Cluster
+\fItable\fR
+only\&. Multiple tables can be clustered by writing multiple
+\fB\-t\fR
+switches\&.
+.RE
+.PP
+\fB\-v\fR
+.br
+\fB\-\-verbose\fR
+.RS 4
+Print detailed information during processing\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+clusterdb
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+clusterdb
+command line arguments, and exit\&.
+.RE
+.PP
+clusterdb
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+clusterdb
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+clusterdb
+will automatically prompt for a password if the server demands password authentication\&. However,
+clusterdb
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+\fB\-\-maintenance\-db=\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to connect to to discover which databases should be clustered, when
+\fB\-a\fR/\fB\-\-all\fR
+is used\&. If not specified, the
+postgres
+database will be used, or if that does not exist,
+template1
+will be used\&. This can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&. Also, connection string parameters other than the database name itself will be re\-used when connecting to other databases\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBPGDATABASE\fR
+.br
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "DIAGNOSTICS"
+.PP
+In case of difficulty, see
+\fBCLUSTER\fR(7)
+and
+\fBpsql\fR(1)
+for discussions of potential problems and error messages\&. The database server must be running at the targeted host\&. Also, any default connection settings and environment variables used by the
+libpq
+front\-end library will apply\&.
+.SH "EXAMPLES"
+.PP
+To cluster the database
+test:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBclusterdb test\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To cluster a single table
+foo
+in a database named
+xyzzy:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBclusterdb \-\-table=foo xyzzy\fR
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+\fBCLUSTER\fR(7)

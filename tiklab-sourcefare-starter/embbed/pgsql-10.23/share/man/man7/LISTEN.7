@@ -1,0 +1,114 @@
+'\" t
+.\"     Title: LISTEN
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "LISTEN" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+LISTEN \- listen for a notification
+.SH "SYNOPSIS"
+.sp
+.nf
+LISTEN \fIchannel\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBLISTEN\fR
+registers the current session as a listener on the notification channel named
+\fIchannel\fR\&. If the current session is already registered as a listener for this notification channel, nothing is done\&.
+.PP
+Whenever the command
+\fBNOTIFY \fR\fB\fIchannel\fR\fR
+is invoked, either by this session or another one connected to the same database, all the sessions currently listening on that notification channel are notified, and each will in turn notify its connected client application\&.
+.PP
+A session can be unregistered for a given notification channel with the
+\fBUNLISTEN\fR
+command\&. A session\*(Aqs listen registrations are automatically cleared when the session ends\&.
+.PP
+The method a client application must use to detect notification events depends on which
+PostgreSQL
+application programming interface it uses\&. With the
+libpq
+library, the application issues
+\fBLISTEN\fR
+as an ordinary SQL command, and then must periodically call the function
+\fBPQnotifies\fR
+to find out whether any notification events have been received\&. Other interfaces such as
+libpgtcl
+provide higher\-level methods for handling notify events; indeed, with
+libpgtcl
+the application programmer should not even issue
+\fBLISTEN\fR
+or
+\fBUNLISTEN\fR
+directly\&. See the documentation for the interface you are using for more details\&.
+.PP
+\fBNOTIFY\fR(7)
+contains a more extensive discussion of the use of
+\fBLISTEN\fR
+and
+\fBNOTIFY\fR\&.
+.SH "PARAMETERS"
+.PP
+\fIchannel\fR
+.RS 4
+Name of a notification channel (any identifier)\&.
+.RE
+.SH "NOTES"
+.PP
+\fBLISTEN\fR
+takes effect at transaction commit\&. If
+\fBLISTEN\fR
+or
+\fBUNLISTEN\fR
+is executed within a transaction that later rolls back, the set of notification channels being listened to is unchanged\&.
+.PP
+A transaction that has executed
+\fBLISTEN\fR
+cannot be prepared for two\-phase commit\&.
+.SH "EXAMPLES"
+.PP
+Configure and execute a listen/notify sequence from
+psql:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+LISTEN virtual;
+NOTIFY virtual;
+Asynchronous notification "virtual" received from server process with PID 8448\&.
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBLISTEN\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+\fBNOTIFY\fR(7), \fBUNLISTEN\fR(7)

@@ -1,0 +1,80 @@
+'\" t
+.\"     Title: SPI_cursor_open_with_paramlist
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_CURSOR_OPEN_WITH_PARAMLIST" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_cursor_open_with_paramlist \- set up a cursor using parameters
+.SH "SYNOPSIS"
+.sp
+.nf
+Portal SPI_cursor_open_with_paramlist(const char *\fIname\fR,
+                                      SPIPlanPtr \fIplan\fR,
+                                      ParamListInfo \fIparams\fR,
+                                      bool \fIread_only\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_cursor_open_with_paramlist\fR
+sets up a cursor (internally, a portal) that will execute a statement prepared by
+\fBSPI_prepare\fR\&. This function is equivalent to
+\fBSPI_cursor_open\fR
+except that information about the parameter values to be passed to the query is presented differently\&. The
+ParamListInfo
+representation can be convenient for passing down values that are already available in that format\&. It also supports use of dynamic parameter sets via hook functions specified in
+ParamListInfo\&.
+.PP
+The passed\-in parameter data will be copied into the cursor\*(Aqs portal, so it can be freed while the cursor still exists\&.
+.SH "ARGUMENTS"
+.PP
+const char * \fIname\fR
+.RS 4
+name for portal, or
+NULL
+to let the system select a name
+.RE
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+prepared statement (returned by
+\fBSPI_prepare\fR)
+.RE
+.PP
+ParamListInfo \fIparams\fR
+.RS 4
+data structure containing parameter types and values; NULL if none
+.RE
+.PP
+bool \fIread_only\fR
+.RS 4
+true
+for read\-only execution
+.RE
+.SH "RETURN VALUE"
+.PP
+Pointer to portal containing the cursor\&. Note there is no error return convention; any error will be reported via
+\fBelog\fR\&.

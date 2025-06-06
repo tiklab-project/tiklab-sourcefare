@@ -1,0 +1,254 @@
+'\" t
+.\"     Title: ALTER EXTENSION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER EXTENSION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_EXTENSION \- change the definition of an extension
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER EXTENSION \fIname\fR UPDATE [ TO \fInew_version\fR ]
+ALTER EXTENSION \fIname\fR SET SCHEMA \fInew_schema\fR
+ALTER EXTENSION \fIname\fR ADD \fImember_object\fR
+ALTER EXTENSION \fIname\fR DROP \fImember_object\fR
+
+where \fImember_object\fR is:
+
+  ACCESS METHOD \fIobject_name\fR |
+  AGGREGATE \fIaggregate_name\fR ( \fIaggregate_signature\fR ) |
+  CAST (\fIsource_type\fR AS \fItarget_type\fR) |
+  COLLATION \fIobject_name\fR |
+  CONVERSION \fIobject_name\fR |
+  DOMAIN \fIobject_name\fR |
+  EVENT TRIGGER \fIobject_name\fR |
+  FOREIGN DATA WRAPPER \fIobject_name\fR |
+  FOREIGN TABLE \fIobject_name\fR |
+  FUNCTION \fIfunction_name\fR [ ( [ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [, \&.\&.\&.] ] ) ] |
+  MATERIALIZED VIEW \fIobject_name\fR |
+  OPERATOR \fIoperator_name\fR (\fIleft_type\fR, \fIright_type\fR) |
+  OPERATOR CLASS \fIobject_name\fR USING \fIindex_method\fR |
+  OPERATOR FAMILY \fIobject_name\fR USING \fIindex_method\fR |
+  [ PROCEDURAL ] LANGUAGE \fIobject_name\fR |
+  SCHEMA \fIobject_name\fR |
+  SEQUENCE \fIobject_name\fR |
+  SERVER \fIobject_name\fR |
+  TABLE \fIobject_name\fR |
+  TEXT SEARCH CONFIGURATION \fIobject_name\fR |
+  TEXT SEARCH DICTIONARY \fIobject_name\fR |
+  TEXT SEARCH PARSER \fIobject_name\fR |
+  TEXT SEARCH TEMPLATE \fIobject_name\fR |
+  TRANSFORM FOR \fItype_name\fR LANGUAGE \fIlang_name\fR |
+  TYPE \fIobject_name\fR |
+  VIEW \fIobject_name\fR
+
+and \fIaggregate_signature\fR is:
+
+* |
+[ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] |
+[ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] ] ORDER BY [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER EXTENSION\fR
+changes the definition of an installed extension\&. There are several subforms:
+.PP
+UPDATE
+.RS 4
+This form updates the extension to a newer version\&. The extension must supply a suitable update script (or series of scripts) that can modify the currently\-installed version into the requested version\&.
+.RE
+.PP
+SET SCHEMA
+.RS 4
+This form moves the extension\*(Aqs objects into another schema\&. The extension has to be
+relocatable
+for this command to succeed\&.
+.RE
+.PP
+ADD \fImember_object\fR
+.RS 4
+This form adds an existing object to the extension\&. This is mainly useful in extension update scripts\&. The object will subsequently be treated as a member of the extension; notably, it can only be dropped by dropping the extension\&.
+.RE
+.PP
+DROP \fImember_object\fR
+.RS 4
+This form removes a member object from the extension\&. This is mainly useful in extension update scripts\&. The object is not dropped, only disassociated from the extension\&.
+.RE
+See
+Section\ \&37.15
+for more information about these operations\&.
+.PP
+You must own the extension to use
+\fBALTER EXTENSION\fR\&. The
+ADD/DROP
+forms require ownership of the added/dropped object as well\&.
+.SH "PARAMETERS"
+.PP
+.PP
+\fIname\fR
+.RS 4
+The name of an installed extension\&.
+.RE
+.PP
+\fInew_version\fR
+.RS 4
+The desired new version of the extension\&. This can be written as either an identifier or a string literal\&. If not specified,
+\fBALTER EXTENSION UPDATE\fR
+attempts to update to whatever is shown as the default version in the extension\*(Aqs control file\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the extension\&.
+.RE
+.PP
+\fIobject_name\fR
+.br
+\fIaggregate_name\fR
+.br
+\fIfunction_name\fR
+.br
+\fIoperator_name\fR
+.RS 4
+The name of an object to be added to or removed from the extension\&. Names of tables, aggregates, domains, foreign tables, functions, operators, operator classes, operator families, sequences, text search objects, types, and views can be schema\-qualified\&.
+.RE
+.PP
+\fIsource_type\fR
+.RS 4
+The name of the source data type of the cast\&.
+.RE
+.PP
+\fItarget_type\fR
+.RS 4
+The name of the target data type of the cast\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of a function or aggregate argument:
+IN,
+OUT,
+INOUT, or
+VARIADIC\&. If omitted, the default is
+IN\&. Note that
+\fBALTER EXTENSION\fR
+does not actually pay any attention to
+OUT
+arguments, since only the input arguments are needed to determine the function\*(Aqs identity\&. So it is sufficient to list the
+IN,
+INOUT, and
+VARIADIC
+arguments\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of a function or aggregate argument\&. Note that
+\fBALTER EXTENSION\fR
+does not actually pay any attention to argument names, since only the argument data types are needed to determine the function\*(Aqs identity\&.
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+The data type of a function or aggregate argument\&.
+.RE
+.PP
+\fIleft_type\fR
+.br
+\fIright_type\fR
+.RS 4
+The data type(s) of the operator\*(Aqs arguments (optionally schema\-qualified)\&. Write
+NONE
+for the missing argument of a prefix or postfix operator\&.
+.RE
+.PP
+PROCEDURAL
+.RS 4
+This is a noise word\&.
+.RE
+.PP
+\fItype_name\fR
+.RS 4
+The name of the data type of the transform\&.
+.RE
+.PP
+\fIlang_name\fR
+.RS 4
+The name of the language of the transform\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To update the
+hstore
+extension to version 2\&.0:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER EXTENSION hstore UPDATE TO \*(Aq2\&.0\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change the schema of the
+hstore
+extension to
+utils:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER EXTENSION hstore SET SCHEMA utils;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To add an existing function to the
+hstore
+extension:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER EXTENSION hstore ADD FUNCTION populate_record(anyelement, hstore);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER EXTENSION\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE EXTENSION (\fBCREATE_EXTENSION\fR(7)), DROP EXTENSION (\fBDROP_EXTENSION\fR(7))

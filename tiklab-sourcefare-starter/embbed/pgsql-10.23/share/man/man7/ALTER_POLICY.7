@@ -1,0 +1,108 @@
+'\" t
+.\"     Title: ALTER POLICY
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER POLICY" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_POLICY \- change the definition of a row level security policy
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER POLICY \fIname\fR ON \fItable_name\fR RENAME TO \fInew_name\fR
+
+ALTER POLICY \fIname\fR ON \fItable_name\fR
+    [ TO { \fIrole_name\fR | PUBLIC | CURRENT_USER | SESSION_USER } [, \&.\&.\&.] ]
+    [ USING ( \fIusing_expression\fR ) ]
+    [ WITH CHECK ( \fIcheck_expression\fR ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER POLICY\fR
+changes the definition of an existing row\-level security policy\&. Note that
+\fBALTER POLICY\fR
+only allows the set of roles to which the policy applies and the
+USING
+and
+WITH CHECK
+expressions to be modified\&. To change other properties of a policy, such as the command to which it applies or whether it is permissive or restrictive, the policy must be dropped and recreated\&.
+.PP
+To use
+\fBALTER POLICY\fR, you must own the table that the policy applies to\&.
+.PP
+In the second form of
+\fBALTER POLICY\fR, the role list,
+\fIusing_expression\fR, and
+\fIcheck_expression\fR
+are replaced independently if specified\&. When one of those clauses is omitted, the corresponding part of the policy is unchanged\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing policy to alter\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the table that the policy is on\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the policy\&.
+.RE
+.PP
+\fIrole_name\fR
+.RS 4
+The role(s) to which the policy applies\&. Multiple roles can be specified at one time\&. To apply the policy to all roles, use
+PUBLIC\&.
+.RE
+.PP
+\fIusing_expression\fR
+.RS 4
+The
+USING
+expression for the policy\&. See
+CREATE POLICY (\fBCREATE_POLICY\fR(7))
+for details\&.
+.RE
+.PP
+\fIcheck_expression\fR
+.RS 4
+The
+WITH CHECK
+expression for the policy\&. See
+CREATE POLICY (\fBCREATE_POLICY\fR(7))
+for details\&.
+.RE
+.SH "COMPATIBILITY"
+.PP
+\fBALTER POLICY\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE POLICY (\fBCREATE_POLICY\fR(7)), DROP POLICY (\fBDROP_POLICY\fR(7))

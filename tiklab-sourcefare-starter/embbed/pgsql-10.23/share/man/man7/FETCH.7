@@ -1,0 +1,353 @@
+'\" t
+.\"     Title: FETCH
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "FETCH" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+FETCH \- retrieve rows from a query using a cursor
+.SH "SYNOPSIS"
+.sp
+.nf
+FETCH [ \fIdirection\fR ] [ FROM | IN ] \fIcursor_name\fR
+
+where \fIdirection\fR can
+be one of:
+
+    NEXT
+    PRIOR
+    FIRST
+    LAST
+    ABSOLUTE \fIcount\fR
+    RELATIVE \fIcount\fR
+    \fIcount\fR
+    ALL
+    FORWARD
+    FORWARD \fIcount\fR
+    FORWARD ALL
+    BACKWARD
+    BACKWARD \fIcount\fR
+    BACKWARD ALL
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBFETCH\fR
+retrieves rows using a previously\-created cursor\&.
+.PP
+A cursor has an associated position, which is used by
+\fBFETCH\fR\&. The cursor position can be before the first row of the query result, on any particular row of the result, or after the last row of the result\&. When created, a cursor is positioned before the first row\&. After fetching some rows, the cursor is positioned on the row most recently retrieved\&. If
+\fBFETCH\fR
+runs off the end of the available rows then the cursor is left positioned after the last row, or before the first row if fetching backward\&.
+\fBFETCH ALL\fR
+or
+\fBFETCH BACKWARD ALL\fR
+will always leave the cursor positioned after the last row or before the first row\&.
+.PP
+The forms
+NEXT,
+PRIOR,
+FIRST,
+LAST,
+ABSOLUTE,
+RELATIVE
+fetch a single row after moving the cursor appropriately\&. If there is no such row, an empty result is returned, and the cursor is left positioned before the first row or after the last row as appropriate\&.
+.PP
+The forms using
+FORWARD
+and
+BACKWARD
+retrieve the indicated number of rows moving in the forward or backward direction, leaving the cursor positioned on the last\-returned row (or after/before all rows, if the
+\fIcount\fR
+exceeds the number of rows available)\&.
+.PP
+RELATIVE 0,
+FORWARD 0, and
+BACKWARD 0
+all request fetching the current row without moving the cursor, that is, re\-fetching the most recently fetched row\&. This will succeed unless the cursor is positioned before the first row or after the last row; in which case, no row is returned\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+This page describes usage of cursors at the SQL command level\&. If you are trying to use cursors inside a
+PL/pgSQL
+function, the rules are different \(em see
+Section\ \&42.7.3\&.
+.sp .5v
+.RE
+.SH "PARAMETERS"
+.PP
+\fIdirection\fR
+.RS 4
+\fIdirection\fR
+defines the fetch direction and number of rows to fetch\&. It can be one of the following:
+.PP
+NEXT
+.RS 4
+Fetch the next row\&. This is the default if
+\fIdirection\fR
+is omitted\&.
+.RE
+.PP
+PRIOR
+.RS 4
+Fetch the prior row\&.
+.RE
+.PP
+FIRST
+.RS 4
+Fetch the first row of the query (same as
+ABSOLUTE 1)\&.
+.RE
+.PP
+LAST
+.RS 4
+Fetch the last row of the query (same as
+ABSOLUTE \-1)\&.
+.RE
+.PP
+ABSOLUTE \fIcount\fR
+.RS 4
+Fetch the
+\fIcount\fR\*(Aqth row of the query, or the
+abs(\fIcount\fR)\*(Aqth row from the end if
+\fIcount\fR
+is negative\&. Position before first row or after last row if
+\fIcount\fR
+is out of range; in particular,
+ABSOLUTE 0
+positions before the first row\&.
+.RE
+.PP
+RELATIVE \fIcount\fR
+.RS 4
+Fetch the
+\fIcount\fR\*(Aqth succeeding row, or the
+abs(\fIcount\fR)\*(Aqth prior row if
+\fIcount\fR
+is negative\&.
+RELATIVE 0
+re\-fetches the current row, if any\&.
+.RE
+.PP
+\fIcount\fR
+.RS 4
+Fetch the next
+\fIcount\fR
+rows (same as
+FORWARD \fIcount\fR)\&.
+.RE
+.PP
+ALL
+.RS 4
+Fetch all remaining rows (same as
+FORWARD ALL)\&.
+.RE
+.PP
+FORWARD
+.RS 4
+Fetch the next row (same as
+NEXT)\&.
+.RE
+.PP
+FORWARD \fIcount\fR
+.RS 4
+Fetch the next
+\fIcount\fR
+rows\&.
+FORWARD 0
+re\-fetches the current row\&.
+.RE
+.PP
+FORWARD ALL
+.RS 4
+Fetch all remaining rows\&.
+.RE
+.PP
+BACKWARD
+.RS 4
+Fetch the prior row (same as
+PRIOR)\&.
+.RE
+.PP
+BACKWARD \fIcount\fR
+.RS 4
+Fetch the prior
+\fIcount\fR
+rows (scanning backwards)\&.
+BACKWARD 0
+re\-fetches the current row\&.
+.RE
+.PP
+BACKWARD ALL
+.RS 4
+Fetch all prior rows (scanning backwards)\&.
+.RE
+.RE
+.PP
+\fIcount\fR
+.RS 4
+\fIcount\fR
+is a possibly\-signed integer constant, determining the location or number of rows to fetch\&. For
+FORWARD
+and
+BACKWARD
+cases, specifying a negative
+\fIcount\fR
+is equivalent to changing the sense of
+FORWARD
+and
+BACKWARD\&.
+.RE
+.PP
+\fIcursor_name\fR
+.RS 4
+An open cursor\*(Aqs name\&.
+.RE
+.SH "OUTPUTS"
+.PP
+On successful completion, a
+\fBFETCH\fR
+command returns a command tag of the form
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+FETCH \fIcount\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The
+\fIcount\fR
+is the number of rows fetched (possibly zero)\&. Note that in
+psql, the command tag will not actually be displayed, since
+psql
+displays the fetched rows instead\&.
+.SH "NOTES"
+.PP
+The cursor should be declared with the
+SCROLL
+option if one intends to use any variants of
+\fBFETCH\fR
+other than
+\fBFETCH NEXT\fR
+or
+\fBFETCH FORWARD\fR
+with a positive count\&. For simple queries
+PostgreSQL
+will allow backwards fetch from cursors not declared with
+SCROLL, but this behavior is best not relied on\&. If the cursor is declared with
+NO SCROLL, no backward fetches are allowed\&.
+.PP
+ABSOLUTE
+fetches are not any faster than navigating to the desired row with a relative move: the underlying implementation must traverse all the intermediate rows anyway\&. Negative absolute fetches are even worse: the query must be read to the end to find the last row, and then traversed backward from there\&. However, rewinding to the start of the query (as with
+FETCH ABSOLUTE 0) is fast\&.
+.PP
+\fBDECLARE\fR(7)
+is used to define a cursor\&. Use
+\fBMOVE\fR(7)
+to change cursor position without retrieving data\&.
+.SH "EXAMPLES"
+.PP
+The following example traverses a table using a cursor:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+BEGIN WORK;
+
+\-\- Set up a cursor:
+DECLARE liahona SCROLL CURSOR FOR SELECT * FROM films;
+
+\-\- Fetch the first 5 rows in the cursor liahona:
+FETCH FORWARD 5 FROM liahona;
+
+ code  |          title          | did | date_prod  |   kind   |  len
+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-
+ BL101 | The Third Man           | 101 | 1949\-12\-23 | Drama    | 01:44
+ BL102 | The African Queen       | 101 | 1951\-08\-11 | Romantic | 01:43
+ JL201 | Une Femme est une Femme | 102 | 1961\-03\-12 | Romantic | 01:25
+ P_301 | Vertigo                 | 103 | 1958\-11\-14 | Action   | 02:08
+ P_302 | Becket                  | 103 | 1964\-02\-03 | Drama    | 02:28
+
+\-\- Fetch the previous row:
+FETCH PRIOR FROM liahona;
+
+ code  |  title  | did | date_prod  |  kind  |  len
+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-
+ P_301 | Vertigo | 103 | 1958\-11\-14 | Action | 02:08
+
+\-\- Close the cursor and end the transaction:
+CLOSE liahona;
+COMMIT WORK;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The SQL standard defines
+\fBFETCH\fR
+for use in embedded SQL only\&. The variant of
+\fBFETCH\fR
+described here returns the data as if it were a
+\fBSELECT\fR
+result rather than placing it in host variables\&. Other than this point,
+\fBFETCH\fR
+is fully upward\-compatible with the SQL standard\&.
+.PP
+The
+\fBFETCH\fR
+forms involving
+FORWARD
+and
+BACKWARD, as well as the forms
+FETCH \fIcount\fR
+and
+FETCH ALL, in which
+FORWARD
+is implicit, are
+PostgreSQL
+extensions\&.
+.PP
+The SQL standard allows only
+FROM
+preceding the cursor name; the option to use
+IN, or to leave them out altogether, is an extension\&.
+.SH "SEE ALSO"
+\fBCLOSE\fR(7), \fBDECLARE\fR(7), \fBMOVE\fR(7)

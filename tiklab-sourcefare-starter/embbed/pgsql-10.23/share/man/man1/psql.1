@@ -1,0 +1,4062 @@
+'\" t
+.\"     Title: psql
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PSQL" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+psql \- PostgreSQL interactive terminal
+.SH "SYNOPSIS"
+.HP \w'\fBpsql\fR\ 'u
+\fBpsql\fR [\fIoption\fR...] [\fIdbname\fR\ [\fIusername\fR]]
+.SH "DESCRIPTION"
+.PP
+psql
+is a terminal\-based front\-end to
+PostgreSQL\&. It enables you to type in queries interactively, issue them to
+PostgreSQL, and see the query results\&. Alternatively, input can be from a file or from command line arguments\&. In addition,
+psql
+provides a number of meta\-commands and various shell\-like features to facilitate writing scripts and automating a wide variety of tasks\&.
+.SH "OPTIONS"
+.PP
+\fB\-a\fR
+.br
+\fB\-\-echo\-all\fR
+.RS 4
+Print all nonempty input lines to standard output as they are read\&. (This does not apply to lines read interactively\&.) This is equivalent to setting the variable
+\fIECHO\fR
+to
+all\&.
+.RE
+.PP
+\fB\-A\fR
+.br
+\fB\-\-no\-align\fR
+.RS 4
+Switches to unaligned output mode\&. (The default output mode is otherwise aligned\&.) This is equivalent to
+\fB\epset format unaligned\fR\&.
+.RE
+.PP
+\fB\-b\fR
+.br
+\fB\-\-echo\-errors\fR
+.RS 4
+Print failed SQL commands to standard error output\&. This is equivalent to setting the variable
+\fIECHO\fR
+to
+errors\&.
+.RE
+.PP
+\fB\-c \fR\fB\fIcommand\fR\fR
+.br
+\fB\-\-command=\fR\fB\fIcommand\fR\fR
+.RS 4
+Specifies that
+psql
+is to execute the given command string,
+\fIcommand\fR\&. This option can be repeated and combined in any order with the
+\fB\-f\fR
+option\&. When either
+\fB\-c\fR
+or
+\fB\-f\fR
+is specified,
+psql
+does not read commands from standard input; instead it terminates after processing all the
+\fB\-c\fR
+and
+\fB\-f\fR
+options in sequence\&.
+.sp
+\fIcommand\fR
+must be either a command string that is completely parsable by the server (i\&.e\&., it contains no
+psql\-specific features), or a single backslash command\&. Thus you cannot mix
+SQL
+and
+psql
+meta\-commands within a
+\fB\-c\fR
+option\&. To achieve that, you could use repeated
+\fB\-c\fR
+options or pipe the string into
+psql, for example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+psql \-c \*(Aq\ex\*(Aq \-c \*(AqSELECT * FROM foo;\*(Aq
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+or
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+echo \*(Aq\ex \e\e SELECT * FROM foo;\*(Aq | psql
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+(\e\e
+is the separator meta\-command\&.)
+.sp
+Each
+SQL
+command string passed to
+\fB\-c\fR
+is sent to the server as a single query\&. Because of this, the server executes it as a single transaction even if the string contains multiple
+SQL
+commands, unless there are explicit
+\fBBEGIN\fR/\fBCOMMIT\fR
+commands included in the string to divide it into multiple transactions\&. Also,
+psql
+only prints the result of the last
+SQL
+command in the string\&. This is different from the behavior when the same string is read from a file or fed to
+psql\*(Aqs standard input, because then
+psql
+sends each
+SQL
+command separately\&.
+.sp
+Because of this behavior, putting more than one command in a single
+\fB\-c\fR
+string often has unexpected results\&. It\*(Aqs better to use repeated
+\fB\-c\fR
+commands or feed multiple commands to
+psql\*(Aqs standard input, either using
+echo
+as illustrated above, or via a shell here\-document, for example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+psql <<EOF
+\ex
+SELECT * FROM foo;
+EOF
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.RE
+.PP
+\fB\-d \fR\fB\fIdbname\fR\fR
+.br
+\fB\-\-dbname=\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to connect to\&. This is equivalent to specifying
+\fIdbname\fR
+as the first non\-option argument on the command line\&. The
+\fIdbname\fR
+can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&.
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\-queries\fR
+.RS 4
+Copy all SQL commands sent to the server to standard output as well\&. This is equivalent to setting the variable
+\fIECHO\fR
+to
+queries\&.
+.RE
+.PP
+\fB\-E\fR
+.br
+\fB\-\-echo\-hidden\fR
+.RS 4
+Echo the actual queries generated by
+\fB\ed\fR
+and other backslash commands\&. You can use this to study
+psql\*(Aqs internal operations\&. This is equivalent to setting the variable
+\fIECHO_HIDDEN\fR
+to
+on\&.
+.RE
+.PP
+\fB\-f \fR\fB\fIfilename\fR\fR
+.br
+\fB\-\-file=\fR\fB\fIfilename\fR\fR
+.RS 4
+Read commands from the file
+\fIfilename\fR, rather than standard input\&. This option can be repeated and combined in any order with the
+\fB\-c\fR
+option\&. When either
+\fB\-c\fR
+or
+\fB\-f\fR
+is specified,
+psql
+does not read commands from standard input; instead it terminates after processing all the
+\fB\-c\fR
+and
+\fB\-f\fR
+options in sequence\&. Except for that, this option is largely equivalent to the meta\-command
+\fB\ei\fR\&.
+.sp
+If
+\fIfilename\fR
+is
+\-
+(hyphen), then standard input is read until an EOF indication or
+\fB\eq\fR
+meta\-command\&. This can be used to intersperse interactive input with input from files\&. Note however that Readline is not used in this case (much as if
+\fB\-n\fR
+had been specified)\&.
+.sp
+Using this option is subtly different from writing
+psql < \fIfilename\fR\&. In general, both will do what you expect, but using
+\-f
+enables some nice features such as error messages with line numbers\&. There is also a slight chance that using this option will reduce the start\-up overhead\&. On the other hand, the variant using the shell\*(Aqs input redirection is (in theory) guaranteed to yield exactly the same output you would have received had you entered everything by hand\&.
+.RE
+.PP
+\fB\-F \fR\fB\fIseparator\fR\fR
+.br
+\fB\-\-field\-separator=\fR\fB\fIseparator\fR\fR
+.RS 4
+Use
+\fIseparator\fR
+as the field separator for unaligned output\&. This is equivalent to
+\fB\epset fieldsep\fR
+or
+\fB\ef\fR\&.
+.RE
+.PP
+\fB\-h \fR\fB\fIhostname\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhostname\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix\-domain socket\&.
+.RE
+.PP
+\fB\-H\fR
+.br
+\fB\-\-html\fR
+.RS 4
+Turn on
+HTML
+tabular output\&. This is equivalent to
+\epset format html
+or the
+\fB\eH\fR
+command\&.
+.RE
+.PP
+\fB\-l\fR
+.br
+\fB\-\-list\fR
+.RS 4
+List all available databases, then exit\&. Other non\-connection options are ignored\&. This is similar to the meta\-command
+\fB\elist\fR\&.
+.sp
+When this option is used,
+psql
+will connect to the database
+postgres, unless a different database is named on the command line (option
+\fB\-d\fR
+or non\-option argument, possibly via a service entry, but not via an environment variable)\&.
+.RE
+.PP
+\fB\-L \fR\fB\fIfilename\fR\fR
+.br
+\fB\-\-log\-file=\fR\fB\fIfilename\fR\fR
+.RS 4
+Write all query output into file
+\fIfilename\fR, in addition to the normal output destination\&.
+.RE
+.PP
+\fB\-n\fR
+.br
+\fB\-\-no\-readline\fR
+.RS 4
+Do not use
+Readline
+for line editing and do not use the command history\&. This can be useful to turn off tab expansion when cutting and pasting\&.
+.RE
+.PP
+\fB\-o \fR\fB\fIfilename\fR\fR
+.br
+\fB\-\-output=\fR\fB\fIfilename\fR\fR
+.RS 4
+Put all query output into file
+\fIfilename\fR\&. This is equivalent to the command
+\fB\eo\fR\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or the local Unix\-domain socket file extension on which the server is listening for connections\&. Defaults to the value of the
+\fBPGPORT\fR
+environment variable or, if not set, to the port specified at compile time, usually 5432\&.
+.RE
+.PP
+\fB\-P \fR\fB\fIassignment\fR\fR
+.br
+\fB\-\-pset=\fR\fB\fIassignment\fR\fR
+.RS 4
+Specifies printing options, in the style of
+\fB\epset\fR\&. Note that here you have to separate name and value with an equal sign instead of a space\&. For example, to set the output format to
+LaTeX, you could write
+\-P format=latex\&.
+.RE
+.PP
+\fB\-q\fR
+.br
+\fB\-\-quiet\fR
+.RS 4
+Specifies that
+psql
+should do its work quietly\&. By default, it prints welcome messages and various informational output\&. If this option is used, none of this happens\&. This is useful with the
+\fB\-c\fR
+option\&. This is equivalent to setting the variable
+\fIQUIET\fR
+to
+on\&.
+.RE
+.PP
+\fB\-R \fR\fB\fIseparator\fR\fR
+.br
+\fB\-\-record\-separator=\fR\fB\fIseparator\fR\fR
+.RS 4
+Use
+\fIseparator\fR
+as the record separator for unaligned output\&. This is equivalent to
+\fB\epset recordsep\fR\&.
+.RE
+.PP
+\fB\-s\fR
+.br
+\fB\-\-single\-step\fR
+.RS 4
+Run in single\-step mode\&. That means the user is prompted before each command is sent to the server, with the option to cancel execution as well\&. Use this to debug scripts\&.
+.RE
+.PP
+\fB\-S\fR
+.br
+\fB\-\-single\-line\fR
+.RS 4
+Runs in single\-line mode where a newline terminates an SQL command, as a semicolon does\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+This mode is provided for those who insist on it, but you are not necessarily encouraged to use it\&. In particular, if you mix
+SQL
+and meta\-commands on a line the order of execution might not always be clear to the inexperienced user\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fB\-t\fR
+.br
+\fB\-\-tuples\-only\fR
+.RS 4
+Turn off printing of column names and result row count footers, etc\&. This is equivalent to
+\fB\et\fR
+or
+\fB\epset tuples_only\fR\&.
+.RE
+.PP
+\fB\-T \fR\fB\fItable_options\fR\fR
+.br
+\fB\-\-table\-attr=\fR\fB\fItable_options\fR\fR
+.RS 4
+Specifies options to be placed within the
+HTML
+table
+tag\&. See
+\fB\epset tableattr\fR
+for details\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+Connect to the database as the user
+\fIusername\fR
+instead of the default\&. (You must have permission to do so, of course\&.)
+.RE
+.PP
+\fB\-v \fR\fB\fIassignment\fR\fR
+.br
+\fB\-\-set=\fR\fB\fIassignment\fR\fR
+.br
+\fB\-\-variable=\fR\fB\fIassignment\fR\fR
+.RS 4
+Perform a variable assignment, like the
+\fB\eset\fR
+meta\-command\&. Note that you must separate name and value, if any, by an equal sign on the command line\&. To unset a variable, leave off the equal sign\&. To set a variable with an empty value, use the equal sign but leave off the value\&. These assignments are done during command line processing, so variables that reflect connection state will get overwritten later\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+psql
+version and exit\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available from other sources such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.sp
+Note that this option will remain set for the entire session, and so it affects uses of the meta\-command
+\fB\econnect\fR
+as well as the initial connection attempt\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+psql
+to prompt for a password before connecting to a database, even if the password will not be used\&.
+.sp
+If the server requires password authentication and a password is not available from other sources such as a
+\&.pgpass
+file,
+psql
+will prompt for a password in any case\&. However,
+psql
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.sp
+Note that this option will remain set for the entire session, and so it affects uses of the meta\-command
+\fB\econnect\fR
+as well as the initial connection attempt\&.
+.RE
+.PP
+\fB\-x\fR
+.br
+\fB\-\-expanded\fR
+.RS 4
+Turn on the expanded table formatting mode\&. This is equivalent to
+\fB\ex\fR
+or
+\fB\epset expanded\fR\&.
+.RE
+.PP
+\fB\-X,\fR
+.br
+\fB\-\-no\-psqlrc\fR
+.RS 4
+Do not read the start\-up file (neither the system\-wide
+psqlrc
+file nor the user\*(Aqs
+~/\&.psqlrc
+file)\&.
+.RE
+.PP
+\fB\-z\fR
+.br
+\fB\-\-field\-separator\-zero\fR
+.RS 4
+Set the field separator for unaligned output to a zero byte\&. This is equivalent to
+\fB\epset fieldsep_zero\fR\&.
+.RE
+.PP
+\fB\-0\fR
+.br
+\fB\-\-record\-separator\-zero\fR
+.RS 4
+Set the record separator for unaligned output to a zero byte\&. This is useful for interfacing, for example, with
+xargs \-0\&. This is equivalent to
+\fB\epset recordsep_zero\fR\&.
+.RE
+.PP
+\fB\-1\fR
+.br
+\fB\-\-single\-transaction\fR
+.RS 4
+This option can only be used in combination with one or more
+\fB\-c\fR
+and/or
+\fB\-f\fR
+options\&. It causes
+psql
+to issue a
+\fBBEGIN\fR
+command before the first such option and a
+\fBCOMMIT\fR
+command after the last one, thereby wrapping all the commands into a single transaction\&. This ensures that either all the commands complete successfully, or no changes are applied\&.
+.sp
+If the commands themselves contain
+\fBBEGIN\fR,
+\fBCOMMIT\fR, or
+\fBROLLBACK\fR, this option will not have the desired effects\&. Also, if an individual command cannot be executed inside a transaction block, specifying this option will cause the whole transaction to fail\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help[=\fR\fB\fItopic\fR\fR\fB]\fR
+.RS 4
+Show help about
+psql
+and exit\&. The optional
+\fItopic\fR
+parameter (defaulting to
+options) selects which part of
+psql
+is explained:
+commands
+describes
+psql\*(Aqs backslash commands;
+options
+describes the command\-line options that can be passed to
+psql; and
+variables
+shows help about
+psql
+configuration variables\&.
+.RE
+.SH "EXIT STATUS"
+.PP
+psql
+returns 0 to the shell if it finished normally, 1 if a fatal error of its own occurs (e\&.g\&., out of memory, file not found), 2 if the connection to the server went bad and the session was not interactive, and 3 if an error occurred in a script and the variable
+\fION_ERROR_STOP\fR
+was set\&.
+.SH "USAGE"
+.SS "Connecting to a Database"
+.PP
+psql
+is a regular
+PostgreSQL
+client application\&. In order to connect to a database you need to know the name of your target database, the host name and port number of the server, and what user name you want to connect as\&.
+psql
+can be told about those parameters via command line options, namely
+\fB\-d\fR,
+\fB\-h\fR,
+\fB\-p\fR, and
+\fB\-U\fR
+respectively\&. If an argument is found that does not belong to any option it will be interpreted as the database name (or the user name, if the database name is already given)\&. Not all of these options are required; there are useful defaults\&. If you omit the host name,
+psql
+will connect via a Unix\-domain socket to a server on the local host, or via TCP/IP to
+localhost
+on machines that don\*(Aqt have Unix\-domain sockets\&. The default port number is determined at compile time\&. Since the database server uses the same default, you will not have to specify the port in most cases\&. The default user name is your operating\-system user name, as is the default database name\&. Note that you cannot just connect to any database under any user name\&. Your database administrator should have informed you about your access rights\&.
+.PP
+When the defaults aren\*(Aqt quite right, you can save yourself some typing by setting the environment variables
+\fBPGDATABASE\fR,
+\fBPGHOST\fR,
+\fBPGPORT\fR
+and/or
+\fBPGUSER\fR
+to appropriate values\&. (For additional environment variables, see
+Section\ \&33.14\&.) It is also convenient to have a
+~/\&.pgpass
+file to avoid regularly having to type in passwords\&. See
+Section\ \&33.15
+for more information\&.
+.PP
+An alternative way to specify connection parameters is in a
+\fIconninfo\fR
+string or a
+URI, which is used instead of a database name\&. This mechanism give you very wide control over the connection\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpsql "service=myservice sslmode=require"\fR
+$ \fBpsql postgresql://dbmaster:5433/mydb?sslmode=require\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This way you can also use
+LDAP
+for connection parameter lookup as described in
+Section\ \&33.17\&. See
+Section\ \&33.1.2
+for more information on all the available connection options\&.
+.PP
+If the connection could not be made for any reason (e\&.g\&., insufficient privileges, server is not running on the targeted host, etc\&.),
+psql
+will return an error and terminate\&.
+.PP
+If both standard input and standard output are a terminal, then
+psql
+sets the client encoding to
+\(lqauto\(rq, which will detect the appropriate client encoding from the locale settings (\fBLC_CTYPE\fR
+environment variable on Unix systems)\&. If this doesn\*(Aqt work out as expected, the client encoding can be overridden using the environment variable
+\fBPGCLIENTENCODING\fR\&.
+.SS "Entering SQL Commands"
+.PP
+In normal operation,
+psql
+provides a prompt with the name of the database to which
+psql
+is currently connected, followed by the string
+=>\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpsql testdb\fR
+psql (10\&.23)
+Type "help" for help\&.
+
+testdb=>
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+At the prompt, the user can type in
+SQL
+commands\&. Ordinarily, input lines are sent to the server when a command\-terminating semicolon is reached\&. An end of line does not terminate a command\&. Thus commands can be spread over several lines for clarity\&. If the command was sent and executed without error, the results of the command are displayed on the screen\&.
+.PP
+If untrusted users have access to a database that has not adopted a
+secure schema usage pattern, begin your session by removing publicly\-writable schemas from
+\fIsearch_path\fR\&. One can add
+options=\-csearch_path=
+to the connection string or issue
+SELECT pg_catalog\&.set_config(\*(Aqsearch_path\*(Aq, \*(Aq\*(Aq, false)
+before other SQL commands\&. This consideration is not specific to
+psql; it applies to every interface for executing arbitrary SQL commands\&.
+.PP
+Whenever a command is executed,
+psql
+also polls for asynchronous notification events generated by
+\fBLISTEN\fR(7)
+and
+\fBNOTIFY\fR(7)\&.
+.PP
+While C\-style block comments are passed to the server for processing and removal, SQL\-standard comments are removed by
+psql\&.
+.SS "Meta\-Commands"
+.PP
+Anything you enter in
+psql
+that begins with an unquoted backslash is a
+psql
+meta\-command that is processed by
+psql
+itself\&. These commands make
+psql
+more useful for administration or scripting\&. Meta\-commands are often called slash or backslash commands\&.
+.PP
+The format of a
+psql
+command is the backslash, followed immediately by a command verb, then any arguments\&. The arguments are separated from the command verb and each other by any number of whitespace characters\&.
+.PP
+To include whitespace in an argument you can quote it with single quotes\&. To include a single quote in an argument, write two single quotes within single\-quoted text\&. Anything contained in single quotes is furthermore subject to C\-like substitutions for
+\en
+(new line),
+\et
+(tab),
+\eb
+(backspace),
+\er
+(carriage return),
+\ef
+(form feed),
+\e\fIdigits\fR
+(octal), and
+\ex\fIdigits\fR
+(hexadecimal)\&. A backslash preceding any other character within single\-quoted text quotes that single character, whatever it is\&.
+.PP
+If an unquoted colon (:) followed by a
+psql
+variable name appears within an argument, it is replaced by the variable\*(Aqs value, as described in
+SQL Interpolation\&. The forms
+:\*(Aq\fIvariable_name\fR\*(Aq
+and
+:"\fIvariable_name\fR"
+described there work as well\&.
+.PP
+Within an argument, text that is enclosed in backquotes (`) is taken as a command line that is passed to the shell\&. The output of the command (with any trailing newline removed) replaces the backquoted text\&. Within the text enclosed in backquotes, no special quoting or other processing occurs, except that appearances of
+:\fIvariable_name\fR
+where
+\fIvariable_name\fR
+is a
+psql
+variable name are replaced by the variable\*(Aqs value\&. Also, appearances of
+:\*(Aq\fIvariable_name\fR\*(Aq
+are replaced by the variable\*(Aqs value suitably quoted to become a single shell command argument\&. (The latter form is almost always preferable, unless you are very sure of what is in the variable\&.) Because carriage return and line feed characters cannot be safely quoted on all platforms, the
+:\*(Aq\fIvariable_name\fR\*(Aq
+form prints an error message and does not substitute the variable value when such characters appear in the value\&.
+.PP
+Some commands take an
+SQL
+identifier (such as a table name) as argument\&. These arguments follow the syntax rules of
+SQL: Unquoted letters are forced to lowercase, while double quotes (") protect letters from case conversion and allow incorporation of whitespace into the identifier\&. Within double quotes, paired double quotes reduce to a single double quote in the resulting name\&. For example,
+FOO"BAR"BAZ
+is interpreted as
+fooBARbaz, and
+"A weird"" name"
+becomes
+A weird" name\&.
+.PP
+Parsing for arguments stops at the end of the line, or when another unquoted backslash is found\&. An unquoted backslash is taken as the beginning of a new meta\-command\&. The special sequence
+\e\e
+(two backslashes) marks the end of arguments and continues parsing
+SQL
+commands, if any\&. That way
+SQL
+and
+psql
+commands can be freely mixed on a line\&. But in any case, the arguments of a meta\-command cannot continue beyond the end of the line\&.
+.PP
+Many of the meta\-commands act on the
+current query buffer\&. This is simply a buffer holding whatever SQL command text has been typed but not yet sent to the server for execution\&. This will include previous input lines as well as any text appearing before the meta\-command on the same line\&.
+.PP
+The following meta\-commands are defined:
+.PP
+\ea
+.RS 4
+If the current table output format is unaligned, it is switched to aligned\&. If it is not unaligned, it is set to unaligned\&. This command is kept for backwards compatibility\&. See
+\fB\epset\fR
+for a more general solution\&.
+.RE
+.PP
+\ec or \econnect [ \-reuse\-previous=\fIon|off\fR ] [ \fIdbname\fR [ \fIusername\fR ] [ \fIhost\fR ] [ \fIport\fR ] | \fIconninfo\fR ]
+.RS 4
+Establishes a new connection to a
+PostgreSQL
+server\&. The connection parameters to use can be specified either using a positional syntax (one or more of database name, user, host, and port), or using a
+\fIconninfo\fR
+connection string as detailed in
+Section\ \&33.1.1\&. If no arguments are given, a new connection is made using the same parameters as before\&.
+.sp
+Specifying any of
+\fIdbname\fR,
+\fIusername\fR,
+\fIhost\fR
+or
+\fIport\fR
+as
+\-
+is equivalent to omitting that parameter\&.
+.sp
+The new connection can re\-use connection parameters from the previous connection; not only database name, user, host, and port, but other settings such as
+\fIsslmode\fR\&. By default, parameters are re\-used in the positional syntax, but not when a
+\fIconninfo\fR
+string is given\&. Passing a first argument of
+\-reuse\-previous=on
+or
+\-reuse\-previous=off
+overrides that default\&. If parameters are re\-used, then any parameter not explicitly specified as a positional parameter or in the
+\fIconninfo\fR
+string is taken from the existing connection\*(Aqs parameters\&. An exception is that if the
+\fIhost\fR
+setting is changed from its previous value using the positional syntax, any
+\fIhostaddr\fR
+setting present in the existing connection\*(Aqs parameters is dropped\&. Also, any password used for the existing connection will be re\-used only if the user, host, and port settings are not changed\&. When the command neither specifies nor reuses a particular parameter, the
+libpq
+default is used\&.
+.sp
+If the new connection is successfully made, the previous connection is closed\&. If the connection attempt fails (wrong user name, access denied, etc\&.), the previous connection will be kept if
+psql
+is in interactive mode\&. But when executing a non\-interactive script, processing will immediately stop with an error\&. This distinction was chosen as a user convenience against typos on the one hand, and a safety mechanism that scripts are not accidentally acting on the wrong database on the other hand\&.
+.sp
+Examples:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+=> \ec mydb myuser host\&.dom 6432
+=> \ec service=foo
+=> \ec "host=localhost port=5432 dbname=mydb connect_timeout=10 sslmode=disable"
+=> \ec \-reuse\-previous=on sslmode=require    \-\- changes only sslmode
+=> \ec postgresql://tom@localhost/mydb?application_name=myapp
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\eC [ \fItitle\fR ]
+.RS 4
+Sets the title of any tables being printed as the result of a query or unset any such title\&. This command is equivalent to
+\epset title \fItitle\fR\&. (The name of this command derives from
+\(lqcaption\(rq, as it was previously only used to set the caption in an
+HTML
+table\&.)
+.RE
+.PP
+\ecd [ \fIdirectory\fR ]
+.RS 4
+Changes the current working directory to
+\fIdirectory\fR\&. Without argument, changes to the current user\*(Aqs home directory\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+To print your current working directory, use
+\e! pwd\&.
+.sp .5v
+.RE
+.RE
+.PP
+\econninfo
+.RS 4
+Outputs information about the current database connection\&.
+.RE
+.PP
+\ecopy { \fItable\fR [ ( \fIcolumn_list\fR ) ] | ( \fIquery\fR ) } { from | to } { \fI\*(Aqfilename\*(Aq\fR | program \fI\*(Aqcommand\*(Aq\fR | stdin | stdout | pstdin | pstdout } [ [ with ] ( \fIoption\fR [, \&.\&.\&.] ) ]
+.RS 4
+Performs a frontend (client) copy\&. This is an operation that runs an
+SQL
+\fBCOPY\fR(7)
+command, but instead of the server reading or writing the specified file,
+psql
+reads or writes the file and routes the data between the server and the local file system\&. This means that file accessibility and privileges are those of the local user, not the server, and no SQL superuser privileges are required\&.
+.sp
+When
+program
+is specified,
+\fIcommand\fR
+is executed by
+psql
+and the data passed from or to
+\fIcommand\fR
+is routed between the server and the client\&. Again, the execution privileges are those of the local user, not the server, and no SQL superuser privileges are required\&.
+.sp
+For
+\ecopy \&.\&.\&. from stdin, data rows are read from the same source that issued the command, continuing until
+\e\&.
+is read or the stream reaches
+EOF\&. This option is useful for populating tables in\-line within a SQL script file\&. For
+\ecopy \&.\&.\&. to stdout, output is sent to the same place as
+psql
+command output, and the
+COPY \fIcount\fR
+command status is not printed (since it might be confused with a data row)\&. To read/write
+psql\*(Aqs standard input or output regardless of the current command source or
+\eo
+option, write
+from pstdin
+or
+to pstdout\&.
+.sp
+The syntax of this command is similar to that of the
+SQL
+\fBCOPY\fR(7)
+command\&. All options other than the data source/destination are as specified for
+\fBCOPY\fR(7)\&. Because of this, special parsing rules apply to the
+\fB\ecopy\fR
+meta\-command\&. Unlike most other meta\-commands, the entire remainder of the line is always taken to be the arguments of
+\fB\ecopy\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+Another way to obtain the same result as
+\ecopy \&.\&.\&. to
+is to use the
+SQL
+COPY \&.\&.\&. TO STDOUT
+command and terminate it with
+\eg \fIfilename\fR
+or
+\eg |\fIprogram\fR\&. Unlike
+\ecopy, this method allows the command to span multiple lines; also, variable interpolation and backquote expansion can be used\&.
+.sp .5v
+.RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+These operations are not as efficient as the
+SQL
+\fBCOPY\fR
+command with a file or program data source or destination, because all data must pass through the client/server connection\&. For large amounts of data the
+SQL
+command might be preferable\&.
+.sp .5v
+.RE
+.RE
+.PP
+\ecopyright
+.RS 4
+Shows the copyright and distribution terms of
+PostgreSQL\&.
+.RE
+.PP
+\ecrosstabview [ \fIcolV\fR [ \fIcolH\fR [ \fIcolD\fR [ \fIsortcolH\fR ] ] ] ]
+.RS 4
+Executes the current query buffer (like
+\eg) and shows the results in a crosstab grid\&. The query must return at least three columns\&. The output column identified by
+\fIcolV\fR
+becomes a vertical header and the output column identified by
+\fIcolH\fR
+becomes a horizontal header\&.
+\fIcolD\fR
+identifies the output column to display within the grid\&.
+\fIsortcolH\fR
+identifies an optional sort column for the horizontal header\&.
+.sp
+Each column specification can be a column number (starting at 1) or a column name\&. The usual SQL case folding and quoting rules apply to column names\&. If omitted,
+\fIcolV\fR
+is taken as column 1 and
+\fIcolH\fR
+as column 2\&.
+\fIcolH\fR
+must differ from
+\fIcolV\fR\&. If
+\fIcolD\fR
+is not specified, then there must be exactly three columns in the query result, and the column that is neither
+\fIcolV\fR
+nor
+\fIcolH\fR
+is taken to be
+\fIcolD\fR\&.
+.sp
+The vertical header, displayed as the leftmost column, contains the values found in column
+\fIcolV\fR, in the same order as in the query results, but with duplicates removed\&.
+.sp
+The horizontal header, displayed as the first row, contains the values found in column
+\fIcolH\fR, with duplicates removed\&. By default, these appear in the same order as in the query results\&. But if the optional
+\fIsortcolH\fR
+argument is given, it identifies a column whose values must be integer numbers, and the values from
+\fIcolH\fR
+will appear in the horizontal header sorted according to the corresponding
+\fIsortcolH\fR
+values\&.
+.sp
+Inside the crosstab grid, for each distinct value
+x
+of
+\fIcolH\fR
+and each distinct value
+y
+of
+\fIcolV\fR, the cell located at the intersection
+(x,y)
+contains the value of the
+colD
+column in the query result row for which the value of
+\fIcolH\fR
+is
+x
+and the value of
+\fIcolV\fR
+is
+y\&. If there is no such row, the cell is empty\&. If there are multiple such rows, an error is reported\&.
+.RE
+.PP
+\ed[S+] [ \fIpattern\fR ]
+.RS 4
+For each relation (table, view, materialized view, index, sequence, or foreign table) or composite type matching the
+\fIpattern\fR, show all columns, their types, the tablespace (if not the default) and any special attributes such as
+NOT NULL
+or defaults\&. Associated indexes, constraints, rules, and triggers are also shown\&. For foreign tables, the associated foreign server is shown as well\&. (\(lqMatching the pattern\(rq
+is defined in
+Patterns
+below\&.)
+.sp
+For some types of relation,
+\ed
+shows additional information for each column: column values for sequences, indexed expressions for indexes, and foreign data wrapper options for foreign tables\&.
+.sp
+The command form
+\ed+
+is identical, except that more information is displayed: any comments associated with the columns of the table are shown, as is the presence of OIDs in the table, the view definition if the relation is a view, a non\-default
+replica identity
+setting\&.
+.sp
+By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+If
+\fB\ed\fR
+is used without a
+\fIpattern\fR
+argument, it is equivalent to
+\fB\edtvmsE\fR
+which will show a list of all visible tables, views, materialized views, sequences and foreign tables\&. This is purely a convenience measure\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eda[S] [ \fIpattern\fR ]
+.RS 4
+Lists aggregate functions, together with their return type and the data types they operate on\&. If
+\fIpattern\fR
+is specified, only aggregates whose names match the pattern are shown\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&.
+.RE
+.PP
+\edA[+] [ \fIpattern\fR ]
+.RS 4
+Lists access methods\&. If
+\fIpattern\fR
+is specified, only access methods whose names match the pattern are shown\&. If
++
+is appended to the command name, each access method is listed with its associated handler function and description\&.
+.RE
+.PP
+\edb[+] [ \fIpattern\fR ]
+.RS 4
+Lists tablespaces\&. If
+\fIpattern\fR
+is specified, only tablespaces whose names match the pattern are shown\&. If
++
+is appended to the command name, each tablespace is listed with its associated options, on\-disk size, permissions and description\&.
+.RE
+.PP
+\edc[S+] [ \fIpattern\fR ]
+.RS 4
+Lists conversions between character\-set encodings\&. If
+\fIpattern\fR
+is specified, only conversions whose names match the pattern are listed\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&. If
++
+is appended to the command name, each object is listed with its associated description\&.
+.RE
+.PP
+\edC[+] [ \fIpattern\fR ]
+.RS 4
+Lists type casts\&. If
+\fIpattern\fR
+is specified, only casts whose source or target types match the pattern are listed\&. If
++
+is appended to the command name, each object is listed with its associated description\&.
+.RE
+.PP
+\edd[S] [ \fIpattern\fR ]
+.RS 4
+Shows the descriptions of objects of type
+constraint,
+operator class,
+operator family,
+rule, and
+trigger\&. All other comments may be viewed by the respective backslash commands for those object types\&.
+.sp
+\edd
+displays descriptions for objects matching the
+\fIpattern\fR, or of visible objects of the appropriate type if no argument is given\&. But in either case, only objects that have a description are listed\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&.
+.sp
+Descriptions for objects can be created with the
+\fBCOMMENT\fR(7)
+SQL
+command\&.
+.RE
+.PP
+\edD[S+] [ \fIpattern\fR ]
+.RS 4
+Lists domains\&. If
+\fIpattern\fR
+is specified, only domains whose names match the pattern are shown\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&. If
++
+is appended to the command name, each object is listed with its associated permissions and description\&.
+.RE
+.PP
+\eddp [ \fIpattern\fR ]
+.RS 4
+Lists default access privilege settings\&. An entry is shown for each role (and schema, if applicable) for which the default privilege settings have been changed from the built\-in defaults\&. If
+\fIpattern\fR
+is specified, only entries whose role name or schema name matches the pattern are listed\&.
+.sp
+The
+ALTER DEFAULT PRIVILEGES (\fBALTER_DEFAULT_PRIVILEGES\fR(7))
+command is used to set default access privileges\&. The meaning of the privilege display is explained under
+\fBGRANT\fR(7)\&.
+.RE
+.PP
+\edE[S+] [ \fIpattern\fR ]
+.br
+\edi[S+] [ \fIpattern\fR ]
+.br
+\edm[S+] [ \fIpattern\fR ]
+.br
+\eds[S+] [ \fIpattern\fR ]
+.br
+\edt[S+] [ \fIpattern\fR ]
+.br
+\edv[S+] [ \fIpattern\fR ]
+.RS 4
+In this group of commands, the letters
+E,
+i,
+m,
+s,
+t, and
+v
+stand for foreign table, index, materialized view, sequence, table, and view, respectively\&. You can specify any or all of these letters, in any order, to obtain a listing of objects of these types\&. For example,
+\edit
+lists indexes and tables\&. If
++
+is appended to the command name, each object is listed with its physical size on disk and its associated description, if any\&. If
+\fIpattern\fR
+is specified, only objects whose names match the pattern are listed\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&.
+.RE
+.PP
+\edes[+] [ \fIpattern\fR ]
+.RS 4
+Lists foreign servers (mnemonic:
+\(lqexternal servers\(rq)\&. If
+\fIpattern\fR
+is specified, only those servers whose name matches the pattern are listed\&. If the form
+\edes+
+is used, a full description of each server is shown, including the server\*(Aqs ACL, type, version, options, and description\&.
+.RE
+.PP
+\edet[+] [ \fIpattern\fR ]
+.RS 4
+Lists foreign tables (mnemonic:
+\(lqexternal tables\(rq)\&. If
+\fIpattern\fR
+is specified, only entries whose table name or schema name matches the pattern are listed\&. If the form
+\edet+
+is used, generic options and the foreign table description are also displayed\&.
+.RE
+.PP
+\edeu[+] [ \fIpattern\fR ]
+.RS 4
+Lists user mappings (mnemonic:
+\(lqexternal users\(rq)\&. If
+\fIpattern\fR
+is specified, only those mappings whose user names match the pattern are listed\&. If the form
+\edeu+
+is used, additional information about each mapping is shown\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBCaution\fR
+.ps -1
+.br
+\edeu+
+might also display the user name and password of the remote user, so care should be taken not to disclose them\&.
+.sp .5v
+.RE
+.RE
+.PP
+\edew[+] [ \fIpattern\fR ]
+.RS 4
+Lists foreign\-data wrappers (mnemonic:
+\(lqexternal wrappers\(rq)\&. If
+\fIpattern\fR
+is specified, only those foreign\-data wrappers whose name matches the pattern are listed\&. If the form
+\edew+
+is used, the ACL, options, and description of the foreign\-data wrapper are also shown\&.
+.RE
+.PP
+\edf[antwS+] [ \fIpattern\fR ]
+.RS 4
+Lists functions, together with their result data types, argument data types, and function types, which are classified as
+\(lqagg\(rq
+(aggregate),
+\(lqnormal\(rq,
+\(lqtrigger\(rq, or
+\(lqwindow\(rq\&. To display only functions of specific type(s), add the corresponding letters
+a,
+n,
+t, or
+w
+to the command\&. If
+\fIpattern\fR
+is specified, only functions whose names match the pattern are shown\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&. If the form
+\edf+
+is used, additional information about each function is shown, including volatility, parallel safety, owner, security classification, access privileges, language, source code and description\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+To look up functions taking arguments or returning values of a specific data type, use your pager\*(Aqs search capability to scroll through the
+\edf
+output\&.
+.sp .5v
+.RE
+.RE
+.PP
+\edF[+] [ \fIpattern\fR ]
+.RS 4
+Lists text search configurations\&. If
+\fIpattern\fR
+is specified, only configurations whose names match the pattern are shown\&. If the form
+\edF+
+is used, a full description of each configuration is shown, including the underlying text search parser and the dictionary list for each parser token type\&.
+.RE
+.PP
+\edFd[+] [ \fIpattern\fR ]
+.RS 4
+Lists text search dictionaries\&. If
+\fIpattern\fR
+is specified, only dictionaries whose names match the pattern are shown\&. If the form
+\edFd+
+is used, additional information is shown about each selected dictionary, including the underlying text search template and the option values\&.
+.RE
+.PP
+\edFp[+] [ \fIpattern\fR ]
+.RS 4
+Lists text search parsers\&. If
+\fIpattern\fR
+is specified, only parsers whose names match the pattern are shown\&. If the form
+\edFp+
+is used, a full description of each parser is shown, including the underlying functions and the list of recognized token types\&.
+.RE
+.PP
+\edFt[+] [ \fIpattern\fR ]
+.RS 4
+Lists text search templates\&. If
+\fIpattern\fR
+is specified, only templates whose names match the pattern are shown\&. If the form
+\edFt+
+is used, additional information is shown about each template, including the underlying function names\&.
+.RE
+.PP
+\edg[S+] [ \fIpattern\fR ]
+.RS 4
+Lists database roles\&. (Since the concepts of
+\(lqusers\(rq
+and
+\(lqgroups\(rq
+have been unified into
+\(lqroles\(rq, this command is now equivalent to
+\edu\&.) By default, only user\-created roles are shown; supply the
+S
+modifier to include system roles\&. If
+\fIpattern\fR
+is specified, only those roles whose names match the pattern are listed\&. If the form
+\edg+
+is used, additional information is shown about each role; currently this adds the comment for each role\&.
+.RE
+.PP
+\edl
+.RS 4
+This is an alias for
+\fB\elo_list\fR, which shows a list of large objects\&.
+.RE
+.PP
+\edL[S+] [ \fIpattern\fR ]
+.RS 4
+Lists procedural languages\&. If
+\fIpattern\fR
+is specified, only languages whose names match the pattern are listed\&. By default, only user\-created languages are shown; supply the
+S
+modifier to include system objects\&. If
++
+is appended to the command name, each language is listed with its call handler, validator, access privileges, and whether it is a system object\&.
+.RE
+.PP
+\edn[S+] [ \fIpattern\fR ]
+.RS 4
+Lists schemas (namespaces)\&. If
+\fIpattern\fR
+is specified, only schemas whose names match the pattern are listed\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&. If
++
+is appended to the command name, each object is listed with its associated permissions and description, if any\&.
+.RE
+.PP
+\edo[S+] [ \fIpattern\fR ]
+.RS 4
+Lists operators with their operand and result types\&. If
+\fIpattern\fR
+is specified, only operators whose names match the pattern are listed\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&. If
++
+is appended to the command name, additional information about each operator is shown, currently just the name of the underlying function\&.
+.RE
+.PP
+\edO[S+] [ \fIpattern\fR ]
+.RS 4
+Lists collations\&. If
+\fIpattern\fR
+is specified, only collations whose names match the pattern are listed\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&. If
++
+is appended to the command name, each collation is listed with its associated description, if any\&. Note that only collations usable with the current database\*(Aqs encoding are shown, so the results may vary in different databases of the same installation\&.
+.RE
+.PP
+\edp [ \fIpattern\fR ]
+.RS 4
+Lists tables, views and sequences with their associated access privileges\&. If
+\fIpattern\fR
+is specified, only tables, views and sequences whose names match the pattern are listed\&.
+.sp
+The
+\fBGRANT\fR(7)
+and
+\fBREVOKE\fR(7)
+commands are used to set access privileges\&. The meaning of the privilege display is explained under
+\fBGRANT\fR(7)\&.
+.RE
+.PP
+\edrds [ \fIrole\-pattern\fR [ \fIdatabase\-pattern\fR ] ]
+.RS 4
+Lists defined configuration settings\&. These settings can be role\-specific, database\-specific, or both\&.
+\fIrole\-pattern\fR
+and
+\fIdatabase\-pattern\fR
+are used to select specific roles and databases to list, respectively\&. If omitted, or if
+*
+is specified, all settings are listed, including those not role\-specific or database\-specific, respectively\&.
+.sp
+The
+ALTER ROLE (\fBALTER_ROLE\fR(7))
+and
+ALTER DATABASE (\fBALTER_DATABASE\fR(7))
+commands are used to define per\-role and per\-database configuration settings\&.
+.RE
+.PP
+\edRp[+] [ \fIpattern\fR ]
+.RS 4
+Lists replication publications\&. If
+\fIpattern\fR
+is specified, only those publications whose names match the pattern are listed\&. If
++
+is appended to the command name, the tables associated with each publication are shown as well\&.
+.RE
+.PP
+\edRs[+] [ \fIpattern\fR ]
+.RS 4
+Lists replication subscriptions\&. If
+\fIpattern\fR
+is specified, only those subscriptions whose names match the pattern are listed\&. If
++
+is appended to the command name, additional properties of the subscriptions are shown\&.
+.RE
+.PP
+\edT[S+] [ \fIpattern\fR ]
+.RS 4
+Lists data types\&. If
+\fIpattern\fR
+is specified, only types whose names match the pattern are listed\&. If
++
+is appended to the command name, each type is listed with its internal name and size, its allowed values if it is an
+enum
+type, and its associated permissions\&. By default, only user\-created objects are shown; supply a pattern or the
+S
+modifier to include system objects\&.
+.RE
+.PP
+\edu[S+] [ \fIpattern\fR ]
+.RS 4
+Lists database roles\&. (Since the concepts of
+\(lqusers\(rq
+and
+\(lqgroups\(rq
+have been unified into
+\(lqroles\(rq, this command is now equivalent to
+\edg\&.) By default, only user\-created roles are shown; supply the
+S
+modifier to include system roles\&. If
+\fIpattern\fR
+is specified, only those roles whose names match the pattern are listed\&. If the form
+\edu+
+is used, additional information is shown about each role; currently this adds the comment for each role\&.
+.RE
+.PP
+\edx[+] [ \fIpattern\fR ]
+.RS 4
+Lists installed extensions\&. If
+\fIpattern\fR
+is specified, only those extensions whose names match the pattern are listed\&. If the form
+\edx+
+is used, all the objects belonging to each matching extension are listed\&.
+.RE
+.PP
+\edy[+] [ \fIpattern\fR ]
+.RS 4
+Lists event triggers\&. If
+\fIpattern\fR
+is specified, only those event triggers whose names match the pattern are listed\&. If
++
+is appended to the command name, each object is listed with its associated description\&.
+.RE
+.PP
+\ee or \eedit [ \fIfilename\fR ] [ \fIline_number\fR ]
+.RS 4
+If
+\fIfilename\fR
+is specified, the file is edited; after the editor exits, the file\*(Aqs content is copied into the current query buffer\&. If no
+\fIfilename\fR
+is given, the current query buffer is copied to a temporary file which is then edited in the same fashion\&. Or, if the current query buffer is empty, the most recently executed query is copied to a temporary file and edited in the same fashion\&.
+.sp
+The new contents of the query buffer are then re\-parsed according to the normal rules of
+psql, treating the whole buffer as a single line\&. Any complete queries are immediately executed; that is, if the query buffer contains or ends with a semicolon, everything up to that point is executed\&. Whatever remains will wait in the query buffer; type semicolon or
+\eg
+to send it, or
+\er
+to cancel it by clearing the query buffer\&. Treating the buffer as a single line primarily affects meta\-commands: whatever is in the buffer after a meta\-command will be taken as argument(s) to the meta\-command, even if it spans multiple lines\&. (Thus you cannot make meta\-command\-using scripts this way\&. Use
+\fB\ei\fR
+for that\&.)
+.sp
+If a line number is specified,
+psql
+will position the cursor on the specified line of the file or query buffer\&. Note that if a single all\-digits argument is given,
+psql
+assumes it is a line number, not a file name\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+See under
+ENVIRONMENT
+for how to configure and customize your editor\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eecho \fItext\fR [ \&.\&.\&. ]
+.RS 4
+Prints the arguments to the standard output, separated by one space and followed by a newline\&. This can be useful to intersperse information in the output of scripts\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+=> \fB\eecho `date`\fR
+Tue Oct 26 21:40:57 CEST 1999
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+If the first argument is an unquoted
+\-n
+the trailing newline is not written\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+If you use the
+\fB\eo\fR
+command to redirect your query output you might wish to use
+\fB\eqecho\fR
+instead of this command\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eef [ \fIfunction_description\fR [ \fIline_number\fR ] ]
+.RS 4
+This command fetches and edits the definition of the named function, in the form of a
+\fBCREATE OR REPLACE FUNCTION\fR
+command\&. Editing is done in the same way as for
+\eedit\&. After the editor exits, the updated command waits in the query buffer; type semicolon or
+\eg
+to send it, or
+\er
+to cancel\&.
+.sp
+The target function can be specified by name alone, or by name and arguments, for example
+foo(integer, text)\&. The argument types must be given if there is more than one function of the same name\&.
+.sp
+If no function is specified, a blank
+\fBCREATE FUNCTION\fR
+template is presented for editing\&.
+.sp
+If a line number is specified,
+psql
+will position the cursor on the specified line of the function body\&. (Note that the function body typically does not begin on the first line of the file\&.)
+.sp
+Unlike most other meta\-commands, the entire remainder of the line is always taken to be the argument(s) of
+\fB\eef\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+See under
+ENVIRONMENT
+for how to configure and customize your editor\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eencoding [ \fIencoding\fR ]
+.RS 4
+Sets the client character set encoding\&. Without an argument, this command shows the current encoding\&.
+.RE
+.PP
+\eerrverbose
+.RS 4
+Repeats the most recent server error message at maximum verbosity, as though
+\fIVERBOSITY\fR
+were set to
+verbose
+and
+\fISHOW_CONTEXT\fR
+were set to
+always\&.
+.RE
+.PP
+\eev [ \fIview_name\fR [ \fIline_number\fR ] ]
+.RS 4
+This command fetches and edits the definition of the named view, in the form of a
+\fBCREATE OR REPLACE VIEW\fR
+command\&. Editing is done in the same way as for
+\eedit\&. After the editor exits, the updated command waits in the query buffer; type semicolon or
+\eg
+to send it, or
+\er
+to cancel\&.
+.sp
+If no view is specified, a blank
+\fBCREATE VIEW\fR
+template is presented for editing\&.
+.sp
+If a line number is specified,
+psql
+will position the cursor on the specified line of the view definition\&.
+.sp
+Unlike most other meta\-commands, the entire remainder of the line is always taken to be the argument(s) of
+\fB\eev\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&.
+.RE
+.PP
+\ef [ \fIstring\fR ]
+.RS 4
+Sets the field separator for unaligned query output\&. The default is the vertical bar (|)\&. It is equivalent to
+\fB\epset fieldsep\fR\&.
+.RE
+.PP
+\eg [ \fIfilename\fR ]
+.br
+\eg [ |\fIcommand\fR ]
+.RS 4
+Sends the current query buffer to the server for execution\&. If an argument is given, the query\*(Aqs output is written to the named file or piped to the given shell command, instead of displaying it as usual\&. The file or command is written to only if the query successfully returns zero or more tuples, not if the query fails or is a non\-data\-returning SQL command\&.
+.sp
+If the current query buffer is empty, the most recently sent query is re\-executed instead\&. Except for that behavior,
+\eg
+without an argument is essentially equivalent to a semicolon\&. A
+\eg
+with argument is a
+\(lqone\-shot\(rq
+alternative to the
+\fB\eo\fR
+command\&.
+.sp
+If the argument begins with
+|, then the entire remainder of the line is taken to be the
+\fIcommand\fR
+to execute, and neither variable interpolation nor backquote expansion are performed in it\&. The rest of the line is simply passed literally to the shell\&.
+.RE
+.PP
+\egexec
+.RS 4
+Sends the current query buffer to the server, then treats each column of each row of the query\*(Aqs output (if any) as a SQL statement to be executed\&. For example, to create an index on each column of
+my_table:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+=> \fBSELECT format(\*(Aqcreate index on my_table(%I)\*(Aq, attname)\fR
+\-> \fBFROM pg_attribute\fR
+\-> \fBWHERE attrelid = \*(Aqmy_table\*(Aq::regclass AND attnum > 0\fR
+\-> \fBORDER BY attnum\fR
+\-> \fB\egexec\fR
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The generated queries are executed in the order in which the rows are returned, and left\-to\-right within each row if there is more than one column\&. NULL fields are ignored\&. The generated queries are sent literally to the server for processing, so they cannot be
+psql
+meta\-commands nor contain
+psql
+variable references\&. If any individual query fails, execution of the remaining queries continues unless
+\fION_ERROR_STOP\fR
+is set\&. Execution of each query is subject to
+\fIECHO\fR
+processing\&. (Setting
+\fIECHO\fR
+to
+all
+or
+queries
+is often advisable when using
+\fB\egexec\fR\&.) Query logging, single\-step mode, timing, and other query execution features apply to each generated query as well\&.
+.sp
+If the current query buffer is empty, the most recently sent query is re\-executed instead\&.
+.RE
+.PP
+\egset [ \fIprefix\fR ]
+.RS 4
+Sends the current query buffer to the server and stores the query\*(Aqs output into
+psql
+variables (see
+Variables)\&. The query to be executed must return exactly one row\&. Each column of the row is stored into a separate variable, named the same as the column\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+=> \fBSELECT \*(Aqhello\*(Aq AS var1, 10 AS var2\fR
+\-> \fB\egset\fR
+=> \fB\eecho :var1 :var2\fR
+hello 10
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+If you specify a
+\fIprefix\fR, that string is prepended to the query\*(Aqs column names to create the variable names to use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+=> \fBSELECT \*(Aqhello\*(Aq AS var1, 10 AS var2\fR
+\-> \fB\egset result_\fR
+=> \fB\eecho :result_var1 :result_var2\fR
+hello 10
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+If a column result is NULL, the corresponding variable is unset rather than being set\&.
+.sp
+If the query fails or does not return one row, no variables are changed\&.
+.sp
+If the current query buffer is empty, the most recently sent query is re\-executed instead\&.
+.RE
+.PP
+\egx [ \fIfilename\fR ]
+.br
+\egx [ |\fIcommand\fR ]
+.RS 4
+\egx
+is equivalent to
+\eg, but forces expanded output mode for this query\&. See
+\ex\&.
+.RE
+.PP
+\eh or \ehelp [ \fIcommand\fR ]
+.RS 4
+Gives syntax help on the specified
+SQL
+command\&. If
+\fIcommand\fR
+is not specified, then
+psql
+will list all the commands for which syntax help is available\&. If
+\fIcommand\fR
+is an asterisk (*), then syntax help on all
+SQL
+commands is shown\&.
+.sp
+Unlike most other meta\-commands, the entire remainder of the line is always taken to be the argument(s) of
+\fB\ehelp\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+To simplify typing, commands that consists of several words do not have to be quoted\&. Thus it is fine to type
+\fB\ehelp alter table\fR\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eH or \ehtml
+.RS 4
+Turns on
+HTML
+query output format\&. If the
+HTML
+format is already on, it is switched back to the default aligned text format\&. This command is for compatibility and convenience, but see
+\fB\epset\fR
+about setting other output options\&.
+.RE
+.PP
+\ei or \einclude \fIfilename\fR
+.RS 4
+Reads input from the file
+\fIfilename\fR
+and executes it as though it had been typed on the keyboard\&.
+.sp
+If
+\fIfilename\fR
+is
+\-
+(hyphen), then standard input is read until an EOF indication or
+\fB\eq\fR
+meta\-command\&. This can be used to intersperse interactive input with input from files\&. Note that Readline behavior will be used only if it is active at the outermost level\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+If you want to see the lines on the screen as they are read you must set the variable
+\fIECHO\fR
+to
+all\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eif \fIexpression\fR
+.br
+\eelif \fIexpression\fR
+.br
+\eelse
+.br
+\eendif
+.RS 4
+This group of commands implements nestable conditional blocks\&. A conditional block must begin with an
+\fB\eif\fR
+and end with an
+\fB\eendif\fR\&. In between there may be any number of
+\fB\eelif\fR
+clauses, which may optionally be followed by a single
+\fB\eelse\fR
+clause\&. Ordinary queries and other types of backslash commands may (and usually do) appear between the commands forming a conditional block\&.
+.sp
+The
+\fB\eif\fR
+and
+\fB\eelif\fR
+commands read their argument(s) and evaluate them as a boolean expression\&. If the expression yields
+true
+then processing continues normally; otherwise, lines are skipped until a matching
+\fB\eelif\fR,
+\fB\eelse\fR, or
+\fB\eendif\fR
+is reached\&. Once an
+\fB\eif\fR
+or
+\fB\eelif\fR
+test has succeeded, the arguments of later
+\fB\eelif\fR
+commands in the same block are not evaluated but are treated as false\&. Lines following an
+\fB\eelse\fR
+are processed only if no earlier matching
+\fB\eif\fR
+or
+\fB\eelif\fR
+succeeded\&.
+.sp
+The
+\fIexpression\fR
+argument of an
+\fB\eif\fR
+or
+\fB\eelif\fR
+command is subject to variable interpolation and backquote expansion, just like any other backslash command argument\&. After that it is evaluated like the value of an on/off option variable\&. So a valid value is any unambiguous case\-insensitive match for one of:
+true,
+false,
+1,
+0,
+on,
+off,
+yes,
+no\&. For example,
+t,
+T, and
+tR
+will all be considered to be
+true\&.
+.sp
+Expressions that do not properly evaluate to true or false will generate a warning and be treated as false\&.
+.sp
+Lines being skipped are parsed normally to identify queries and backslash commands, but queries are not sent to the server, and backslash commands other than conditionals (\fB\eif\fR,
+\fB\eelif\fR,
+\fB\eelse\fR,
+\fB\eendif\fR) are ignored\&. Conditional commands are checked only for valid nesting\&. Variable references in skipped lines are not expanded, and backquote expansion is not performed either\&.
+.sp
+All the backslash commands of a given conditional block must appear in the same source file\&. If EOF is reached on the main input file or an
+\fB\einclude\fR\-ed file before all local
+\fB\eif\fR\-blocks have been closed, then
+psql
+will raise an error\&.
+.sp
+Here is an example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\-\- check for the existence of two separate records in the database and store
+\-\- the results in separate psql variables
+SELECT
+    EXISTS(SELECT 1 FROM customer WHERE customer_id = 123) as is_customer,
+    EXISTS(SELECT 1 FROM employee WHERE employee_id = 456) as is_employee
+\egset
+\eif :is_customer
+    SELECT * FROM customer WHERE customer_id = 123;
+\eelif :is_employee
+    \eecho \*(Aqis not a customer but is an employee\*(Aq
+    SELECT * FROM employee WHERE employee_id = 456;
+\eelse
+    \eif yes
+        \eecho \*(Aqnot a customer or employee\*(Aq
+    \eelse
+        \eecho \*(Aqthis will never print\*(Aq
+    \eendif
+\eendif
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\eir or \einclude_relative \fIfilename\fR
+.RS 4
+The
+\eir
+command is similar to
+\ei, but resolves relative file names differently\&. When executing in interactive mode, the two commands behave identically\&. However, when invoked from a script,
+\eir
+interprets file names relative to the directory in which the script is located, rather than the current working directory\&.
+.RE
+.PP
+\el[+] or \elist[+] [ \fIpattern\fR ]
+.RS 4
+List the databases in the server and show their names, owners, character set encodings, and access privileges\&. If
+\fIpattern\fR
+is specified, only databases whose names match the pattern are listed\&. If
++
+is appended to the command name, database sizes, default tablespaces, and descriptions are also displayed\&. (Size information is only available for databases that the current user can connect to\&.)
+.RE
+.PP
+\elo_export \fIloid\fR \fIfilename\fR
+.RS 4
+Reads the large object with
+OID
+\fIloid\fR
+from the database and writes it to
+\fIfilename\fR\&. Note that this is subtly different from the server function
+\fBlo_export\fR, which acts with the permissions of the user that the database server runs as and on the server\*(Aqs file system\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+Use
+\fB\elo_list\fR
+to find out the large object\*(Aqs
+OID\&.
+.sp .5v
+.RE
+.RE
+.PP
+\elo_import \fIfilename\fR [ \fIcomment\fR ]
+.RS 4
+Stores the file into a
+PostgreSQL
+large object\&. Optionally, it associates the given comment with the object\&. Example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+foo=> \fB\elo_import \*(Aq/home/peter/pictures/photo\&.xcf\*(Aq \*(Aqa picture of me\*(Aq\fR
+lo_import 152801
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The response indicates that the large object received object ID 152801, which can be used to access the newly\-created large object in the future\&. For the sake of readability, it is recommended to always associate a human\-readable comment with every object\&. Both OIDs and comments can be viewed with the
+\fB\elo_list\fR
+command\&.
+.sp
+Note that this command is subtly different from the server\-side
+\fBlo_import\fR
+because it acts as the local user on the local file system, rather than the server\*(Aqs user and file system\&.
+.RE
+.PP
+\elo_list
+.RS 4
+Shows a list of all
+PostgreSQL
+large objects currently stored in the database, along with any comments provided for them\&.
+.RE
+.PP
+\elo_unlink \fIloid\fR
+.RS 4
+Deletes the large object with
+OID
+\fIloid\fR
+from the database\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+Use
+\fB\elo_list\fR
+to find out the large object\*(Aqs
+OID\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eo or \eout [ \fIfilename\fR ]
+.br
+\eo or \eout [ |\fIcommand\fR ]
+.RS 4
+Arranges to save future query results to the file
+\fIfilename\fR
+or pipe future results to the shell command
+\fIcommand\fR\&. If no argument is specified, the query output is reset to the standard output\&.
+.sp
+If the argument begins with
+|, then the entire remainder of the line is taken to be the
+\fIcommand\fR
+to execute, and neither variable interpolation nor backquote expansion are performed in it\&. The rest of the line is simply passed literally to the shell\&.
+.sp
+\(lqQuery results\(rq
+includes all tables, command responses, and notices obtained from the database server, as well as output of various backslash commands that query the database (such as
+\fB\ed\fR); but not error messages\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+To intersperse text output in between query results, use
+\fB\eqecho\fR\&.
+.sp .5v
+.RE
+.RE
+.PP
+\ep or \eprint
+.RS 4
+Print the current query buffer to the standard output\&. If the current query buffer is empty, the most recently executed query is printed instead\&.
+.RE
+.PP
+\epassword [ \fIusername\fR ]
+.RS 4
+Changes the password of the specified user (by default, the current user)\&. This command prompts for the new password, encrypts it, and sends it to the server as an
+\fBALTER ROLE\fR
+command\&. This makes sure that the new password does not appear in cleartext in the command history, the server log, or elsewhere\&.
+.RE
+.PP
+\eprompt [ \fItext\fR ] \fIname\fR
+.RS 4
+Prompts the user to supply text, which is assigned to the variable
+\fIname\fR\&. An optional prompt string,
+\fItext\fR, can be specified\&. (For multiword prompts, surround the text with single quotes\&.)
+.sp
+By default,
+\eprompt
+uses the terminal for input and output\&. However, if the
+\fB\-f\fR
+command line switch was used,
+\eprompt
+uses standard input and standard output\&.
+.RE
+.PP
+\epset [ \fIoption\fR [ \fIvalue\fR ] ]
+.RS 4
+This command sets options affecting the output of query result tables\&.
+\fIoption\fR
+indicates which option is to be set\&. The semantics of
+\fIvalue\fR
+vary depending on the selected option\&. For some options, omitting
+\fIvalue\fR
+causes the option to be toggled or unset, as described under the particular option\&. If no such behavior is mentioned, then omitting
+\fIvalue\fR
+just results in the current setting being displayed\&.
+.sp
+\fB\epset\fR
+without any arguments displays the current status of all printing options\&.
+.sp
+Adjustable printing options are:
+.PP
+border
+.RS 4
+The
+\fIvalue\fR
+must be a number\&. In general, the higher the number the more borders and lines the tables will have, but details depend on the particular format\&. In
+HTML
+format, this will translate directly into the
+border=\&.\&.\&.
+attribute\&. In most other formats only values 0 (no border), 1 (internal dividing lines), and 2 (table frame) make sense, and values above 2 will be treated the same as
+border = 2\&. The
+latex
+and
+latex\-longtable
+formats additionally allow a value of 3 to add dividing lines between data rows\&.
+.RE
+.PP
+columns
+.RS 4
+Sets the target width for the
+wrapped
+format, and also the width limit for determining whether output is wide enough to require the pager or switch to the vertical display in expanded auto mode\&. Zero (the default) causes the target width to be controlled by the environment variable
+\fBCOLUMNS\fR, or the detected screen width if
+\fBCOLUMNS\fR
+is not set\&. In addition, if
+columns
+is zero then the
+wrapped
+format only affects screen output\&. If
+columns
+is nonzero then file and pipe output is wrapped to that width as well\&.
+.RE
+.PP
+expanded (or x)
+.RS 4
+If
+\fIvalue\fR
+is specified it must be either
+on
+or
+off, which will enable or disable expanded mode, or
+auto\&. If
+\fIvalue\fR
+is omitted the command toggles between the on and off settings\&. When expanded mode is enabled, query results are displayed in two columns, with the column name on the left and the data on the right\&. This mode is useful if the data wouldn\*(Aqt fit on the screen in the normal
+\(lqhorizontal\(rq
+mode\&. In the auto setting, the expanded mode is used whenever the query output has more than one column and is wider than the screen; otherwise, the regular mode is used\&. The auto setting is only effective in the aligned and wrapped formats\&. In other formats, it always behaves as if the expanded mode is off\&.
+.RE
+.PP
+fieldsep
+.RS 4
+Specifies the field separator to be used in unaligned output format\&. That way one can create, for example, tab\- or comma\-separated output, which other programs might prefer\&. To set a tab as field separator, type
+\epset fieldsep \*(Aq\et\*(Aq\&. The default field separator is
+\*(Aq|\*(Aq
+(a vertical bar)\&.
+.RE
+.PP
+fieldsep_zero
+.RS 4
+Sets the field separator to use in unaligned output format to a zero byte\&.
+.RE
+.PP
+footer
+.RS 4
+If
+\fIvalue\fR
+is specified it must be either
+on
+or
+off
+which will enable or disable display of the table footer (the
+(\fIn\fR rows)
+count)\&. If
+\fIvalue\fR
+is omitted the command toggles footer display on or off\&.
+.RE
+.PP
+format
+.RS 4
+Sets the output format to one of
+unaligned,
+aligned,
+wrapped,
+html,
+asciidoc,
+latex
+(uses
+tabular),
+latex\-longtable, or
+troff\-ms\&. Unique abbreviations are allowed\&.
+.sp
+unaligned
+format writes all columns of a row on one line, separated by the currently active field separator\&. This is useful for creating output that might be intended to be read in by other programs (for example, tab\-separated or comma\-separated format)\&.
+.sp
+aligned
+format is the standard, human\-readable, nicely formatted text output; this is the default\&.
+.sp
+wrapped
+format is like
+aligned
+but wraps wide data values across lines to make the output fit in the target column width\&. The target width is determined as described under the
+columns
+option\&. Note that
+psql
+will not attempt to wrap column header titles; therefore,
+wrapped
+format behaves the same as
+aligned
+if the total width needed for column headers exceeds the target\&.
+.sp
+The
+html,
+asciidoc,
+latex,
+latex\-longtable, and
+troff\-ms
+formats put out tables that are intended to be included in documents using the respective mark\-up language\&. They are not complete documents! This might not be necessary in
+HTML, but in
+LaTeX
+you must have a complete document wrapper\&.
+latex\-longtable
+also requires the
+LaTeX
+longtable
+and
+booktabs
+packages\&.
+.RE
+.PP
+linestyle
+.RS 4
+Sets the border line drawing style to one of
+ascii,
+old\-ascii, or
+unicode\&. Unique abbreviations are allowed\&. (That would mean one letter is enough\&.) The default setting is
+ascii\&. This option only affects the
+aligned
+and
+wrapped
+output formats\&.
+.sp
+ascii
+style uses plain
+ASCII
+characters\&. Newlines in data are shown using a
++
+symbol in the right\-hand margin\&. When the
+wrapped
+format wraps data from one line to the next without a newline character, a dot (\&.) is shown in the right\-hand margin of the first line, and again in the left\-hand margin of the following line\&.
+.sp
+old\-ascii
+style uses plain
+ASCII
+characters, using the formatting style used in
+PostgreSQL
+8\&.4 and earlier\&. Newlines in data are shown using a
+:
+symbol in place of the left\-hand column separator\&. When the data is wrapped from one line to the next without a newline character, a
+;
+symbol is used in place of the left\-hand column separator\&.
+.sp
+unicode
+style uses Unicode box\-drawing characters\&. Newlines in data are shown using a carriage return symbol in the right\-hand margin\&. When the data is wrapped from one line to the next without a newline character, an ellipsis symbol is shown in the right\-hand margin of the first line, and again in the left\-hand margin of the following line\&.
+.sp
+When the
+border
+setting is greater than zero, the
+linestyle
+option also determines the characters with which the border lines are drawn\&. Plain
+ASCII
+characters work everywhere, but Unicode characters look nicer on displays that recognize them\&.
+.RE
+.PP
+null
+.RS 4
+Sets the string to be printed in place of a null value\&. The default is to print nothing, which can easily be mistaken for an empty string\&. For example, one might prefer
+\epset null \*(Aq(null)\*(Aq\&.
+.RE
+.PP
+numericlocale
+.RS 4
+If
+\fIvalue\fR
+is specified it must be either
+on
+or
+off
+which will enable or disable display of a locale\-specific character to separate groups of digits to the left of the decimal marker\&. If
+\fIvalue\fR
+is omitted the command toggles between regular and locale\-specific numeric output\&.
+.RE
+.PP
+pager
+.RS 4
+Controls use of a pager program for query and
+psql
+help output\&. If the environment variable
+\fBPAGER\fR
+is set, the output is piped to the specified program\&. Otherwise a platform\-dependent default (such as
+more) is used\&.
+.sp
+When the
+pager
+option is
+off, the pager program is not used\&. When the
+pager
+option is
+on, the pager is used when appropriate, i\&.e\&., when the output is to a terminal and will not fit on the screen\&. The
+pager
+option can also be set to
+always, which causes the pager to be used for all terminal output regardless of whether it fits on the screen\&.
+\epset pager
+without a
+\fIvalue\fR
+toggles pager use on and off\&.
+.RE
+.PP
+pager_min_lines
+.RS 4
+If
+pager_min_lines
+is set to a number greater than the page height, the pager program will not be called unless there are at least this many lines of output to show\&. The default setting is 0\&.
+.RE
+.PP
+recordsep
+.RS 4
+Specifies the record (line) separator to use in unaligned output format\&. The default is a newline character\&.
+.RE
+.PP
+recordsep_zero
+.RS 4
+Sets the record separator to use in unaligned output format to a zero byte\&.
+.RE
+.PP
+tableattr (or T)
+.RS 4
+In
+HTML
+format, this specifies attributes to be placed inside the
+table
+tag\&. This could for example be
+cellpadding
+or
+bgcolor\&. Note that you probably don\*(Aqt want to specify
+border
+here, as that is already taken care of by
+\epset border\&. If no
+\fIvalue\fR
+is given, the table attributes are unset\&.
+.sp
+In
+latex\-longtable
+format, this controls the proportional width of each column containing a left\-aligned data type\&. It is specified as a whitespace\-separated list of values, e\&.g\&.,
+\*(Aq0\&.2 0\&.2 0\&.6\*(Aq\&. Unspecified output columns use the last specified value\&.
+.RE
+.PP
+title (or C)
+.RS 4
+Sets the table title for any subsequently printed tables\&. This can be used to give your output descriptive tags\&. If no
+\fIvalue\fR
+is given, the title is unset\&.
+.RE
+.PP
+tuples_only (or t)
+.RS 4
+If
+\fIvalue\fR
+is specified it must be either
+on
+or
+off
+which will enable or disable tuples\-only mode\&. If
+\fIvalue\fR
+is omitted the command toggles between regular and tuples\-only output\&. Regular output includes extra information such as column headers, titles, and various footers\&. In tuples\-only mode, only actual table data is shown\&.
+.RE
+.PP
+unicode_border_linestyle
+.RS 4
+Sets the border drawing style for the
+unicode
+line style to one of
+single
+or
+double\&.
+.RE
+.PP
+unicode_column_linestyle
+.RS 4
+Sets the column drawing style for the
+unicode
+line style to one of
+single
+or
+double\&.
+.RE
+.PP
+unicode_header_linestyle
+.RS 4
+Sets the header drawing style for the
+unicode
+line style to one of
+single
+or
+double\&.
+.RE
+.sp
+Illustrations of how these different formats look can be seen in the
+EXAMPLES
+section\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+There are various shortcut commands for
+\fB\epset\fR\&. See
+\fB\ea\fR,
+\fB\eC\fR,
+\fB\ef\fR,
+\fB\eH\fR,
+\fB\et\fR,
+\fB\eT\fR, and
+\fB\ex\fR\&.
+.sp .5v
+.RE
+.RE
+.PP
+\eq or \equit
+.RS 4
+Quits the
+psql
+program\&. In a script file, only execution of that script is terminated\&.
+.RE
+.PP
+\eqecho \fItext\fR [ \&.\&.\&. ]
+.RS 4
+This command is identical to
+\fB\eecho\fR
+except that the output will be written to the query output channel, as set by
+\fB\eo\fR\&.
+.RE
+.PP
+\er or \ereset
+.RS 4
+Resets (clears) the query buffer\&.
+.RE
+.PP
+\es [ \fIfilename\fR ]
+.RS 4
+Print
+psql\*(Aqs command line history to
+\fIfilename\fR\&. If
+\fIfilename\fR
+is omitted, the history is written to the standard output (using the pager if appropriate)\&. This command is not available if
+psql
+was built without
+Readline
+support\&.
+.RE
+.PP
+\eset [ \fIname\fR [ \fIvalue\fR [ \&.\&.\&. ] ] ]
+.RS 4
+Sets the
+psql
+variable
+\fIname\fR
+to
+\fIvalue\fR, or if more than one value is given, to the concatenation of all of them\&. If only one argument is given, the variable is set to an empty\-string value\&. To unset a variable, use the
+\fB\eunset\fR
+command\&.
+.sp
+\fB\eset\fR
+without any arguments displays the names and values of all currently\-set
+psql
+variables\&.
+.sp
+Valid variable names can contain letters, digits, and underscores\&. See the section
+Variables
+below for details\&. Variable names are case\-sensitive\&.
+.sp
+Certain variables are special, in that they control
+psql\*(Aqs behavior or are automatically set to reflect connection state\&. These variables are documented in
+Variables, below\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+This command is unrelated to the
+SQL
+command
+\fBSET\fR(7)\&.
+.sp .5v
+.RE
+.RE
+.PP
+\esetenv \fIname\fR [ \fIvalue\fR ]
+.RS 4
+Sets the environment variable
+\fIname\fR
+to
+\fIvalue\fR, or if the
+\fIvalue\fR
+is not supplied, unsets the environment variable\&. Example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\esetenv PAGER less\fR
+testdb=> \fB\esetenv LESS \-imx4F\fR
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\esf[+] \fIfunction_description\fR
+.RS 4
+This command fetches and shows the definition of the named function, in the form of a
+\fBCREATE OR REPLACE FUNCTION\fR
+command\&. The definition is printed to the current query output channel, as set by
+\fB\eo\fR\&.
+.sp
+The target function can be specified by name alone, or by name and arguments, for example
+foo(integer, text)\&. The argument types must be given if there is more than one function of the same name\&.
+.sp
+If
++
+is appended to the command name, then the output lines are numbered, with the first line of the function body being line 1\&.
+.sp
+Unlike most other meta\-commands, the entire remainder of the line is always taken to be the argument(s) of
+\fB\esf\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&.
+.RE
+.PP
+\esv[+] \fIview_name\fR
+.RS 4
+This command fetches and shows the definition of the named view, in the form of a
+\fBCREATE OR REPLACE VIEW\fR
+command\&. The definition is printed to the current query output channel, as set by
+\fB\eo\fR\&.
+.sp
+If
++
+is appended to the command name, then the output lines are numbered from 1\&.
+.sp
+Unlike most other meta\-commands, the entire remainder of the line is always taken to be the argument(s) of
+\fB\esv\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&.
+.RE
+.PP
+\et
+.RS 4
+Toggles the display of output column name headings and row count footer\&. This command is equivalent to
+\epset tuples_only
+and is provided for convenience\&.
+.RE
+.PP
+\eT \fItable_options\fR
+.RS 4
+Specifies attributes to be placed within the
+table
+tag in
+HTML
+output format\&. This command is equivalent to
+\epset tableattr \fItable_options\fR\&.
+.RE
+.PP
+\etiming [ \fIon\fR | \fIoff\fR ]
+.RS 4
+With a parameter, turns displaying of how long each SQL statement takes on or off\&. Without a parameter, toggles the display between on and off\&. The display is in milliseconds; intervals longer than 1 second are also shown in minutes:seconds format, with hours and days fields added if needed\&.
+.RE
+.PP
+\eunset \fIname\fR
+.RS 4
+Unsets (deletes) the
+psql
+variable
+\fIname\fR\&.
+.sp
+Most variables that control
+psql\*(Aqs behavior cannot be unset; instead, an
+\eunset
+command is interpreted as setting them to their default values\&. See
+Variables, below\&.
+.RE
+.PP
+\ew or \ewrite \fIfilename\fR
+.br
+\ew or \ewrite |\fIcommand\fR
+.RS 4
+Writes the current query buffer to the file
+\fIfilename\fR
+or pipes it to the shell command
+\fIcommand\fR\&. If the current query buffer is empty, the most recently executed query is written instead\&.
+.sp
+If the argument begins with
+|, then the entire remainder of the line is taken to be the
+\fIcommand\fR
+to execute, and neither variable interpolation nor backquote expansion are performed in it\&. The rest of the line is simply passed literally to the shell\&.
+.RE
+.PP
+\ewatch [ \fIseconds\fR ]
+.RS 4
+Repeatedly execute the current query buffer (as
+\eg
+does) until interrupted or the query fails\&. Wait the specified number of seconds (default 2) between executions\&. Each query result is displayed with a header that includes the
+\epset title
+string (if any), the time as of query start, and the delay interval\&.
+.sp
+If the current query buffer is empty, the most recently sent query is re\-executed instead\&.
+.RE
+.PP
+\ex [ \fIon\fR | \fIoff\fR | \fIauto\fR ]
+.RS 4
+Sets or toggles expanded table formatting mode\&. As such it is equivalent to
+\epset expanded\&.
+.RE
+.PP
+\ez [ \fIpattern\fR ]
+.RS 4
+Lists tables, views and sequences with their associated access privileges\&. If a
+\fIpattern\fR
+is specified, only tables, views and sequences whose names match the pattern are listed\&.
+.sp
+This is an alias for
+\fB\edp\fR
+(\(lqdisplay privileges\(rq)\&.
+.RE
+.PP
+\e! [ \fIcommand\fR ]
+.RS 4
+With no argument, escapes to a sub\-shell;
+psql
+resumes when the sub\-shell exits\&. With an argument, executes the shell command
+\fIcommand\fR\&.
+.sp
+Unlike most other meta\-commands, the entire remainder of the line is always taken to be the argument(s) of
+\fB\e!\fR, and neither variable interpolation nor backquote expansion are performed in the arguments\&. The rest of the line is simply passed literally to the shell\&.
+.RE
+.PP
+\e? [ \fItopic\fR ]
+.RS 4
+Shows help information\&. The optional
+\fItopic\fR
+parameter (defaulting to
+commands) selects which part of
+psql
+is explained:
+commands
+describes
+psql\*(Aqs backslash commands;
+options
+describes the command\-line options that can be passed to
+psql; and
+variables
+shows help about
+psql
+configuration variables\&.
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPatterns\fR
+.RS 4
+.PP
+The various
+\ed
+commands accept a
+\fIpattern\fR
+parameter to specify the object name(s) to be displayed\&. In the simplest case, a pattern is just the exact name of the object\&. The characters within a pattern are normally folded to lower case, just as in SQL names; for example,
+\edt FOO
+will display the table named
+foo\&. As in SQL names, placing double quotes around a pattern stops folding to lower case\&. Should you need to include an actual double quote character in a pattern, write it as a pair of double quotes within a double\-quote sequence; again this is in accord with the rules for SQL quoted identifiers\&. For example,
+\edt "FOO""BAR"
+will display the table named
+FOO"BAR
+(not
+foo"bar)\&. Unlike the normal rules for SQL names, you can put double quotes around just part of a pattern, for instance
+\edt FOO"FOO"BAR
+will display the table named
+fooFOObar\&.
+.PP
+Whenever the
+\fIpattern\fR
+parameter is omitted completely, the
+\ed
+commands display all objects that are visible in the current schema search path \(em this is equivalent to using
+*
+as the pattern\&. (An object is said to be
+visible
+if its containing schema is in the search path and no object of the same kind and name appears earlier in the search path\&. This is equivalent to the statement that the object can be referenced by name without explicit schema qualification\&.) To see all objects in the database regardless of visibility, use
+*\&.*
+as the pattern\&.
+.PP
+Within a pattern,
+*
+matches any sequence of characters (including no characters) and
+?
+matches any single character\&. (This notation is comparable to Unix shell file name patterns\&.) For example,
+\edt int*
+displays tables whose names begin with
+int\&. But within double quotes,
+*
+and
+?
+lose these special meanings and are just matched literally\&.
+.PP
+A pattern that contains a dot (\&.) is interpreted as a schema name pattern followed by an object name pattern\&. For example,
+\edt foo*\&.*bar*
+displays all tables whose table name includes
+bar
+that are in schemas whose schema name starts with
+foo\&. When no dot appears, then the pattern matches only objects that are visible in the current schema search path\&. Again, a dot within double quotes loses its special meaning and is matched literally\&.
+.PP
+Advanced users can use regular\-expression notations such as character classes, for example
+[0\-9]
+to match any digit\&. All regular expression special characters work as specified in
+Section\ \&9.7.3, except for
+\&.
+which is taken as a separator as mentioned above,
+*
+which is translated to the regular\-expression notation
+\&.*,
+?
+which is translated to
+\&., and
+$
+which is matched literally\&. You can emulate these pattern characters at need by writing
+?
+for
+\&.,
+(\fIR\fR+|)
+for
+\fIR\fR*, or
+(\fIR\fR|)
+for
+\fIR\fR?\&.
+$
+is not needed as a regular\-expression character since the pattern must match the whole name, unlike the usual interpretation of regular expressions (in other words,
+$
+is automatically appended to your pattern)\&. Write
+*
+at the beginning and/or end if you don\*(Aqt wish the pattern to be anchored\&. Note that within double quotes, all regular expression special characters lose their special meanings and are matched literally\&. Also, the regular expression special characters are matched literally in operator name patterns (i\&.e\&., the argument of
+\edo)\&.
+.RE
+.SS "Advanced Features"
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBVariables\fR
+.RS 4
+.PP
+psql
+provides variable substitution features similar to common Unix command shells\&. Variables are simply name/value pairs, where the value can be any string of any length\&. The name must consist of letters (including non\-Latin letters), digits, and underscores\&.
+.PP
+To set a variable, use the
+psql
+meta\-command
+\fB\eset\fR\&. For example,
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\eset foo bar\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+sets the variable
+foo
+to the value
+bar\&. To retrieve the content of the variable, precede the name with a colon, for example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\eecho :foo\fR
+bar
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This works in both regular SQL commands and meta\-commands; there is more detail in
+SQL Interpolation, below\&.
+.PP
+If you call
+\fB\eset\fR
+without a second argument, the variable is set to an empty\-string value\&. To unset (i\&.e\&., delete) a variable, use the command
+\fB\eunset\fR\&. To show the values of all variables, call
+\fB\eset\fR
+without any argument\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+The arguments of
+\fB\eset\fR
+are subject to the same substitution rules as with other commands\&. Thus you can construct interesting references such as
+\eset :foo \*(Aqsomething\*(Aq
+and get
+\(lqsoft links\(rq
+or
+\(lqvariable variables\(rq
+of
+Perl
+or
+PHP
+fame, respectively\&. Unfortunately (or fortunately?), there is no way to do anything useful with these constructs\&. On the other hand,
+\eset bar :foo
+is a perfectly valid way to copy a variable\&.
+.sp .5v
+.RE
+.PP
+A number of these variables are treated specially by
+psql\&. They represent certain option settings that can be changed at run time by altering the value of the variable, or in some cases represent changeable state of
+psql\&. By convention, all specially treated variables\*(Aq names consist of all upper\-case ASCII letters (and possibly digits and underscores)\&. To ensure maximum compatibility in the future, avoid using such variable names for your own purposes\&.
+.PP
+Variables that control
+psql\*(Aqs behavior generally cannot be unset or set to invalid values\&. An
+\eunset
+command is allowed but is interpreted as setting the variable to its default value\&. A
+\eset
+command without a second argument is interpreted as setting the variable to
+on, for control variables that accept that value, and is rejected for others\&. Also, control variables that accept the values
+on
+and
+off
+will also accept other common spellings of Boolean values, such as
+true
+and
+false\&.
+.PP
+The specially treated variables are:
+.PP
+\fIAUTOCOMMIT\fR
+.RS 4
+When
+on
+(the default), each SQL command is automatically committed upon successful completion\&. To postpone commit in this mode, you must enter a
+\fBBEGIN\fR
+or
+\fBSTART TRANSACTION\fR
+SQL command\&. When
+off
+or unset, SQL commands are not committed until you explicitly issue
+\fBCOMMIT\fR
+or
+\fBEND\fR\&. The autocommit\-off mode works by issuing an implicit
+\fBBEGIN\fR
+for you, just before any command that is not already in a transaction block and is not itself a
+\fBBEGIN\fR
+or other transaction\-control command, nor a command that cannot be executed inside a transaction block (such as
+\fBVACUUM\fR)\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+In autocommit\-off mode, you must explicitly abandon any failed transaction by entering
+\fBABORT\fR
+or
+\fBROLLBACK\fR\&. Also keep in mind that if you exit the session without committing, your work will be lost\&.
+.sp .5v
+.RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+The autocommit\-on mode is
+PostgreSQL\*(Aqs traditional behavior, but autocommit\-off is closer to the SQL spec\&. If you prefer autocommit\-off, you might wish to set it in the system\-wide
+psqlrc
+file or your
+~/\&.psqlrc
+file\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fICOMP_KEYWORD_CASE\fR
+.RS 4
+Determines which letter case to use when completing an SQL key word\&. If set to
+lower
+or
+upper, the completed word will be in lower or upper case, respectively\&. If set to
+preserve\-lower
+or
+preserve\-upper
+(the default), the completed word will be in the case of the word already entered, but words being completed without anything entered will be in lower or upper case, respectively\&.
+.RE
+.PP
+\fIDBNAME\fR
+.RS 4
+The name of the database you are currently connected to\&. This is set every time you connect to a database (including program start\-up), but can be changed or unset\&.
+.RE
+.PP
+\fIECHO\fR
+.RS 4
+If set to
+all, all nonempty input lines are printed to standard output as they are read\&. (This does not apply to lines read interactively\&.) To select this behavior on program start\-up, use the switch
+\fB\-a\fR\&. If set to
+queries,
+psql
+prints each query to standard output as it is sent to the server\&. The switch to select this behavior is
+\fB\-e\fR\&. If set to
+errors, then only failed queries are displayed on standard error output\&. The switch for this behavior is
+\fB\-b\fR\&. If set to
+none
+(the default), then no queries are displayed\&.
+.RE
+.PP
+\fIECHO_HIDDEN\fR
+.RS 4
+When this variable is set to
+on
+and a backslash command queries the database, the query is first shown\&. This feature helps you to study
+PostgreSQL
+internals and provide similar functionality in your own programs\&. (To select this behavior on program start\-up, use the switch
+\fB\-E\fR\&.) If you set this variable to the value
+noexec, the queries are just shown but are not actually sent to the server and executed\&. The default value is
+off\&.
+.RE
+.PP
+\fIENCODING\fR
+.RS 4
+The current client character set encoding\&. This is set every time you connect to a database (including program start\-up), and when you change the encoding with
+\eencoding, but it can be changed or unset\&.
+.RE
+.PP
+\fIFETCH_COUNT\fR
+.RS 4
+If this variable is set to an integer value greater than zero, the results of
+\fBSELECT\fR
+queries are fetched and displayed in groups of that many rows, rather than the default behavior of collecting the entire result set before display\&. Therefore only a limited amount of memory is used, regardless of the size of the result set\&. Settings of 100 to 1000 are commonly used when enabling this feature\&. Keep in mind that when using this feature, a query might fail after having already displayed some rows\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+Although you can use any output format with this feature, the default
+aligned
+format tends to look bad because each group of
+\fIFETCH_COUNT\fR
+rows will be formatted separately, leading to varying column widths across the row groups\&. The other output formats work better\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fIHISTCONTROL\fR
+.RS 4
+If this variable is set to
+ignorespace, lines which begin with a space are not entered into the history list\&. If set to a value of
+ignoredups, lines matching the previous history line are not entered\&. A value of
+ignoreboth
+combines the two options\&. If set to
+none
+(the default), all lines read in interactive mode are saved on the history list\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+This feature was shamelessly plagiarized from
+Bash\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fIHISTFILE\fR
+.RS 4
+The file name that will be used to store the history list\&. If unset, the file name is taken from the
+\fBPSQL_HISTORY\fR
+environment variable\&. If that is not set either, the default is
+~/\&.psql_history, or
+%APPDATA%\epostgresql\epsql_history
+on Windows\&. For example, putting:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\eset HISTFILE ~/\&.psql_history\- :DBNAME
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+in
+~/\&.psqlrc
+will cause
+psql
+to maintain a separate history for each database\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+This feature was shamelessly plagiarized from
+Bash\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fIHISTSIZE\fR
+.RS 4
+The maximum number of commands to store in the command history (default 500)\&. If set to a negative value, no limit is applied\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+This feature was shamelessly plagiarized from
+Bash\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fIHOST\fR
+.RS 4
+The database server host you are currently connected to\&. This is set every time you connect to a database (including program start\-up), but can be changed or unset\&.
+.RE
+.PP
+\fIIGNOREEOF\fR
+.RS 4
+If set to 1 or less, sending an
+EOF
+character (usually
+Control+D) to an interactive session of
+psql
+will terminate the application\&. If set to a larger numeric value, that many consecutive
+EOF
+characters must be typed to make an interactive session terminate\&. If the variable is set to a non\-numeric value, it is interpreted as 10\&. The default is 0\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+This feature was shamelessly plagiarized from
+Bash\&.
+.sp .5v
+.RE
+.RE
+.PP
+\fILASTOID\fR
+.RS 4
+The value of the last affected OID, as returned from an
+\fBINSERT\fR
+or
+\fB\elo_import\fR
+command\&. This variable is only guaranteed to be valid until after the result of the next
+SQL
+command has been displayed\&.
+.RE
+.PP
+\fION_ERROR_ROLLBACK\fR
+.RS 4
+When set to
+on, if a statement in a transaction block generates an error, the error is ignored and the transaction continues\&. When set to
+interactive, such errors are only ignored in interactive sessions, and not when reading script files\&. When set to
+off
+(the default), a statement in a transaction block that generates an error aborts the entire transaction\&. The error rollback mode works by issuing an implicit
+\fBSAVEPOINT\fR
+for you, just before each command that is in a transaction block, and then rolling back to the savepoint if the command fails\&.
+.RE
+.PP
+\fION_ERROR_STOP\fR
+.RS 4
+By default, command processing continues after an error\&. When this variable is set to
+on, processing will instead stop immediately\&. In interactive mode,
+psql
+will return to the command prompt; otherwise,
+psql
+will exit, returning error code 3 to distinguish this case from fatal error conditions, which are reported using error code 1\&. In either case, any currently running scripts (the top\-level script, if any, and any other scripts which it may have in invoked) will be terminated immediately\&. If the top\-level command string contained multiple SQL commands, processing will stop with the current command\&.
+.RE
+.PP
+\fIPORT\fR
+.RS 4
+The database server port to which you are currently connected\&. This is set every time you connect to a database (including program start\-up), but can be changed or unset\&.
+.RE
+.PP
+\fIPROMPT1\fR
+.br
+\fIPROMPT2\fR
+.br
+\fIPROMPT3\fR
+.RS 4
+These specify what the prompts
+psql
+issues should look like\&. See
+Prompting
+below\&.
+.RE
+.PP
+\fIQUIET\fR
+.RS 4
+Setting this variable to
+on
+is equivalent to the command line option
+\fB\-q\fR\&. It is probably not too useful in interactive mode\&.
+.RE
+.PP
+\fISERVER_VERSION_NAME\fR
+.br
+\fISERVER_VERSION_NUM\fR
+.RS 4
+The server\*(Aqs version number as a string, for example
+9\&.6\&.2,
+10\&.1
+or
+11beta1, and in numeric form, for example
+90602
+or
+100001\&. These are set every time you connect to a database (including program start\-up), but can be changed or unset\&.
+.RE
+.PP
+\fISHOW_CONTEXT\fR
+.RS 4
+This variable can be set to the values
+never,
+errors, or
+always
+to control whether
+CONTEXT
+fields are displayed in messages from the server\&. The default is
+errors
+(meaning that context will be shown in error messages, but not in notice or warning messages)\&. This setting has no effect when
+\fIVERBOSITY\fR
+is set to
+terse\&. (See also
+\fB\eerrverbose\fR, for use when you want a verbose version of the error you just got\&.)
+.RE
+.PP
+\fISINGLELINE\fR
+.RS 4
+Setting this variable to
+on
+is equivalent to the command line option
+\fB\-S\fR\&.
+.RE
+.PP
+\fISINGLESTEP\fR
+.RS 4
+Setting this variable to
+on
+is equivalent to the command line option
+\fB\-s\fR\&.
+.RE
+.PP
+\fIUSER\fR
+.RS 4
+The database user you are currently connected as\&. This is set every time you connect to a database (including program start\-up), but can be changed or unset\&.
+.RE
+.PP
+\fIVERBOSITY\fR
+.RS 4
+This variable can be set to the values
+default,
+verbose, or
+terse
+to control the verbosity of error reports\&. (See also
+\fB\eerrverbose\fR, for use when you want a verbose version of the error you just got\&.)
+.RE
+.PP
+\fIVERSION\fR
+.br
+\fIVERSION_NAME\fR
+.br
+\fIVERSION_NUM\fR
+.RS 4
+These variables are set at program start\-up to reflect
+psql\*(Aqs version, respectively as a verbose string, a short string (e\&.g\&.,
+9\&.6\&.2,
+10\&.1, or
+11beta1), and a number (e\&.g\&.,
+90602
+or
+100001)\&. They can be changed or unset\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBSQL Interpolation\fR
+.RS 4
+.PP
+A key feature of
+psql
+variables is that you can substitute (\(lqinterpolate\(rq) them into regular
+SQL
+statements, as well as the arguments of meta\-commands\&. Furthermore,
+psql
+provides facilities for ensuring that variable values used as SQL literals and identifiers are properly quoted\&. The syntax for interpolating a value without any quoting is to prepend the variable name with a colon (:)\&. For example,
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\eset foo \*(Aqmy_table\*(Aq\fR
+testdb=> \fBSELECT * FROM :foo;\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+would query the table
+my_table\&. Note that this may be unsafe: the value of the variable is copied literally, so it can contain unbalanced quotes, or even backslash commands\&. You must make sure that it makes sense where you put it\&.
+.PP
+When a value is to be used as an SQL literal or identifier, it is safest to arrange for it to be quoted\&. To quote the value of a variable as an SQL literal, write a colon followed by the variable name in single quotes\&. To quote the value as an SQL identifier, write a colon followed by the variable name in double quotes\&. These constructs deal correctly with quotes and other special characters embedded within the variable value\&. The previous example would be more safely written this way:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\eset foo \*(Aqmy_table\*(Aq\fR
+testdb=> \fBSELECT * FROM :"foo";\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Variable interpolation will not be performed within quoted
+SQL
+literals and identifiers\&. Therefore, a construction such as
+\*(Aq:foo\*(Aq
+doesn\*(Aqt work to produce a quoted literal from a variable\*(Aqs value (and it would be unsafe if it did work, since it wouldn\*(Aqt correctly handle quotes embedded in the value)\&.
+.PP
+One example use of this mechanism is to copy the contents of a file into a table column\&. First load the file into a variable and then interpolate the variable\*(Aqs value as a quoted string:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\eset content `cat my_file\&.txt`\fR
+testdb=> \fBINSERT INTO my_table VALUES (:\*(Aqcontent\*(Aq);\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+(Note that this still won\*(Aqt work if
+my_file\&.txt
+contains NUL bytes\&.
+psql
+does not support embedded NUL bytes in variable values\&.)
+.PP
+Since colons can legally appear in SQL commands, an apparent attempt at interpolation (that is,
+:name,
+:\*(Aqname\*(Aq, or
+:"name") is not replaced unless the named variable is currently set\&. In any case, you can escape a colon with a backslash to protect it from substitution\&.
+.PP
+The colon syntax for variables is standard
+SQL
+for embedded query languages, such as
+ECPG\&. The colon syntaxes for array slices and type casts are
+PostgreSQL
+extensions, which can sometimes conflict with the standard usage\&. The colon\-quote syntax for escaping a variable\*(Aqs value as an SQL literal or identifier is a
+psql
+extension\&.
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPrompting\fR
+.RS 4
+.PP
+The prompts
+psql
+issues can be customized to your preference\&. The three variables
+\fIPROMPT1\fR,
+\fIPROMPT2\fR, and
+\fIPROMPT3\fR
+contain strings and special escape sequences that describe the appearance of the prompt\&. Prompt 1 is the normal prompt that is issued when
+psql
+requests a new command\&. Prompt 2 is issued when more input is expected during command entry, for example because the command was not terminated with a semicolon or a quote was not closed\&. Prompt 3 is issued when you are running an
+SQL
+\fBCOPY FROM STDIN\fR
+command and you need to type in a row value on the terminal\&.
+.PP
+The value of the selected prompt variable is printed literally, except where a percent sign (%) is encountered\&. Depending on the next character, certain other text is substituted instead\&. Defined substitutions are:
+.PP
+%M
+.RS 4
+The full host name (with domain name) of the database server, or
+[local]
+if the connection is over a Unix domain socket, or
+[local:\fI/dir/name\fR], if the Unix domain socket is not at the compiled in default location\&.
+.RE
+.PP
+%m
+.RS 4
+The host name of the database server, truncated at the first dot, or
+[local]
+if the connection is over a Unix domain socket\&.
+.RE
+.PP
+%>
+.RS 4
+The port number at which the database server is listening\&.
+.RE
+.PP
+%n
+.RS 4
+The database session user name\&. (The expansion of this value might change during a database session as the result of the command
+\fBSET SESSION AUTHORIZATION\fR\&.)
+.RE
+.PP
+%/
+.RS 4
+The name of the current database\&.
+.RE
+.PP
+%~
+.RS 4
+Like
+%/, but the output is
+~
+(tilde) if the database is your default database\&.
+.RE
+.PP
+%#
+.RS 4
+If the session user is a database superuser, then a
+#, otherwise a
+>\&. (The expansion of this value might change during a database session as the result of the command
+\fBSET SESSION AUTHORIZATION\fR\&.)
+.RE
+.PP
+%p
+.RS 4
+The process ID of the backend currently connected to\&.
+.RE
+.PP
+%R
+.RS 4
+In prompt 1 normally
+=, but
+@
+if the session is in an inactive branch of a conditional block, or
+^
+if in single\-line mode, or
+!
+if the session is disconnected from the database (which can happen if
+\fB\econnect\fR
+fails)\&. In prompt 2
+%R
+is replaced by a character that depends on why
+psql
+expects more input:
+\-
+if the command simply wasn\*(Aqt terminated yet, but
+*
+if there is an unfinished
+/* \&.\&.\&. */
+comment, a single quote if there is an unfinished quoted string, a double quote if there is an unfinished quoted identifier, a dollar sign if there is an unfinished dollar\-quoted string, or
+(
+if there is an unmatched left parenthesis\&. In prompt 3
+%R
+doesn\*(Aqt produce anything\&.
+.RE
+.PP
+%x
+.RS 4
+Transaction status: an empty string when not in a transaction block, or
+*
+when in a transaction block, or
+!
+when in a failed transaction block, or
+?
+when the transaction state is indeterminate (for example, because there is no connection)\&.
+.RE
+.PP
+%l
+.RS 4
+The line number inside the current statement, starting from
+1\&.
+.RE
+.PP
+%\fIdigits\fR
+.RS 4
+The character with the indicated octal code is substituted\&.
+.RE
+.PP
+%:\fIname\fR:
+.RS 4
+The value of the
+psql
+variable
+\fIname\fR\&. See the section
+Variables
+for details\&.
+.RE
+.PP
+%`\fIcommand\fR`
+.RS 4
+The output of
+\fIcommand\fR, similar to ordinary
+\(lqback\-tick\(rq
+substitution\&.
+.RE
+.PP
+%[ \&.\&.\&. %]
+.RS 4
+Prompts can contain terminal control characters which, for example, change the color, background, or style of the prompt text, or change the title of the terminal window\&. In order for the line editing features of
+Readline
+to work properly, these non\-printing control characters must be designated as invisible by surrounding them with
+%[
+and
+%]\&. Multiple pairs of these can occur within the prompt\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \eset PROMPT1 \*(Aq%[%033[1;33;40m%]%n@%/%R%[%033[0m%]%# \*(Aq
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+results in a boldfaced (1;) yellow\-on\-black (33;40) prompt on VT100\-compatible, color\-capable terminals\&.
+.RE
+To insert a percent sign into your prompt, write
+%%\&. The default prompts are
+\*(Aq%/%R%# \*(Aq
+for prompts 1 and 2, and
+\*(Aq>> \*(Aq
+for prompt 3\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+This feature was shamelessly plagiarized from
+tcsh\&.
+.sp .5v
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBCommand-Line Editing\fR
+.RS 4
+.PP
+psql
+supports the
+Readline
+library for convenient line editing and retrieval\&. The command history is automatically saved when
+psql
+exits and is reloaded when
+psql
+starts up\&. Tab\-completion is also supported, although the completion logic makes no claim to be an
+SQL
+parser\&. The queries generated by tab\-completion can also interfere with other SQL commands, e\&.g\&.,
+SET TRANSACTION ISOLATION LEVEL\&. If for some reason you do not like the tab completion, you can turn it off by putting this in a file named
+\&.inputrc
+in your home directory:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$if psql
+set disable\-completion on
+$endif
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+(This is not a
+psql
+but a
+Readline
+feature\&. Read its documentation for further details\&.)
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBCOLUMNS\fR
+.RS 4
+If
+\epset columns
+is zero, controls the width for the
+wrapped
+format and width for determining if wide output requires the pager or should be switched to the vertical format in expanded auto mode\&.
+.RE
+.PP
+\fBPAGER\fR
+.RS 4
+If the query results do not fit on the screen, they are piped through this command\&. Typical values are
+more
+or
+less\&. The default is platform\-dependent\&. Use of the pager can be disabled by setting
+\fBPAGER\fR
+to empty, or by using pager\-related options of the
+\fB\epset\fR
+command\&.
+.RE
+.PP
+\fBPGDATABASE\fR
+.br
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters (see
+Section\ \&33.14)\&.
+.RE
+.PP
+\fBPSQL_EDITOR\fR
+.br
+\fBEDITOR\fR
+.br
+\fBVISUAL\fR
+.RS 4
+Editor used by the
+\fB\ee\fR,
+\fB\eef\fR, and
+\fB\eev\fR
+commands\&. These variables are examined in the order listed; the first that is set is used\&.
+.sp
+The built\-in default editors are
+vi
+on Unix systems and
+notepad\&.exe
+on Windows systems\&.
+.RE
+.PP
+\fBPSQL_EDITOR_LINENUMBER_ARG\fR
+.RS 4
+When
+\fB\ee\fR,
+\fB\eef\fR, or
+\fB\eev\fR
+is used with a line number argument, this variable specifies the command\-line argument used to pass the starting line number to the user\*(Aqs editor\&. For editors such as
+Emacs
+or
+vi, this is a plus sign\&. Include a trailing space in the value of the variable if there needs to be space between the option name and the line number\&. Examples:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+PSQL_EDITOR_LINENUMBER_ARG=\*(Aq+\*(Aq
+PSQL_EDITOR_LINENUMBER_ARG=\*(Aq\-\-line \*(Aq
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The default is
++
+on Unix systems (corresponding to the default editor
+vi, and useful for many other common editors); but there is no default on Windows systems\&.
+.RE
+.PP
+\fBPSQL_HISTORY\fR
+.RS 4
+Alternative location for the command history file\&. Tilde (~) expansion is performed\&.
+.RE
+.PP
+\fBPSQLRC\fR
+.RS 4
+Alternative location of the user\*(Aqs
+\&.psqlrc
+file\&. Tilde (~) expansion is performed\&.
+.RE
+.PP
+\fBSHELL\fR
+.RS 4
+Command executed by the
+\fB\e!\fR
+command\&.
+.RE
+.PP
+\fBTMPDIR\fR
+.RS 4
+Directory for storing temporary files\&. The default is
+/tmp\&.
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "FILES"
+.PP
+psqlrc and ~/\&.psqlrc
+.RS 4
+Unless it is passed an
+\fB\-X\fR
+option,
+psql
+attempts to read and execute commands from the system\-wide startup file (psqlrc) and then the user\*(Aqs personal startup file (~/\&.psqlrc), after connecting to the database but before accepting normal commands\&. These files can be used to set up the client and/or the server to taste, typically with
+\fB\eset\fR
+and
+\fBSET\fR
+commands\&.
+.sp
+The system\-wide startup file is named
+psqlrc
+and is sought in the installation\*(Aqs
+\(lqsystem configuration\(rq
+directory, which is most reliably identified by running
+pg_config \-\-sysconfdir\&. By default this directory will be
+\&.\&./etc/
+relative to the directory containing the
+PostgreSQL
+executables\&. The name of this directory can be set explicitly via the
+\fBPGSYSCONFDIR\fR
+environment variable\&.
+.sp
+The user\*(Aqs personal startup file is named
+\&.psqlrc
+and is sought in the invoking user\*(Aqs home directory\&. On Windows, which lacks such a concept, the personal startup file is named
+%APPDATA%\epostgresql\epsqlrc\&.conf\&. The location of the user\*(Aqs startup file can be set explicitly via the
+\fBPSQLRC\fR
+environment variable\&.
+.sp
+Both the system\-wide startup file and the user\*(Aqs personal startup file can be made
+psql\-version\-specific by appending a dash and the
+PostgreSQL
+major or minor release number to the file name, for example
+~/\&.psqlrc\-9\&.2
+or
+~/\&.psqlrc\-9\&.2\&.5\&. The most specific version\-matching file will be read in preference to a non\-version\-specific file\&.
+.RE
+.PP
+\&.psql_history
+.RS 4
+The command\-line history is stored in the file
+~/\&.psql_history, or
+%APPDATA%\epostgresql\epsql_history
+on Windows\&.
+.sp
+The location of the history file can be set explicitly via the
+\fIHISTFILE\fR
+psql
+variable or the
+\fBPSQL_HISTORY\fR
+environment variable\&.
+.RE
+.SH "NOTES"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+psql
+works best with servers of the same or an older major version\&. Backslash commands are particularly likely to fail if the server is of a newer version than
+psql
+itself\&. However, backslash commands of the
+\ed
+family should work with servers of versions back to 7\&.4, though not necessarily with servers newer than
+psql
+itself\&. The general functionality of running SQL commands and displaying query results should also work with servers of a newer major version, but this cannot be guaranteed in all cases\&.
+.sp
+If you want to use
+psql
+to connect to several servers of different major versions, it is recommended that you use the newest version of
+psql\&. Alternatively, you can keep around a copy of
+psql
+from each major version and be sure to use the version that matches the respective server\&. But in practice, this additional complication should not be necessary\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Before
+PostgreSQL
+9\&.6, the
+\fB\-c\fR
+option implied
+\fB\-X\fR
+(\fB\-\-no\-psqlrc\fR); this is no longer the case\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Before
+PostgreSQL
+8\&.4,
+psql
+allowed the first argument of a single\-letter backslash command to start directly after the command, without intervening whitespace\&. Now, some whitespace is required\&.
+.RE
+.SH "NOTES FOR WINDOWS USERS"
+.PP
+psql
+is built as a
+\(lqconsole application\(rq\&. Since the Windows console windows use a different encoding than the rest of the system, you must take special care when using 8\-bit characters within
+psql\&. If
+psql
+detects a problematic console code page, it will warn you at startup\&. To change the console code page, two things are necessary:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Set the code page by entering
+\fBcmd\&.exe /c chcp 1252\fR\&. (1252 is a code page that is appropriate for German; replace it with your value\&.) If you are using Cygwin, you can put this command in
+/etc/profile\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Set the console font to
+Lucida Console, because the raster font does not work with the ANSI code page\&.
+.RE
+.SH "EXAMPLES"
+.PP
+The first example shows how to spread a command over several lines of input\&. Notice the changing prompt:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fBCREATE TABLE my_table (\fR
+testdb(> \fB first integer not null default 0,\fR
+testdb(> \fB second text)\fR
+testdb\-> \fB;\fR
+CREATE TABLE
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Now look at the table definition again:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\ed my_table\fR
+              Table "public\&.my_table"
+ Column |  Type   | Collation | Nullable | Default
+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-
+ first  | integer |           | not null | 0
+ second | text    |           |          | 
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Now we change the prompt to something more interesting:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fB\eset PROMPT1 \*(Aq%n@%m %~%R%# \*(Aq\fR
+peter@localhost testdb=>
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Let\*(Aqs assume you have filled the table with data and want to take a look at it:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+peter@localhost testdb=> SELECT * FROM my_table;
+ first | second
+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-
+     1 | one
+     2 | two
+     3 | three
+     4 | four
+(4 rows)
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+You can display tables in different ways by using the
+\fB\epset\fR
+command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+peter@localhost testdb=> \fB\epset border 2\fR
+Border style is 2\&.
+peter@localhost testdb=> \fBSELECT * FROM my_table;\fR
++\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+
+| first | second |
++\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+
+|     1 | one    |
+|     2 | two    |
+|     3 | three  |
+|     4 | four   |
++\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+
+(4 rows)
+
+peter@localhost testdb=> \fB\epset border 0\fR
+Border style is 0\&.
+peter@localhost testdb=> \fBSELECT * FROM my_table;\fR
+first second
+\-\-\-\-\- \-\-\-\-\-\-
+    1 one
+    2 two
+    3 three
+    4 four
+(4 rows)
+
+peter@localhost testdb=> \fB\epset border 1\fR
+Border style is 1\&.
+peter@localhost testdb=> \fB\epset format unaligned\fR
+Output format is unaligned\&.
+peter@localhost testdb=> \fB\epset fieldsep ","\fR
+Field separator is ","\&.
+peter@localhost testdb=> \fB\epset tuples_only\fR
+Showing only tuples\&.
+peter@localhost testdb=> \fBSELECT second, first FROM my_table;\fR
+one,1
+two,2
+three,3
+four,4
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Alternatively, use the short commands:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+peter@localhost testdb=> \fB\ea \et \ex\fR
+Output format is aligned\&.
+Tuples only is off\&.
+Expanded display is on\&.
+peter@localhost testdb=> \fBSELECT * FROM my_table;\fR
+\-[ RECORD 1 ]\-
+first  | 1
+second | one
+\-[ RECORD 2 ]\-
+first  | 2
+second | two
+\-[ RECORD 3 ]\-
+first  | 3
+second | three
+\-[ RECORD 4 ]\-
+first  | 4
+second | four
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+When suitable, query results can be shown in a crosstab representation with the
+\fB\ecrosstabview\fR
+command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fBSELECT first, second, first > 2 AS gt2 FROM my_table;\fR
+ first | second | gt2 
+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-
+     1 | one    | f
+     2 | two    | f
+     3 | three  | t
+     4 | four   | t
+(4 rows)
+
+testdb=> \fB\ecrosstabview first second\fR
+ first | one | two | three | four 
+\-\-\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-\-\-+\-\-\-\-\-\-
+     1 | f   |     |       | 
+     2 |     | f   |       | 
+     3 |     |     | t     | 
+     4 |     |     |       | t
+(4 rows)
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This second example shows a multiplication table with rows sorted in reverse numerical order and columns with an independent, ascending numerical order\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+testdb=> \fBSELECT t1\&.first as "A", t2\&.first+100 AS "B", t1\&.first*(t2\&.first+100) as "AxB",\fR
+testdb(> \fBrow_number() over(order by t2\&.first) AS ord\fR
+testdb(> \fBFROM my_table t1 CROSS JOIN my_table t2 ORDER BY 1 DESC\fR
+testdb(> \fB\ecrosstabview "A" "B" "AxB" ord\fR
+ A | 101 | 102 | 103 | 104 
+\-\-\-+\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-
+ 4 | 404 | 408 | 412 | 416
+ 3 | 303 | 306 | 309 | 312
+ 2 | 202 | 204 | 206 | 208
+ 1 | 101 | 102 | 103 | 104
+(4 rows)
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+

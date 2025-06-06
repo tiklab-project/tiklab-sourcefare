@@ -1,0 +1,167 @@
+'\" t
+.\"     Title: ALTER DATABASE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER DATABASE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_DATABASE \- change a database
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER DATABASE \fIname\fR [ [ WITH ] \fIoption\fR [ \&.\&.\&. ] ]
+
+where \fIoption\fR can be:
+
+    ALLOW_CONNECTIONS \fIallowconn\fR
+    CONNECTION LIMIT \fIconnlimit\fR
+    IS_TEMPLATE \fIistemplate\fR
+
+ALTER DATABASE \fIname\fR RENAME TO \fInew_name\fR
+
+ALTER DATABASE \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+
+ALTER DATABASE \fIname\fR SET TABLESPACE \fInew_tablespace\fR
+
+ALTER DATABASE \fIname\fR SET \fIconfiguration_parameter\fR { TO | = } { \fIvalue\fR | DEFAULT }
+ALTER DATABASE \fIname\fR SET \fIconfiguration_parameter\fR FROM CURRENT
+ALTER DATABASE \fIname\fR RESET \fIconfiguration_parameter\fR
+ALTER DATABASE \fIname\fR RESET ALL
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER DATABASE\fR
+changes the attributes of a database\&.
+.PP
+The first form changes certain per\-database settings\&. (See below for details\&.) Only the database owner or a superuser can change these settings\&.
+.PP
+The second form changes the name of the database\&. Only the database owner or a superuser can rename a database; non\-superuser owners must also have the
+CREATEDB
+privilege\&. The current database cannot be renamed\&. (Connect to a different database if you need to do that\&.)
+.PP
+The third form changes the owner of the database\&. To alter the owner, you must own the database and also be a direct or indirect member of the new owning role, and you must have the
+CREATEDB
+privilege\&. (Note that superusers have all these privileges automatically\&.)
+.PP
+The fourth form changes the default tablespace of the database\&. Only the database owner or a superuser can do this; you must also have create privilege for the new tablespace\&. This command physically moves any tables or indexes in the database\*(Aqs old default tablespace to the new tablespace\&. The new default tablespace must be empty for this database, and no one can be connected to the database\&. Tables and indexes in non\-default tablespaces are unaffected\&.
+.PP
+The remaining forms change the session default for a run\-time configuration variable for a
+PostgreSQL
+database\&. Whenever a new session is subsequently started in that database, the specified value becomes the session default value\&. The database\-specific default overrides whatever setting is present in
+postgresql\&.conf
+or has been received from the
+\fBpostgres\fR
+command line\&. Only the database owner or a superuser can change the session defaults for a database\&. Certain variables cannot be set this way, or can only be set by a superuser\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the database whose attributes are to be altered\&.
+.RE
+.PP
+\fIallowconn\fR
+.RS 4
+If false then no one can connect to this database\&.
+.RE
+.PP
+\fIconnlimit\fR
+.RS 4
+How many concurrent connections can be made to this database\&. \-1 means no limit\&.
+.RE
+.PP
+\fIistemplate\fR
+.RS 4
+If true, then this database can be cloned by any user with
+CREATEDB
+privileges; if false, then only superusers or the owner of the database can clone it\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the database\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the database\&.
+.RE
+.PP
+\fInew_tablespace\fR
+.RS 4
+The new default tablespace of the database\&.
+.sp
+This form of the command cannot be executed inside a transaction block\&.
+.RE
+.PP
+\fIconfiguration_parameter\fR
+.br
+\fIvalue\fR
+.RS 4
+Set this database\*(Aqs session default for the specified configuration parameter to the given value\&. If
+\fIvalue\fR
+is
+DEFAULT
+or, equivalently,
+RESET
+is used, the database\-specific setting is removed, so the system\-wide default setting will be inherited in new sessions\&. Use
+RESET ALL
+to clear all database\-specific settings\&.
+SET FROM CURRENT
+saves the session\*(Aqs current value of the parameter as the database\-specific value\&.
+.sp
+See
+\fBSET\fR(7)
+and
+Chapter\ \&19
+for more information about allowed parameter names and values\&.
+.RE
+.SH "NOTES"
+.PP
+It is also possible to tie a session default to a specific role rather than to a database; see
+ALTER ROLE (\fBALTER_ROLE\fR(7))\&. Role\-specific settings override database\-specific ones if there is a conflict\&.
+.SH "EXAMPLES"
+.PP
+To disable index scans by default in the database
+test:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER DATABASE test SET enable_indexscan TO off;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBALTER DATABASE\fR
+statement is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE DATABASE (\fBCREATE_DATABASE\fR(7)), DROP DATABASE (\fBDROP_DATABASE\fR(7)), \fBSET\fR(7), CREATE TABLESPACE (\fBCREATE_TABLESPACE\fR(7))

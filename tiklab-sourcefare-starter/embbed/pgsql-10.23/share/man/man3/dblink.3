@@ -1,0 +1,212 @@
+'\" t
+.\"     Title: dblink
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink \- executes a query in a remote database
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink(text connname, text sql [, bool fail_on_error]) returns setof record
+dblink(text connstr, text sql [, bool fail_on_error]) returns setof record
+dblink(text sql [, bool fail_on_error]) returns setof record
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink\fR
+executes a query (usually a
+\fBSELECT\fR, but it can be any SQL statement that returns rows) in a remote database\&.
+.PP
+When two
+text
+arguments are given, the first one is first looked up as a persistent connection\*(Aqs name; if found, the command is executed on that connection\&. If not found, the first argument is treated as a connection info string as for
+\fBdblink_connect\fR, and the indicated connection is made just for the duration of this command\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+Name of the connection to use; omit this parameter to use the unnamed connection\&.
+.RE
+.PP
+\fIconnstr\fR
+.RS 4
+A connection info string, as previously described for
+\fBdblink_connect\fR\&.
+.RE
+.PP
+\fIsql\fR
+.RS 4
+The SQL query that you wish to execute in the remote database, for example
+select * from foo\&.
+.RE
+.PP
+\fIfail_on_error\fR
+.RS 4
+If true (the default when omitted) then an error thrown on the remote side of the connection causes an error to also be thrown locally\&. If false, the remote error is locally reported as a NOTICE, and the function returns no rows\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+The function returns the row(s) produced by the query\&. Since
+\fBdblink\fR
+can be used with any query, it is declared to return
+record, rather than specifying any particular set of columns\&. This means that you must specify the expected set of columns in the calling query \(em otherwise
+PostgreSQL
+would not know what to expect\&. Here is an example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT *
+    FROM dblink(\*(Aqdbname=mydb options=\-csearch_path=\*(Aq,
+                \*(Aqselect proname, prosrc from pg_proc\*(Aq)
+      AS t1(proname name, prosrc text)
+    WHERE proname LIKE \*(Aqbytea%\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The
+\(lqalias\(rq
+part of the
+FROM
+clause must specify the column names and types that the function will return\&. (Specifying column names in an alias is actually standard SQL syntax, but specifying column types is a
+PostgreSQL
+extension\&.) This allows the system to understand what
+*
+should expand to, and what
+proname
+in the
+WHERE
+clause refers to, in advance of trying to execute the function\&. At run time, an error will be thrown if the actual query result from the remote database does not have the same number of columns shown in the
+FROM
+clause\&. The column names need not match, however, and
+\fBdblink\fR
+does not insist on exact type matches either\&. It will succeed so long as the returned data strings are valid input for the column type declared in the
+FROM
+clause\&.
+.SH "NOTES"
+.PP
+A convenient way to use
+\fBdblink\fR
+with predetermined queries is to create a view\&. This allows the column type information to be buried in the view, instead of having to spell it out in every query\&. For example,
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE VIEW myremote_pg_proc AS
+  SELECT *
+    FROM dblink(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq,
+                \*(Aqselect proname, prosrc from pg_proc\*(Aq)
+    AS t1(proname name, prosrc text);
+
+SELECT * FROM myremote_pg_proc WHERE proname LIKE \*(Aqbytea%\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT * FROM dblink(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq,
+                     \*(Aqselect proname, prosrc from pg_proc\*(Aq)
+  AS t1(proname name, prosrc text) WHERE proname LIKE \*(Aqbytea%\*(Aq;
+  proname   |   prosrc
+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-
+ byteacat   | byteacat
+ byteaeq    | byteaeq
+ bytealt    | bytealt
+ byteale    | byteale
+ byteagt    | byteagt
+ byteage    | byteage
+ byteane    | byteane
+ byteacmp   | byteacmp
+ bytealike  | bytealike
+ byteanlike | byteanlike
+ byteain    | byteain
+ byteaout   | byteaout
+(12 rows)
+
+SELECT dblink_connect(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT * FROM dblink(\*(Aqselect proname, prosrc from pg_proc\*(Aq)
+  AS t1(proname name, prosrc text) WHERE proname LIKE \*(Aqbytea%\*(Aq;
+  proname   |   prosrc
+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-
+ byteacat   | byteacat
+ byteaeq    | byteaeq
+ bytealt    | bytealt
+ byteale    | byteale
+ byteagt    | byteagt
+ byteage    | byteage
+ byteane    | byteane
+ byteacmp   | byteacmp
+ bytealike  | bytealike
+ byteanlike | byteanlike
+ byteain    | byteain
+ byteaout   | byteaout
+(12 rows)
+
+SELECT dblink_connect(\*(Aqmyconn\*(Aq, \*(Aqdbname=regression options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT * FROM dblink(\*(Aqmyconn\*(Aq, \*(Aqselect proname, prosrc from pg_proc\*(Aq)
+  AS t1(proname name, prosrc text) WHERE proname LIKE \*(Aqbytea%\*(Aq;
+  proname   |   prosrc
+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-
+ bytearecv  | bytearecv
+ byteasend  | byteasend
+ byteale    | byteale
+ byteagt    | byteagt
+ byteage    | byteage
+ byteane    | byteane
+ byteacmp   | byteacmp
+ bytealike  | bytealike
+ byteanlike | byteanlike
+ byteacat   | byteacat
+ byteaeq    | byteaeq
+ bytealt    | bytealt
+ byteain    | byteain
+ byteaout   | byteaout
+(14 rows)
+.fi
+.if n \{\
+.RE
+.\}

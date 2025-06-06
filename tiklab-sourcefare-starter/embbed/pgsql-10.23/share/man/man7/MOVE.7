@@ -1,0 +1,125 @@
+'\" t
+.\"     Title: MOVE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "MOVE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+MOVE \- position a cursor
+.SH "SYNOPSIS"
+.sp
+.nf
+MOVE [ \fIdirection\fR ] [ FROM | IN ] \fIcursor_name\fR
+
+where \fIdirection\fR can
+be one of:
+
+    NEXT
+    PRIOR
+    FIRST
+    LAST
+    ABSOLUTE \fIcount\fR
+    RELATIVE \fIcount\fR
+    \fIcount\fR
+    ALL
+    FORWARD
+    FORWARD \fIcount\fR
+    FORWARD ALL
+    BACKWARD
+    BACKWARD \fIcount\fR
+    BACKWARD ALL
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBMOVE\fR
+repositions a cursor without retrieving any data\&.
+\fBMOVE\fR
+works exactly like the
+\fBFETCH\fR
+command, except it only positions the cursor and does not return rows\&.
+.PP
+The parameters for the
+\fBMOVE\fR
+command are identical to those of the
+\fBFETCH\fR
+command; refer to
+\fBFETCH\fR(7)
+for details on syntax and usage\&.
+.SH "OUTPUTS"
+.PP
+On successful completion, a
+\fBMOVE\fR
+command returns a command tag of the form
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+MOVE \fIcount\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The
+\fIcount\fR
+is the number of rows that a
+\fBFETCH\fR
+command with the same parameters would have returned (possibly zero)\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+BEGIN WORK;
+DECLARE liahona CURSOR FOR SELECT * FROM films;
+
+\-\- Skip the first 5 rows:
+MOVE FORWARD 5 IN liahona;
+MOVE 5
+
+\-\- Fetch the 6th row from the cursor liahona:
+FETCH 1 FROM liahona;
+ code  | title  | did | date_prod  |  kind  |  len
+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-
+ P_303 | 48 Hrs | 103 | 1982\-10\-22 | Action | 01:37
+(1 row)
+
+\-\- Close the cursor liahona and end the transaction:
+CLOSE liahona;
+COMMIT WORK;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBMOVE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+\fBCLOSE\fR(7), \fBDECLARE\fR(7), \fBFETCH\fR(7)

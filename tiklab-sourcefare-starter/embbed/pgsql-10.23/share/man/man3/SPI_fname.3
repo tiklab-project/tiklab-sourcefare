@@ -1,0 +1,64 @@
+'\" t
+.\"     Title: SPI_fname
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_FNAME" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_fname \- determine the column name for the specified column number
+.SH "SYNOPSIS"
+.sp
+.nf
+char * SPI_fname(TupleDesc \fIrowdesc\fR, int \fIcolnumber\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_fname\fR
+returns a copy of the column name of the specified column\&. (You can use
+\fBpfree\fR
+to release the copy of the name when you don\*(Aqt need it anymore\&.)
+.SH "ARGUMENTS"
+.PP
+TupleDesc \fIrowdesc\fR
+.RS 4
+input row description
+.RE
+.PP
+int \fIcolnumber\fR
+.RS 4
+column number (count starts at 1)
+.RE
+.SH "RETURN VALUE"
+.PP
+The column name;
+NULL
+if
+\fIcolnumber\fR
+is out of range\&.
+\fISPI_result\fR
+set to
+SPI_ERROR_NOATTRIBUTE
+on error\&.

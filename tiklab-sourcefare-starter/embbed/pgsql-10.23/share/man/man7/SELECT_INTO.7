@@ -1,0 +1,140 @@
+'\" t
+.\"     Title: SELECT INTO
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SELECT INTO" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SELECT_INTO \- define a new table from the results of a query
+.SH "SYNOPSIS"
+.sp
+.nf
+[ WITH [ RECURSIVE ] \fIwith_query\fR [, \&.\&.\&.] ]
+SELECT [ ALL | DISTINCT [ ON ( \fIexpression\fR [, \&.\&.\&.] ) ] ]
+    * | \fIexpression\fR [ [ AS ] \fIoutput_name\fR ] [, \&.\&.\&.]
+    INTO [ TEMPORARY | TEMP | UNLOGGED ] [ TABLE ] \fInew_table\fR
+    [ FROM \fIfrom_item\fR [, \&.\&.\&.] ]
+    [ WHERE \fIcondition\fR ]
+    [ GROUP BY \fIexpression\fR [, \&.\&.\&.] ]
+    [ HAVING \fIcondition\fR ]
+    [ WINDOW \fIwindow_name\fR AS ( \fIwindow_definition\fR ) [, \&.\&.\&.] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] \fIselect\fR ]
+    [ ORDER BY \fIexpression\fR [ ASC | DESC | USING \fIoperator\fR ] [ NULLS { FIRST | LAST } ] [, \&.\&.\&.] ]
+    [ LIMIT { \fIcount\fR | ALL } ]
+    [ OFFSET \fIstart\fR [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ \fIcount\fR ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | SHARE } [ OF \fItable_name\fR [, \&.\&.\&.] ] [ NOWAIT ] [\&.\&.\&.] ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSELECT INTO\fR
+creates a new table and fills it with data computed by a query\&. The data is not returned to the client, as it is with a normal
+\fBSELECT\fR\&. The new table\*(Aqs columns have the names and data types associated with the output columns of the
+\fBSELECT\fR\&.
+.SH "PARAMETERS"
+.PP
+TEMPORARY or TEMP
+.RS 4
+If specified, the table is created as a temporary table\&. Refer to
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for details\&.
+.RE
+.PP
+UNLOGGED
+.RS 4
+If specified, the table is created as an unlogged table\&. Refer to
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for details\&.
+.RE
+.PP
+\fInew_table\fR
+.RS 4
+The name (optionally schema\-qualified) of the table to be created\&.
+.RE
+.PP
+All other parameters are described in detail under
+\fBSELECT\fR(7)\&.
+.SH "NOTES"
+.PP
+CREATE TABLE AS (\fBCREATE_TABLE_AS\fR(7))
+is functionally similar to
+\fBSELECT INTO\fR\&.
+\fBCREATE TABLE AS\fR
+is the recommended syntax, since this form of
+\fBSELECT INTO\fR
+is not available in
+ECPG
+or
+PL/pgSQL, because they interpret the
+INTO
+clause differently\&. Furthermore,
+\fBCREATE TABLE AS\fR
+offers a superset of the functionality provided by
+\fBSELECT INTO\fR\&.
+.PP
+To add OIDs to the table created by
+\fBSELECT INTO\fR, enable the
+default_with_oids
+configuration variable\&. Alternatively,
+\fBCREATE TABLE AS\fR
+can be used with the
+WITH OIDS
+clause\&.
+.SH "EXAMPLES"
+.PP
+Create a new table
+films_recent
+consisting of only recent entries from the table
+films:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT * INTO films_recent FROM films WHERE date_prod >= \*(Aq2002\-01\-01\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The SQL standard uses
+\fBSELECT INTO\fR
+to represent selecting values into scalar variables of a host program, rather than creating a new table\&. This indeed is the usage found in
+ECPG
+(see
+Chapter\ \&35) and
+PL/pgSQL
+(see
+Chapter\ \&42)\&. The
+PostgreSQL
+usage of
+\fBSELECT INTO\fR
+to represent table creation is historical\&. It is best to use
+\fBCREATE TABLE AS\fR
+for this purpose in new code\&.
+.SH "SEE ALSO"
+CREATE TABLE AS (\fBCREATE_TABLE_AS\fR(7))

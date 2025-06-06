@@ -1,8 +1,8 @@
 package io.tiklab.sourcefare.starter;
 
 
-import io.tiklab.core.property.PropertyAndYamlSourceFactory;
 import io.tiklab.sourcefare.starter.annotation.EnableSourceFare;
+import io.tiklab.toolkit.property.PropertyAndYamlSourceFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;

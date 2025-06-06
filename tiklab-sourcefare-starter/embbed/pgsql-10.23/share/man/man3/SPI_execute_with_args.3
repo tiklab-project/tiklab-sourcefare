@@ -1,0 +1,133 @@
+'\" t
+.\"     Title: SPI_execute_with_args
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_EXECUTE_WITH_ARGS" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_execute_with_args \- execute a command with out\-of\-line parameters
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_execute_with_args(const char *\fIcommand\fR,
+                          int \fInargs\fR, Oid *\fIargtypes\fR,
+                          Datum *\fIvalues\fR, const char *\fInulls\fR,
+                          bool \fIread_only\fR, long \fIcount\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_execute_with_args\fR
+executes a command that might include references to externally supplied parameters\&. The command text refers to a parameter as
+$\fIn\fR, and the call specifies data types and values for each such symbol\&.
+\fIread_only\fR
+and
+\fIcount\fR
+have the same interpretation as in
+\fBSPI_execute\fR\&.
+.PP
+The main advantage of this routine compared to
+\fBSPI_execute\fR
+is that data values can be inserted into the command without tedious quoting/escaping, and thus with much less risk of SQL\-injection attacks\&.
+.PP
+Similar results can be achieved with
+\fBSPI_prepare\fR
+followed by
+\fBSPI_execute_plan\fR; however, when using this function the query plan is always customized to the specific parameter values provided\&. For one\-time query execution, this function should be preferred\&. If the same command is to be executed with many different parameters, either method might be faster, depending on the cost of re\-planning versus the benefit of custom plans\&.
+.SH "ARGUMENTS"
+.PP
+const char * \fIcommand\fR
+.RS 4
+command string
+.RE
+.PP
+int \fInargs\fR
+.RS 4
+number of input parameters ($1,
+$2, etc\&.)
+.RE
+.PP
+Oid * \fIargtypes\fR
+.RS 4
+an array of length
+\fInargs\fR, containing the
+OIDs of the data types of the parameters
+.RE
+.PP
+Datum * \fIvalues\fR
+.RS 4
+an array of length
+\fInargs\fR, containing the actual parameter values
+.RE
+.PP
+const char * \fInulls\fR
+.RS 4
+an array of length
+\fInargs\fR, describing which parameters are null
+.sp
+If
+\fInulls\fR
+is
+NULL
+then
+\fBSPI_execute_with_args\fR
+assumes that no parameters are null\&. Otherwise, each entry of the
+\fInulls\fR
+array should be
+\*(Aq\ \&\*(Aq
+if the corresponding parameter value is non\-null, or
+\*(Aqn\*(Aq
+if the corresponding parameter value is null\&. (In the latter case, the actual value in the corresponding
+\fIvalues\fR
+entry doesn\*(Aqt matter\&.) Note that
+\fInulls\fR
+is not a text string, just an array: it does not need a
+\*(Aq\e0\*(Aq
+terminator\&.
+.RE
+.PP
+bool \fIread_only\fR
+.RS 4
+true
+for read\-only execution
+.RE
+.PP
+long \fIcount\fR
+.RS 4
+maximum number of rows to return, or
+0
+for no limit
+.RE
+.SH "RETURN VALUE"
+.PP
+The return value is the same as for
+\fBSPI_execute\fR\&.
+.PP
+\fISPI_processed\fR
+and
+\fISPI_tuptable\fR
+are set as in
+\fBSPI_execute\fR
+if successful\&.

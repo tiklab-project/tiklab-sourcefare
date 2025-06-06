@@ -1,0 +1,99 @@
+'\" t
+.\"     Title: dblink_build_sql_delete
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_BUILD_SQL_DELETE" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_build_sql_delete \- builds a DELETE statement using supplied values for primary key field values
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_build_sql_delete(text relname,
+                        int2vector primary_key_attnums,
+                        integer num_primary_key_atts,
+                        text[] tgt_pk_att_vals_array) returns text
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_build_sql_delete\fR
+can be useful in doing selective replication of a local table to a remote database\&. It builds a SQL
+\fBDELETE\fR
+command that will delete the row with the given primary key values\&.
+.SH "ARGUMENTS"
+.PP
+\fIrelname\fR
+.RS 4
+Name of a local relation, for example
+foo
+or
+myschema\&.mytab\&. Include double quotes if the name is mixed\-case or contains special characters, for example
+"FooBar"; without quotes, the string will be folded to lower case\&.
+.RE
+.PP
+\fIprimary_key_attnums\fR
+.RS 4
+Attribute numbers (1\-based) of the primary key fields, for example
+1 2\&.
+.RE
+.PP
+\fInum_primary_key_atts\fR
+.RS 4
+The number of primary key fields\&.
+.RE
+.PP
+\fItgt_pk_att_vals_array\fR
+.RS 4
+Values of the primary key fields to be used in the resulting
+\fBDELETE\fR
+command\&. Each field is represented in text form\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+Returns the requested SQL statement as text\&.
+.SH "NOTES"
+.PP
+As of
+PostgreSQL
+9\&.0, the attribute numbers in
+\fIprimary_key_attnums\fR
+are interpreted as logical column numbers, corresponding to the column\*(Aqs position in
+SELECT * FROM relname\&. Previous versions interpreted the numbers as physical column positions\&. There is a difference if any column(s) to the left of the indicated column have been dropped during the lifetime of the table\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_build_sql_delete(\*(Aq"MyFoo"\*(Aq, \*(Aq1 2\*(Aq, 2, \*(Aq{"1", "b"}\*(Aq);
+           dblink_build_sql_delete
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ DELETE FROM "MyFoo" WHERE f1=\*(Aq1\*(Aq AND f2=\*(Aqb\*(Aq
+(1 row)
+.fi
+.if n \{\
+.RE
+.\}

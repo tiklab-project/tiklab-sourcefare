@@ -1,0 +1,99 @@
+'\" t
+.\"     Title: CLOSE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CLOSE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CLOSE \- close a cursor
+.SH "SYNOPSIS"
+.sp
+.nf
+CLOSE { \fIname\fR | ALL }
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCLOSE\fR
+frees the resources associated with an open cursor\&. After the cursor is closed, no subsequent operations are allowed on it\&. A cursor should be closed when it is no longer needed\&.
+.PP
+Every non\-holdable open cursor is implicitly closed when a transaction is terminated by
+\fBCOMMIT\fR
+or
+\fBROLLBACK\fR\&. A holdable cursor is implicitly closed if the transaction that created it aborts via
+\fBROLLBACK\fR\&. If the creating transaction successfully commits, the holdable cursor remains open until an explicit
+\fBCLOSE\fR
+is executed, or the client disconnects\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an open cursor to close\&.
+.RE
+.PP
+ALL
+.RS 4
+Close all open cursors\&.
+.RE
+.SH "NOTES"
+.PP
+PostgreSQL
+does not have an explicit
+\fBOPEN\fR
+cursor statement; a cursor is considered open when it is declared\&. Use the
+\fBDECLARE\fR(7)
+statement to declare a cursor\&.
+.PP
+You can see all available cursors by querying the
+pg_cursors
+system view\&.
+.PP
+If a cursor is closed after a savepoint which is later rolled back, the
+\fBCLOSE\fR
+is not rolled back; that is, the cursor remains closed\&.
+.SH "EXAMPLES"
+.PP
+Close the cursor
+liahona:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CLOSE liahona;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCLOSE\fR
+is fully conforming with the SQL standard\&.
+\fBCLOSE ALL\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+\fBDECLARE\fR(7), \fBFETCH\fR(7), \fBMOVE\fR(7)

@@ -1,0 +1,275 @@
+'\" t
+.\"     Title: ALTER SEQUENCE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER SEQUENCE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_SEQUENCE \- change the definition of a sequence generator
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER SEQUENCE [ IF EXISTS ] \fIname\fR
+    [ AS \fIdata_type\fR ]
+    [ INCREMENT [ BY ] \fIincrement\fR ]
+    [ MINVALUE \fIminvalue\fR | NO MINVALUE ] [ MAXVALUE \fImaxvalue\fR | NO MAXVALUE ]
+    [ START [ WITH ] \fIstart\fR ]
+    [ RESTART [ [ WITH ] \fIrestart\fR ] ]
+    [ CACHE \fIcache\fR ] [ [ NO ] CYCLE ]
+    [ OWNED BY { \fItable_name\fR\&.\fIcolumn_name\fR | NONE } ]
+ALTER SEQUENCE [ IF EXISTS ] \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER SEQUENCE [ IF EXISTS ] \fIname\fR RENAME TO \fInew_name\fR
+ALTER SEQUENCE [ IF EXISTS ] \fIname\fR SET SCHEMA \fInew_schema\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER SEQUENCE\fR
+changes the parameters of an existing sequence generator\&. Any parameters not specifically set in the
+\fBALTER SEQUENCE\fR
+command retain their prior settings\&.
+.PP
+You must own the sequence to use
+\fBALTER SEQUENCE\fR\&. To change a sequence\*(Aqs schema, you must also have
+CREATE
+privilege on the new schema\&. To alter the owner, you must also be a direct or indirect member of the new owning role, and that role must have
+CREATE
+privilege on the sequence\*(Aqs schema\&. (These restrictions enforce that altering the owner doesn\*(Aqt do anything you couldn\*(Aqt do by dropping and recreating the sequence\&. However, a superuser can alter ownership of any sequence anyway\&.)
+.SH "PARAMETERS"
+.PP
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of a sequence to be altered\&.
+.RE
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the sequence does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIdata_type\fR
+.RS 4
+The optional clause
+AS \fIdata_type\fR
+changes the data type of the sequence\&. Valid types are
+smallint,
+integer, and
+bigint\&.
+.sp
+Changing the data type automatically changes the minimum and maximum values of the sequence if and only if the previous minimum and maximum values were the minimum or maximum value of the old data type (in other words, if the sequence had been created using
+NO MINVALUE
+or
+NO MAXVALUE, implicitly or explicitly)\&. Otherwise, the minimum and maximum values are preserved, unless new values are given as part of the same command\&. If the minimum and maximum values do not fit into the new data type, an error will be generated\&.
+.RE
+.PP
+\fIincrement\fR
+.RS 4
+The clause
+INCREMENT BY \fIincrement\fR
+is optional\&. A positive value will make an ascending sequence, a negative one a descending sequence\&. If unspecified, the old increment value will be maintained\&.
+.RE
+.PP
+\fIminvalue\fR
+.br
+NO MINVALUE
+.RS 4
+The optional clause
+MINVALUE \fIminvalue\fR
+determines the minimum value a sequence can generate\&. If
+NO MINVALUE
+is specified, the defaults of 1 and the minimum value of the data type for ascending and descending sequences, respectively, will be used\&. If neither option is specified, the current minimum value will be maintained\&.
+.RE
+.PP
+\fImaxvalue\fR
+.br
+NO MAXVALUE
+.RS 4
+The optional clause
+MAXVALUE \fImaxvalue\fR
+determines the maximum value for the sequence\&. If
+NO MAXVALUE
+is specified, the defaults of the maximum value of the data type and \-1 for ascending and descending sequences, respectively, will be used\&. If neither option is specified, the current maximum value will be maintained\&.
+.RE
+.PP
+\fIstart\fR
+.RS 4
+The optional clause
+START WITH \fIstart\fR
+changes the recorded start value of the sequence\&. This has no effect on the
+\fIcurrent\fR
+sequence value; it simply sets the value that future
+\fBALTER SEQUENCE RESTART\fR
+commands will use\&.
+.RE
+.PP
+\fIrestart\fR
+.RS 4
+The optional clause
+RESTART [ WITH \fIrestart\fR ]
+changes the current value of the sequence\&. This is similar to calling the
+\fBsetval\fR
+function with
+is_called
+=
+false: the specified value will be returned by the
+\fInext\fR
+call of
+\fBnextval\fR\&. Writing
+RESTART
+with no
+\fIrestart\fR
+value is equivalent to supplying the start value that was recorded by
+\fBCREATE SEQUENCE\fR
+or last set by
+\fBALTER SEQUENCE START WITH\fR\&.
+.sp
+In contrast to a
+\fBsetval\fR
+call, a
+RESTART
+operation on a sequence is transactional and blocks concurrent transactions from obtaining numbers from the same sequence\&. If that\*(Aqs not the desired mode of operation,
+\fBsetval\fR
+should be used\&.
+.RE
+.PP
+\fIcache\fR
+.RS 4
+The clause
+CACHE \fIcache\fR
+enables sequence numbers to be preallocated and stored in memory for faster access\&. The minimum value is 1 (only one value can be generated at a time, i\&.e\&., no cache)\&. If unspecified, the old cache value will be maintained\&.
+.RE
+.PP
+CYCLE
+.RS 4
+The optional
+CYCLE
+key word can be used to enable the sequence to wrap around when the
+\fImaxvalue\fR
+or
+\fIminvalue\fR
+has been reached by an ascending or descending sequence respectively\&. If the limit is reached, the next number generated will be the
+\fIminvalue\fR
+or
+\fImaxvalue\fR, respectively\&.
+.RE
+.PP
+NO CYCLE
+.RS 4
+If the optional
+NO CYCLE
+key word is specified, any calls to
+\fBnextval\fR
+after the sequence has reached its maximum value will return an error\&. If neither
+CYCLE
+or
+NO CYCLE
+are specified, the old cycle behavior will be maintained\&.
+.RE
+.PP
+OWNED BY \fItable_name\fR\&.\fIcolumn_name\fR
+.br
+OWNED BY NONE
+.RS 4
+The
+OWNED BY
+option causes the sequence to be associated with a specific table column, such that if that column (or its whole table) is dropped, the sequence will be automatically dropped as well\&. If specified, this association replaces any previously specified association for the sequence\&. The specified table must have the same owner and be in the same schema as the sequence\&. Specifying
+OWNED BY NONE
+removes any existing association, making the sequence
+\(lqfree\-standing\(rq\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the sequence\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the sequence\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the sequence\&.
+.RE
+.SH "NOTES"
+.PP
+\fBALTER SEQUENCE\fR
+will not immediately affect
+\fBnextval\fR
+results in backends, other than the current one, that have preallocated (cached) sequence values\&. They will use up all cached values prior to noticing the changed sequence generation parameters\&. The current backend will be affected immediately\&.
+.PP
+\fBALTER SEQUENCE\fR
+does not affect the
+\fBcurrval\fR
+status for the sequence\&. (Before
+PostgreSQL
+8\&.3, it sometimes did\&.)
+.PP
+\fBALTER SEQUENCE\fR
+blocks concurrent
+\fBnextval\fR,
+\fBcurrval\fR,
+\fBlastval\fR, and
+\fBsetval\fR
+calls\&.
+.PP
+For historical reasons,
+\fBALTER TABLE\fR
+can be used with sequences too; but the only variants of
+\fBALTER TABLE\fR
+that are allowed with sequences are equivalent to the forms shown above\&.
+.SH "EXAMPLES"
+.PP
+Restart a sequence called
+serial, at 105:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER SEQUENCE serial RESTART WITH 105;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER SEQUENCE\fR
+conforms to the
+SQL
+standard, except for the
+AS,
+START WITH,
+OWNED BY,
+OWNER TO,
+RENAME TO, and
+SET SCHEMA
+clauses, which are
+PostgreSQL
+extensions\&.
+.SH "SEE ALSO"
+CREATE SEQUENCE (\fBCREATE_SEQUENCE\fR(7)), DROP SEQUENCE (\fBDROP_SEQUENCE\fR(7))

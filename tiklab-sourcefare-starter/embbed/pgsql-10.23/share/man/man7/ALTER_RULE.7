@@ -1,0 +1,80 @@
+'\" t
+.\"     Title: ALTER RULE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER RULE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_RULE \- change the definition of a rule
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER RULE \fIname\fR ON \fItable_name\fR RENAME TO \fInew_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER RULE\fR
+changes properties of an existing rule\&. Currently, the only available action is to change the rule\*(Aqs name\&.
+.PP
+To use
+\fBALTER RULE\fR, you must own the table or view that the rule applies to\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing rule to alter\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the table or view that the rule applies to\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the rule\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To rename an existing rule:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER RULE notify_all ON emp RENAME TO notify_me;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER RULE\fR
+is a
+PostgreSQL
+language extension, as is the entire query rewrite system\&.
+.SH "SEE ALSO"
+CREATE RULE (\fBCREATE_RULE\fR(7)), DROP RULE (\fBDROP_RULE\fR(7))

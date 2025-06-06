@@ -1,0 +1,77 @@
+'\" t
+.\"     Title: ROLLBACK PREPARED
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ROLLBACK PREPARED" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ROLLBACK_PREPARED \- cancel a transaction that was earlier prepared for two\-phase commit
+.SH "SYNOPSIS"
+.sp
+.nf
+ROLLBACK PREPARED \fItransaction_id\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBROLLBACK PREPARED\fR
+rolls back a transaction that is in prepared state\&.
+.SH "PARAMETERS"
+.PP
+\fItransaction_id\fR
+.RS 4
+The transaction identifier of the transaction that is to be rolled back\&.
+.RE
+.SH "NOTES"
+.PP
+To roll back a prepared transaction, you must be either the same user that executed the transaction originally, or a superuser\&. But you do not have to be in the same session that executed the transaction\&.
+.PP
+This command cannot be executed inside a transaction block\&. The prepared transaction is rolled back immediately\&.
+.PP
+All currently available prepared transactions are listed in the
+pg_prepared_xacts
+system view\&.
+.SH "EXAMPLES"
+.PP
+Roll back the transaction identified by the transaction identifier
+foobar:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ROLLBACK PREPARED \*(Aqfoobar\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBROLLBACK PREPARED\fR
+is a
+PostgreSQL
+extension\&. It is intended for use by external transaction management systems, some of which are covered by standards (such as X/Open XA), but the SQL side of those systems is not standardized\&.
+.SH "SEE ALSO"
+PREPARE TRANSACTION (\fBPREPARE_TRANSACTION\fR(7)), COMMIT PREPARED (\fBCOMMIT_PREPARED\fR(7))

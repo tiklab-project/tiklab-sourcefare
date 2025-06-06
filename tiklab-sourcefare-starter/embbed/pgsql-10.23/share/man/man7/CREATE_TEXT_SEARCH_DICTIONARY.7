@@ -1,0 +1,98 @@
+'\" t
+.\"     Title: CREATE TEXT SEARCH DICTIONARY
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TEXT SEARCH DICTIONARY" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TEXT_SEARCH_DICTIONARY \- define a new text search dictionary
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE TEXT SEARCH DICTIONARY \fIname\fR (
+    TEMPLATE = \fItemplate\fR
+    [, \fIoption\fR = \fIvalue\fR [, \&.\&.\&. ]]
+)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TEXT SEARCH DICTIONARY\fR
+creates a new text search dictionary\&. A text search dictionary specifies a way of recognizing interesting or uninteresting words for searching\&. A dictionary depends on a text search template, which specifies the functions that actually perform the work\&. Typically the dictionary provides some options that control the detailed behavior of the template\*(Aqs functions\&.
+.PP
+If a schema name is given then the text search dictionary is created in the specified schema\&. Otherwise it is created in the current schema\&.
+.PP
+The user who defines a text search dictionary becomes its owner\&.
+.PP
+Refer to
+Chapter\ \&12
+for further information\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the text search dictionary to be created\&. The name can be schema\-qualified\&.
+.RE
+.PP
+\fItemplate\fR
+.RS 4
+The name of the text search template that will define the basic behavior of this dictionary\&.
+.RE
+.PP
+\fIoption\fR
+.RS 4
+The name of a template\-specific option to be set for this dictionary\&.
+.RE
+.PP
+\fIvalue\fR
+.RS 4
+The value to use for a template\-specific option\&. If the value is not a simple identifier or number, it must be quoted (but you can always quote it, if you wish)\&.
+.RE
+.PP
+The options can appear in any order\&.
+.SH "EXAMPLES"
+.PP
+The following example command creates a Snowball\-based dictionary with a nonstandard list of stop words\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TEXT SEARCH DICTIONARY my_russian (
+    template = snowball,
+    language = russian,
+    stopwords = myrussian
+);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCREATE TEXT SEARCH DICTIONARY\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER TEXT SEARCH DICTIONARY (\fBALTER_TEXT_SEARCH_DICTIONARY\fR(7)), DROP TEXT SEARCH DICTIONARY (\fBDROP_TEXT_SEARCH_DICTIONARY\fR(7))

@@ -1,0 +1,326 @@
+'\" t
+.\"     Title: oid2name
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "OID2NAME" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+oid2name \- resolve OIDs and file nodes in a PostgreSQL data directory
+.SH "SYNOPSIS"
+.HP \w'\fBoid2name\fR\ 'u
+\fBoid2name\fR [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+oid2name
+is a utility program that helps administrators to examine the file structure used by PostgreSQL\&. To make use of it, you need to be familiar with the database file structure, which is described in
+Chapter\ \&67\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+The name
+\(lqoid2name\(rq
+is historical, and is actually rather misleading, since most of the time when you use it, you will really be concerned with tables\*(Aq filenode numbers (which are the file names visible in the database directories)\&. Be sure you understand the difference between table OIDs and table filenodes!
+.sp .5v
+.RE
+.PP
+oid2name
+connects to a target database and extracts OID, filenode, and/or table name information\&. You can also have it show database OIDs or tablespace OIDs\&.
+.SH "OPTIONS"
+.PP
+oid2name
+accepts the following command\-line arguments:
+.PP
+\fB\-f\fR \fIfilenode\fR
+.RS 4
+show info for table with filenode
+\fIfilenode\fR
+.RE
+.PP
+\fB\-i\fR
+.RS 4
+include indexes and sequences in the listing
+.RE
+.PP
+\fB\-o\fR \fIoid\fR
+.RS 4
+show info for table with OID
+\fIoid\fR
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+omit headers (useful for scripting)
+.RE
+.PP
+\fB\-s\fR
+.RS 4
+show tablespace OIDs
+.RE
+.PP
+\fB\-S\fR
+.RS 4
+include system objects (those in
+\fBinformation_schema\fR,
+\fBpg_toast\fR
+and
+\fBpg_catalog\fR
+schemas)
+.RE
+.PP
+\fB\-t\fR \fItablename_pattern\fR
+.RS 4
+show info for table(s) matching
+\fItablename_pattern\fR
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+oid2name
+version and exit\&.
+.RE
+.PP
+\fB\-x\fR
+.RS 4
+display more information about each object shown: tablespace name, schema name, and OID
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+oid2name
+command line arguments, and exit\&.
+.RE
+.PP
+oid2name
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-d\fR \fIdatabase\fR
+.RS 4
+database to connect to
+.RE
+.PP
+\fB\-H\fR \fIhost\fR
+.RS 4
+database server\*(Aqs host
+.RE
+.PP
+\fB\-p\fR \fIport\fR
+.RS 4
+database server\*(Aqs port
+.RE
+.PP
+\fB\-U\fR \fIusername\fR
+.RS 4
+user name to connect as
+.RE
+.PP
+\fB\-P\fR \fIpassword\fR
+.RS 4
+password (deprecated \(em putting this on the command line is a security hazard)
+.RE
+.PP
+To display specific tables, select which tables to show by using
+\fB\-o\fR,
+\fB\-f\fR
+and/or
+\fB\-t\fR\&.
+\fB\-o\fR
+takes an OID,
+\fB\-f\fR
+takes a filenode, and
+\fB\-t\fR
+takes a table name (actually, it\*(Aqs a
+LIKE
+pattern, so you can use things like
+foo%)\&. You can use as many of these options as you like, and the listing will include all objects matched by any of the options\&. But note that these options can only show objects in the database given by
+\fB\-d\fR\&.
+.PP
+If you don\*(Aqt give any of
+\fB\-o\fR,
+\fB\-f\fR
+or
+\fB\-t\fR, but do give
+\fB\-d\fR, it will list all tables in the database named by
+\fB\-d\fR\&. In this mode, the
+\fB\-S\fR
+and
+\fB\-i\fR
+options control what gets listed\&.
+.PP
+If you don\*(Aqt give
+\fB\-d\fR
+either, it will show a listing of database OIDs\&. Alternatively you can give
+\fB\-s\fR
+to get a tablespace listing\&.
+.SH "NOTES"
+.PP
+oid2name
+requires a running database server with non\-corrupt system catalogs\&. It is therefore of only limited use for recovering from catastrophic database corruption situations\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ # what\*(Aqs in this database server, anyway?
+$ oid2name
+All databases:
+    Oid  Database Name  Tablespace
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+  17228       alvherre  pg_default
+  17255     regression  pg_default
+  17227      template0  pg_default
+      1      template1  pg_default
+
+$ oid2name \-s
+All tablespaces:
+     Oid  Tablespace Name
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    1663       pg_default
+    1664        pg_global
+  155151         fastdisk
+  155152          bigdisk
+
+$ # OK, let\*(Aqs look into database alvherre
+$ cd $PGDATA/base/17228
+
+$ # get top 10 db objects in the default tablespace, ordered by size
+$ ls \-lS * | head \-10
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre 136536064 sep 14 09:51 155173
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre  17965056 sep 14 09:51 1155291
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre   1204224 sep 14 09:51 16717
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    581632 sep  6 17:51 1255
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    237568 sep 14 09:50 16674
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    212992 sep 14 09:51 1249
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    204800 sep 14 09:51 16684
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    196608 sep 14 09:50 16700
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    163840 sep 14 09:50 16699
+\-rw\-\-\-\-\-\-\-  1 alvherre alvherre    122880 sep  6 17:51 16751
+
+$ # I wonder what file 155173 is \&.\&.\&.
+$ oid2name \-d alvherre \-f 155173
+From database "alvherre":
+  Filenode  Table Name
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    155173    accounts
+
+$ # you can ask for more than one object
+$ oid2name \-d alvherre \-f 155173 \-f 1155291
+From database "alvherre":
+  Filenode     Table Name
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    155173       accounts
+   1155291  accounts_pkey
+
+$ # you can mix the options, and get more details with \-x
+$ oid2name \-d alvherre \-t accounts \-f 1155291 \-x
+From database "alvherre":
+  Filenode     Table Name      Oid  Schema  Tablespace
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    155173       accounts   155173  public  pg_default
+   1155291  accounts_pkey  1155291  public  pg_default
+
+$ # show disk space for every db object
+$ du [0\-9]* |
+> while read SIZE FILENODE
+> do
+>   echo "$SIZE       `oid2name \-q \-d alvherre \-i \-f $FILENODE`"
+> done
+16            1155287  branches_pkey
+16            1155289  tellers_pkey
+17561            1155291  accounts_pkey
+\&.\&.\&.
+
+$ # same, but sort by size
+$ du [0\-9]* | sort \-rn | while read SIZE FN
+> do
+>   echo "$SIZE   `oid2name \-q \-d alvherre \-f $FN`"
+> done
+133466             155173    accounts
+17561            1155291  accounts_pkey
+1177              16717  pg_proc_proname_args_nsp_index
+\&.\&.\&.
+
+$ # If you want to see what\*(Aqs in tablespaces, use the pg_tblspc directory
+$ cd $PGDATA/pg_tblspc
+$ oid2name \-s
+All tablespaces:
+     Oid  Tablespace Name
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    1663       pg_default
+    1664        pg_global
+  155151         fastdisk
+  155152          bigdisk
+
+$ # what databases have objects in tablespace "fastdisk"?
+$ ls \-d 155151/*
+155151/17228/  155151/PG_VERSION
+
+$ # Oh, what was database 17228 again?
+$ oid2name
+All databases:
+    Oid  Database Name  Tablespace
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+  17228       alvherre  pg_default
+  17255     regression  pg_default
+  17227      template0  pg_default
+      1      template1  pg_default
+
+$ # Let\*(Aqs see what objects does this database have in the tablespace\&.
+$ cd 155151/17228
+$ ls \-l
+total 0
+\-rw\-\-\-\-\-\-\-  1 postgres postgres 0 sep 13 23:20 155156
+
+$ # OK, this is a pretty small table \&.\&.\&. but which one is it?
+$ oid2name \-d alvherre \-f 155156
+From database "alvherre":
+  Filenode  Table Name
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    155156         foo
+.fi
+.if n \{\
+.RE
+.\}
+.SH "AUTHOR"
+.PP
+B\&. Palmer
+<bpalmer@crimelabs\&.net>

@@ -1,0 +1,350 @@
+'\" t
+.\"     Title: CREATE SEQUENCE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE SEQUENCE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_SEQUENCE \- define a new sequence generator
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE [ TEMPORARY | TEMP ] SEQUENCE [ IF NOT EXISTS ] \fIname\fR
+    [ AS \fIdata_type\fR ]
+    [ INCREMENT [ BY ] \fIincrement\fR ]
+    [ MINVALUE \fIminvalue\fR | NO MINVALUE ] [ MAXVALUE \fImaxvalue\fR | NO MAXVALUE ]
+    [ START [ WITH ] \fIstart\fR ] [ CACHE \fIcache\fR ] [ [ NO ] CYCLE ]
+    [ OWNED BY { \fItable_name\fR\&.\fIcolumn_name\fR | NONE } ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE SEQUENCE\fR
+creates a new sequence number generator\&. This involves creating and initializing a new special single\-row table with the name
+\fIname\fR\&. The generator will be owned by the user issuing the command\&.
+.PP
+If a schema name is given then the sequence is created in the specified schema\&. Otherwise it is created in the current schema\&. Temporary sequences exist in a special schema, so a schema name cannot be given when creating a temporary sequence\&. The sequence name must be distinct from the name of any other sequence, table, index, view, or foreign table in the same schema\&.
+.PP
+After a sequence is created, you use the functions
+\fBnextval\fR,
+\fBcurrval\fR, and
+\fBsetval\fR
+to operate on the sequence\&. These functions are documented in
+Section\ \&9.16\&.
+.PP
+Although you cannot update a sequence directly, you can use a query like:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT * FROM \fIname\fR;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+to examine the parameters and current state of a sequence\&. In particular, the
+last_value
+field of the sequence shows the last value allocated by any session\&. (Of course, this value might be obsolete by the time it\*(Aqs printed, if other sessions are actively doing
+\fBnextval\fR
+calls\&.)
+.SH "PARAMETERS"
+.PP
+TEMPORARY or TEMP
+.RS 4
+If specified, the sequence object is created only for this session, and is automatically dropped on session exit\&. Existing permanent sequences with the same name are not visible (in this session) while the temporary sequence exists, unless they are referenced with schema\-qualified names\&.
+.RE
+.PP
+IF NOT EXISTS
+.RS 4
+Do not throw an error if a relation with the same name already exists\&. A notice is issued in this case\&. Note that there is no guarantee that the existing relation is anything like the sequence that would have been created \- it might not even be a sequence\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of the sequence to be created\&.
+.RE
+.PP
+\fIdata_type\fR
+.RS 4
+The optional clause
+AS \fIdata_type\fR
+specifies the data type of the sequence\&. Valid types are
+smallint,
+integer, and
+bigint\&.
+bigint
+is the default\&. The data type determines the default minimum and maximum values of the sequence\&.
+.RE
+.PP
+\fIincrement\fR
+.RS 4
+The optional clause
+INCREMENT BY \fIincrement\fR
+specifies which value is added to the current sequence value to create a new value\&. A positive value will make an ascending sequence, a negative one a descending sequence\&. The default value is 1\&.
+.RE
+.PP
+\fIminvalue\fR
+.br
+NO MINVALUE
+.RS 4
+The optional clause
+MINVALUE \fIminvalue\fR
+determines the minimum value a sequence can generate\&. If this clause is not supplied or
+\fBNO MINVALUE\fR
+is specified, then defaults will be used\&. The default for an ascending sequence is 1\&. The default for a descending sequence is the minimum value of the data type\&.
+.RE
+.PP
+\fImaxvalue\fR
+.br
+NO MAXVALUE
+.RS 4
+The optional clause
+MAXVALUE \fImaxvalue\fR
+determines the maximum value for the sequence\&. If this clause is not supplied or
+\fBNO MAXVALUE\fR
+is specified, then default values will be used\&. The default for an ascending sequence is the maximum value of the data type\&. The default for a descending sequence is \-1\&.
+.RE
+.PP
+\fIstart\fR
+.RS 4
+The optional clause
+START WITH \fIstart\fR
+allows the sequence to begin anywhere\&. The default starting value is
+\fIminvalue\fR
+for ascending sequences and
+\fImaxvalue\fR
+for descending ones\&.
+.RE
+.PP
+\fIcache\fR
+.RS 4
+The optional clause
+CACHE \fIcache\fR
+specifies how many sequence numbers are to be preallocated and stored in memory for faster access\&. The minimum value is 1 (only one value can be generated at a time, i\&.e\&., no cache), and this is also the default\&.
+.RE
+.PP
+CYCLE
+.br
+NO CYCLE
+.RS 4
+The
+CYCLE
+option allows the sequence to wrap around when the
+\fImaxvalue\fR
+or
+\fIminvalue\fR
+has been reached by an ascending or descending sequence respectively\&. If the limit is reached, the next number generated will be the
+\fIminvalue\fR
+or
+\fImaxvalue\fR, respectively\&.
+.sp
+If
+NO CYCLE
+is specified, any calls to
+\fBnextval\fR
+after the sequence has reached its maximum value will return an error\&. If neither
+CYCLE
+or
+NO CYCLE
+are specified,
+NO CYCLE
+is the default\&.
+.RE
+.PP
+OWNED BY \fItable_name\fR\&.\fIcolumn_name\fR
+.br
+OWNED BY NONE
+.RS 4
+The
+OWNED BY
+option causes the sequence to be associated with a specific table column, such that if that column (or its whole table) is dropped, the sequence will be automatically dropped as well\&. The specified table must have the same owner and be in the same schema as the sequence\&.
+OWNED BY NONE, the default, specifies that there is no such association\&.
+.RE
+.SH "NOTES"
+.PP
+Use
+\fBDROP SEQUENCE\fR
+to remove a sequence\&.
+.PP
+Sequences are based on
+bigint
+arithmetic, so the range cannot exceed the range of an eight\-byte integer (\-9223372036854775808 to 9223372036854775807)\&.
+.PP
+Because
+\fBnextval\fR
+and
+\fBsetval\fR
+calls are never rolled back, sequence objects cannot be used if
+\(lqgapless\(rq
+assignment of sequence numbers is needed\&. It is possible to build gapless assignment by using exclusive locking of a table containing a counter; but this solution is much more expensive than sequence objects, especially if many transactions need sequence numbers concurrently\&.
+.PP
+Unexpected results might be obtained if a
+\fIcache\fR
+setting greater than one is used for a sequence object that will be used concurrently by multiple sessions\&. Each session will allocate and cache successive sequence values during one access to the sequence object and increase the sequence object\*(Aqs
+last_value
+accordingly\&. Then, the next
+\fIcache\fR\-1 uses of
+\fBnextval\fR
+within that session simply return the preallocated values without touching the sequence object\&. So, any numbers allocated but not used within a session will be lost when that session ends, resulting in
+\(lqholes\(rq
+in the sequence\&.
+.PP
+Furthermore, although multiple sessions are guaranteed to allocate distinct sequence values, the values might be generated out of sequence when all the sessions are considered\&. For example, with a
+\fIcache\fR
+setting of 10, session A might reserve values 1\&.\&.10 and return
+\fBnextval\fR=1, then session B might reserve values 11\&.\&.20 and return
+\fBnextval\fR=11 before session A has generated
+\fBnextval\fR=2\&. Thus, with a
+\fIcache\fR
+setting of one it is safe to assume that
+\fBnextval\fR
+values are generated sequentially; with a
+\fIcache\fR
+setting greater than one you should only assume that the
+\fBnextval\fR
+values are all distinct, not that they are generated purely sequentially\&. Also,
+last_value
+will reflect the latest value reserved by any session, whether or not it has yet been returned by
+\fBnextval\fR\&.
+.PP
+Another consideration is that a
+\fBsetval\fR
+executed on such a sequence will not be noticed by other sessions until they have used up any preallocated values they have cached\&.
+.SH "EXAMPLES"
+.PP
+Create an ascending sequence called
+serial, starting at 101:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SEQUENCE serial START 101;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Select the next number from this sequence:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT nextval(\*(Aqserial\*(Aq);
+
+ nextval
+\-\-\-\-\-\-\-\-\-
+     101
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Select the next number from this sequence:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT nextval(\*(Aqserial\*(Aq);
+
+ nextval
+\-\-\-\-\-\-\-\-\-
+     102
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Use this sequence in an
+\fBINSERT\fR
+command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+INSERT INTO distributors VALUES (nextval(\*(Aqserial\*(Aq), \*(Aqnothing\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Update the sequence value after a
+\fBCOPY FROM\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+BEGIN;
+COPY distributors FROM \*(Aqinput_file\*(Aq;
+SELECT setval(\*(Aqserial\*(Aq, max(id)) FROM distributors;
+END;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE SEQUENCE\fR
+conforms to the
+SQL
+standard, with the following exceptions:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Obtaining the next value is done using the
+\fBnextval()\fR
+function instead of the standard\*(Aqs
+\fBNEXT VALUE FOR\fR
+expression\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The
+OWNED BY
+clause is a
+PostgreSQL
+extension\&.
+.RE
+.SH "SEE ALSO"
+ALTER SEQUENCE (\fBALTER_SEQUENCE\fR(7)), DROP SEQUENCE (\fBDROP_SEQUENCE\fR(7))

@@ -1,0 +1,82 @@
+'\" t
+.\"     Title: END
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "END" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+END \- commit the current transaction
+.SH "SYNOPSIS"
+.sp
+.nf
+END [ WORK | TRANSACTION ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBEND\fR
+commits the current transaction\&. All changes made by the transaction become visible to others and are guaranteed to be durable if a crash occurs\&. This command is a
+PostgreSQL
+extension that is equivalent to
+\fBCOMMIT\fR(7)\&.
+.SH "PARAMETERS"
+.PP
+WORK
+.br
+TRANSACTION
+.RS 4
+Optional key words\&. They have no effect\&.
+.RE
+.SH "NOTES"
+.PP
+Use
+\fBROLLBACK\fR(7)
+to abort a transaction\&.
+.PP
+Issuing
+\fBEND\fR
+when not inside a transaction does no harm, but it will provoke a warning message\&.
+.SH "EXAMPLES"
+.PP
+To commit the current transaction and make all changes permanent:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+END;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBEND\fR
+is a
+PostgreSQL
+extension that provides functionality equivalent to
+\fBCOMMIT\fR(7), which is specified in the SQL standard\&.
+.SH "SEE ALSO"
+\fBBEGIN\fR(7), \fBCOMMIT\fR(7), \fBROLLBACK\fR(7)

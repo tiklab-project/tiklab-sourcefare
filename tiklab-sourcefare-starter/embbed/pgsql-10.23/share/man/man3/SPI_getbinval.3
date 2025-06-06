@@ -1,0 +1,75 @@
+'\" t
+.\"     Title: SPI_getbinval
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_GETBINVAL" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_getbinval \- return the binary value of the specified column
+.SH "SYNOPSIS"
+.sp
+.nf
+Datum SPI_getbinval(HeapTuple \fIrow\fR, TupleDesc \fIrowdesc\fR, int \fIcolnumber\fR,
+                    bool * \fIisnull\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_getbinval\fR
+returns the value of the specified column in the internal form (as type
+Datum)\&.
+.PP
+This function does not allocate new space for the datum\&. In the case of a pass\-by\-reference data type, the return value will be a pointer into the passed row\&.
+.SH "ARGUMENTS"
+.PP
+HeapTuple \fIrow\fR
+.RS 4
+input row to be examined
+.RE
+.PP
+TupleDesc \fIrowdesc\fR
+.RS 4
+input row description
+.RE
+.PP
+int \fIcolnumber\fR
+.RS 4
+column number (count starts at 1)
+.RE
+.PP
+bool * \fIisnull\fR
+.RS 4
+flag for a null value in the column
+.RE
+.SH "RETURN VALUE"
+.PP
+The binary value of the column is returned\&. The variable pointed to by
+\fIisnull\fR
+is set to true if the column is null, else to false\&.
+.PP
+\fISPI_result\fR
+is set to
+SPI_ERROR_NOATTRIBUTE
+on error\&.

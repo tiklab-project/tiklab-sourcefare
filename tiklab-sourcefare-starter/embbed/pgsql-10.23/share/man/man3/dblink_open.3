@@ -1,0 +1,113 @@
+'\" t
+.\"     Title: dblink_open
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_OPEN" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_open \- opens a cursor in a remote database
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_open(text cursorname, text sql [, bool fail_on_error]) returns text
+dblink_open(text connname, text cursorname, text sql [, bool fail_on_error]) returns text
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_open()\fR
+opens a cursor in a remote database\&. The cursor can subsequently be manipulated with
+\fBdblink_fetch()\fR
+and
+\fBdblink_close()\fR\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+Name of the connection to use; omit this parameter to use the unnamed connection\&.
+.RE
+.PP
+\fIcursorname\fR
+.RS 4
+The name to assign to this cursor\&.
+.RE
+.PP
+\fIsql\fR
+.RS 4
+The
+\fBSELECT\fR
+statement that you wish to execute in the remote database, for example
+select * from pg_class\&.
+.RE
+.PP
+\fIfail_on_error\fR
+.RS 4
+If true (the default when omitted) then an error thrown on the remote side of the connection causes an error to also be thrown locally\&. If false, the remote error is locally reported as a NOTICE, and the function\*(Aqs return value is set to
+ERROR\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+Returns status, either
+OK
+or
+ERROR\&.
+.SH "NOTES"
+.PP
+Since a cursor can only persist within a transaction,
+\fBdblink_open\fR
+starts an explicit transaction block (\fBBEGIN\fR) on the remote side, if the remote side was not already within a transaction\&. This transaction will be closed again when the matching
+\fBdblink_close\fR
+is executed\&. Note that if you use
+\fBdblink_exec\fR
+to change data between
+\fBdblink_open\fR
+and
+\fBdblink_close\fR, and then an error occurs or you use
+\fBdblink_disconnect\fR
+before
+\fBdblink_close\fR, your change
+\fIwill be lost\fR
+because the transaction will be aborted\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_connect(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT dblink_open(\*(Aqfoo\*(Aq, \*(Aqselect proname, prosrc from pg_proc\*(Aq);
+ dblink_open
+\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+.fi
+.if n \{\
+.RE
+.\}

@@ -1,0 +1,200 @@
+'\" t
+.\"     Title: pg_archivecleanup
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PG_ARCHIVECLEANUP" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pg_archivecleanup \- clean up PostgreSQL WAL archive files
+.SH "SYNOPSIS"
+.HP \w'\fBpg_archivecleanup\fR\ 'u
+\fBpg_archivecleanup\fR [\fIoption\fR...] \fIarchivelocation\fR \fIoldestkeptwalfile\fR
+.SH "DESCRIPTION"
+.PP
+pg_archivecleanup
+is designed to be used as an
+archive_cleanup_command
+to clean up WAL file archives when running as a standby server (see
+Section\ \&26.2)\&.
+pg_archivecleanup
+can also be used as a standalone program to clean WAL file archives\&.
+.PP
+To configure a standby server to use
+pg_archivecleanup, put this into its
+recovery\&.conf
+configuration file:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+archive_cleanup_command = \*(Aqpg_archivecleanup \fIarchivelocation\fR %r\*(Aq
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+where
+\fIarchivelocation\fR
+is the directory from which WAL segment files should be removed\&.
+.PP
+When used within
+archive_cleanup_command, all WAL files logically preceding the value of the
+%r
+argument will be removed from
+\fIarchivelocation\fR\&. This minimizes the number of files that need to be retained, while preserving crash\-restart capability\&. Use of this parameter is appropriate if the
+\fIarchivelocation\fR
+is a transient staging area for this particular standby server, but
+\fInot\fR
+when the
+\fIarchivelocation\fR
+is intended as a long\-term WAL archive area, or when multiple standby servers are recovering from the same archive location\&.
+.PP
+When used as a standalone program all WAL files logically preceding the
+\fIoldestkeptwalfile\fR
+will be removed from
+\fIarchivelocation\fR\&. In this mode, if you specify a
+\&.partial
+or
+\&.backup
+file name, then only the file prefix will be used as the
+\fIoldestkeptwalfile\fR\&. This treatment of
+\&.backup
+file name allows you to remove all WAL files archived prior to a specific base backup without error\&. For example, the following example will remove all files older than WAL file name
+000000010000003700000010:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pg_archivecleanup \-d archive 000000010000003700000010\&.00000020\&.backup
+
+pg_archivecleanup:  keep WAL file "archive/000000010000003700000010" and later
+pg_archivecleanup:  removing file "archive/00000001000000370000000F"
+pg_archivecleanup:  removing file "archive/00000001000000370000000E"
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+pg_archivecleanup
+assumes that
+\fIarchivelocation\fR
+is a directory readable and writable by the server\-owning user\&.
+.SH "OPTIONS"
+.PP
+pg_archivecleanup
+accepts the following command\-line arguments:
+.PP
+\fB\-d\fR
+.RS 4
+Print lots of debug logging output on
+stderr\&.
+.RE
+.PP
+\fB\-n\fR
+.RS 4
+Print the names of the files that would have been removed on
+stdout
+(performs a dry run)\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+pg_archivecleanup
+version and exit\&.
+.RE
+.PP
+\fB\-x\fR \fIextension\fR
+.RS 4
+Provide an extension that will be stripped from all file names before deciding if they should be deleted\&. This is typically useful for cleaning up archives that have been compressed during storage, and therefore have had an extension added by the compression program\&. For example:
+\-x \&.gz\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+pg_archivecleanup
+command line arguments, and exit\&.
+.RE
+.SH "NOTES"
+.PP
+pg_archivecleanup
+is designed to work with
+PostgreSQL
+8\&.0 and later when used as a standalone utility, or with
+PostgreSQL
+9\&.0 and later when used as an archive cleanup command\&.
+.PP
+pg_archivecleanup
+is written in C and has an easy\-to\-modify source code, with specifically designated sections to modify for your own needs
+.SH "EXAMPLES"
+.PP
+On Linux or Unix systems, you might use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+archive_cleanup_command = \*(Aqpg_archivecleanup \-d /mnt/standby/archive %r 2>>cleanup\&.log\*(Aq
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+where the archive directory is physically located on the standby server, so that the
+\fIarchive_command\fR
+is accessing it across NFS, but the files are local to the standby\&. This will:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+produce debugging output in
+cleanup\&.log
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+remove no\-longer\-needed files from the archive directory
+.RE
+.SH "SEE ALSO"
+\fBpg_standby\fR(1)

@@ -1,0 +1,60 @@
+'\" t
+.\"     Title: SPI_getargcount
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_GETARGCOUNT" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_getargcount \- return the number of arguments needed by a statement prepared by \fBSPI_prepare\fR
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_getargcount(SPIPlanPtr \fIplan\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_getargcount\fR
+returns the number of arguments needed to execute a statement prepared by
+\fBSPI_prepare\fR\&.
+.SH "ARGUMENTS"
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+prepared statement (returned by
+\fBSPI_prepare\fR)
+.RE
+.SH "RETURN VALUE"
+.PP
+The count of expected arguments for the
+\fIplan\fR\&. If the
+\fIplan\fR
+is
+NULL
+or invalid,
+\fISPI_result\fR
+is set to
+SPI_ERROR_ARGUMENT
+and \-1 is returned\&.

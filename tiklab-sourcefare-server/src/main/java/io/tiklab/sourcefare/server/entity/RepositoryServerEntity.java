@@ -6,7 +6,7 @@ import io.tiklab.dal.jpa.annotation.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name="scan_repository_server")
+@Table(name="wair_repository_server")
 public class RepositoryServerEntity extends BaseModel {
 
     @Id

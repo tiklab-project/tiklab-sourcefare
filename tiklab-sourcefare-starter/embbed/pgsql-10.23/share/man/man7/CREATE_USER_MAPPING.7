@@ -1,0 +1,94 @@
+'\" t
+.\"     Title: CREATE USER MAPPING
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE USER MAPPING" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_USER_MAPPING \- define a new mapping of a user to a foreign server
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE USER MAPPING [IF NOT EXISTS] FOR { \fIuser_name\fR | USER | CURRENT_USER | PUBLIC }
+    SERVER \fIserver_name\fR
+    [ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [ , \&.\&.\&. ] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE USER MAPPING\fR
+defines a mapping of a user to a foreign server\&. A user mapping typically encapsulates connection information that a foreign\-data wrapper uses together with the information encapsulated by a foreign server to access an external data resource\&.
+.PP
+The owner of a foreign server can create user mappings for that server for any user\&. Also, a user can create a user mapping for their own user name if
+USAGE
+privilege on the server has been granted to the user\&.
+.SH "PARAMETERS"
+.PP
+IF NOT EXISTS
+.RS 4
+Do not throw an error if a mapping of the given user to the given foreign server already exists\&. A notice is issued in this case\&. Note that there is no guarantee that the existing user mapping is anything like the one that would have been created\&.
+.RE
+.PP
+\fIuser_name\fR
+.RS 4
+The name of an existing user that is mapped to foreign server\&.
+CURRENT_USER
+and
+USER
+match the name of the current user\&. When
+PUBLIC
+is specified, a so\-called public mapping is created that is used when no user\-specific mapping is applicable\&.
+.RE
+.PP
+\fIserver_name\fR
+.RS 4
+The name of an existing server for which the user mapping is to be created\&.
+.RE
+.PP
+OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] )
+.RS 4
+This clause specifies the options of the user mapping\&. The options typically define the actual user name and password of the mapping\&. Option names must be unique\&. The allowed option names and values are specific to the server\*(Aqs foreign\-data wrapper\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Create a user mapping for user
+bob, server
+foo:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE USER MAPPING FOR bob SERVER foo OPTIONS (user \*(Aqbob\*(Aq, password \*(Aqsecret\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE USER MAPPING\fR
+conforms to ISO/IEC 9075\-9 (SQL/MED)\&.
+.SH "SEE ALSO"
+ALTER USER MAPPING (\fBALTER_USER_MAPPING\fR(7)), DROP USER MAPPING (\fBDROP_USER_MAPPING\fR(7)), CREATE FOREIGN DATA WRAPPER (\fBCREATE_FOREIGN_DATA_WRAPPER\fR(7)), CREATE SERVER (\fBCREATE_SERVER\fR(7))

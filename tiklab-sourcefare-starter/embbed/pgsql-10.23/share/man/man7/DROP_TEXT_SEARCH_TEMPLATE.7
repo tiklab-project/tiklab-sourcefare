@@ -1,0 +1,87 @@
+'\" t
+.\"     Title: DROP TEXT SEARCH TEMPLATE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP TEXT SEARCH TEMPLATE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_TEXT_SEARCH_TEMPLATE \- remove a text search template
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP TEXT SEARCH TEMPLATE [ IF EXISTS ] \fIname\fR [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP TEXT SEARCH TEMPLATE\fR
+drops an existing text search template\&. You must be a superuser to use this command\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the text search template does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing text search template\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the text search template, and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the text search template if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Remove the text search template
+thesaurus:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP TEXT SEARCH TEMPLATE thesaurus;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This command will not succeed if there are any existing text search dictionaries that use the template\&. Add
+CASCADE
+to drop such dictionaries along with the template\&.
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBDROP TEXT SEARCH TEMPLATE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER TEXT SEARCH TEMPLATE (\fBALTER_TEXT_SEARCH_TEMPLATE\fR(7)), CREATE TEXT SEARCH TEMPLATE (\fBCREATE_TEXT_SEARCH_TEMPLATE\fR(7))

@@ -1,0 +1,174 @@
+'\" t
+.\"     Title: SECURITY LABEL
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SECURITY LABEL" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SECURITY_LABEL \- define or change a security label applied to an object
+.SH "SYNOPSIS"
+.sp
+.nf
+SECURITY LABEL [ FOR \fIprovider\fR ] ON
+{
+  TABLE \fIobject_name\fR |
+  COLUMN \fItable_name\fR\&.\fIcolumn_name\fR |
+  AGGREGATE \fIaggregate_name\fR ( \fIaggregate_signature\fR ) |
+  DATABASE \fIobject_name\fR |
+  DOMAIN \fIobject_name\fR |
+  EVENT TRIGGER \fIobject_name\fR |
+  FOREIGN TABLE \fIobject_name\fR
+  FUNCTION \fIfunction_name\fR [ ( [ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [, \&.\&.\&.] ] ) ] |
+  LARGE OBJECT \fIlarge_object_oid\fR |
+  MATERIALIZED VIEW \fIobject_name\fR |
+  [ PROCEDURAL ] LANGUAGE \fIobject_name\fR |
+  PUBLICATION \fIobject_name\fR |
+  ROLE \fIobject_name\fR |
+  SCHEMA \fIobject_name\fR |
+  SEQUENCE \fIobject_name\fR |
+  SUBSCRIPTION \fIobject_name\fR |
+  TABLESPACE \fIobject_name\fR |
+  TYPE \fIobject_name\fR |
+  VIEW \fIobject_name\fR
+} IS \*(Aq\fIlabel\fR\*(Aq
+
+where \fIaggregate_signature\fR is:
+
+* |
+[ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] |
+[ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] ] ORDER BY [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSECURITY LABEL\fR
+applies a security label to a database object\&. An arbitrary number of security labels, one per label provider, can be associated with a given database object\&. Label providers are loadable modules which register themselves by using the function
+\fBregister_label_provider\fR\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+\fBregister_label_provider\fR
+is not an SQL function; it can only be called from C code loaded into the backend\&.
+.sp .5v
+.RE
+.PP
+The label provider determines whether a given label is valid and whether it is permissible to assign that label to a given object\&. The meaning of a given label is likewise at the discretion of the label provider\&.
+PostgreSQL
+places no restrictions on whether or how a label provider must interpret security labels; it merely provides a mechanism for storing them\&. In practice, this facility is intended to allow integration with label\-based mandatory access control (MAC) systems such as
+SELinux\&. Such systems make all access control decisions based on object labels, rather than traditional discretionary access control (DAC) concepts such as users and groups\&.
+.SH "PARAMETERS"
+.PP
+\fIobject_name\fR
+.br
+\fItable_name\&.column_name\fR
+.br
+\fIaggregate_name\fR
+.br
+\fIfunction_name\fR
+.RS 4
+The name of the object to be labeled\&. Names of tables, aggregates, domains, foreign tables, functions, sequences, types, and views can be schema\-qualified\&.
+.RE
+.PP
+\fIprovider\fR
+.RS 4
+The name of the provider with which this label is to be associated\&. The named provider must be loaded and must consent to the proposed labeling operation\&. If exactly one provider is loaded, the provider name may be omitted for brevity\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of a function or aggregate argument:
+IN,
+OUT,
+INOUT, or
+VARIADIC\&. If omitted, the default is
+IN\&. Note that
+\fBSECURITY LABEL\fR
+does not actually pay any attention to
+OUT
+arguments, since only the input arguments are needed to determine the function\*(Aqs identity\&. So it is sufficient to list the
+IN,
+INOUT, and
+VARIADIC
+arguments\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of a function or aggregate argument\&. Note that
+\fBSECURITY LABEL\fR
+does not actually pay any attention to argument names, since only the argument data types are needed to determine the function\*(Aqs identity\&.
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+The data type of a function or aggregate argument\&.
+.RE
+.PP
+\fIlarge_object_oid\fR
+.RS 4
+The OID of the large object\&.
+.RE
+.PP
+PROCEDURAL
+.RS 4
+This is a noise word\&.
+.RE
+.PP
+\fIlabel\fR
+.RS 4
+The new security label, written as a string literal; or
+NULL
+to drop the security label\&.
+.RE
+.SH "EXAMPLES"
+.PP
+The following example shows how the security label of a table might be changed\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SECURITY LABEL FOR selinux ON TABLE mytable IS \*(Aqsystem_u:object_r:sepgsql_table_t:s0\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBSECURITY LABEL\fR
+command in the SQL standard\&.
+.SH "SEE ALSO"
+sepgsql, src/test/modules/dummy_seclabel

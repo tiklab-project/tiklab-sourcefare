@@ -1,0 +1,66 @@
+'\" t
+.\"     Title: DEALLOCATE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DEALLOCATE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DEALLOCATE \- deallocate a prepared statement
+.SH "SYNOPSIS"
+.sp
+.nf
+DEALLOCATE [ PREPARE ] { \fIname\fR | ALL }
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDEALLOCATE\fR
+is used to deallocate a previously prepared SQL statement\&. If you do not explicitly deallocate a prepared statement, it is deallocated when the session ends\&.
+.PP
+For more information on prepared statements, see
+\fBPREPARE\fR(7)\&.
+.SH "PARAMETERS"
+.PP
+PREPARE
+.RS 4
+This key word is ignored\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of the prepared statement to deallocate\&.
+.RE
+.PP
+ALL
+.RS 4
+Deallocate all prepared statements\&.
+.RE
+.SH "COMPATIBILITY"
+.PP
+The SQL standard includes a
+\fBDEALLOCATE\fR
+statement, but it is only for use in embedded SQL\&.
+.SH "SEE ALSO"
+\fBEXECUTE\fR(7), \fBPREPARE\fR(7)

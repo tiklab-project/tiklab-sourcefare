@@ -1,5 +1,9 @@
 package io.tiklab.sourcefare.scan.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.tiklab.core.page.Pagination;
 import io.tiklab.core.page.PaginationBuilder;
 import io.tiklab.rpc.annotation.Exporter;
@@ -9,14 +13,22 @@ import io.tiklab.sourcefare.scan.entity.ScanRuleEntity;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
 * ScanRuleServiceImpl-扫描规则接口实现
@@ -43,12 +55,37 @@ public class ScanRuleServiceImpl implements ScanRuleService {
     @Override
     public String createScanRule(@NotNull @Valid ScanRule scanRule) {
 
+       /* try {
+            File file = new File(AppHomeContext.getAppHome() + "/file/eslint1.js");
+            String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(content);
+            List<Map> ruleSetList = objectMapper.convertValue(jsonNode, List.class);
+
+
+
+            Map<String, Object> hashMap = new HashMap<>();
+            hashMap.put("ruleName",scanRule.getRuleName());
+            hashMap.put("scanTool","Eslint");
+            hashMap.put("problemLevel",scanRule.getProblemLevel());
+            hashMap.put("ruleType",scanRule.getRuleType());
+            hashMap.put("ruleOverview",scanRule.getRuleOverview());
+            hashMap.put("desc",scanRule.getDescription());
+            ruleSetList.add(hashMap);
+
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, ruleSetList);
+
+            return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
+
         ScanRuleEntity ruleEntity = BeanMapper.map(scanRule, ScanRuleEntity.class);
         ruleEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
         String scanRuleId= scanRuleDao.createScanRule(ruleEntity);
         scanRule.setId(scanRuleId);
 
-        List<ScanSchemeRuleSet> schemeRuleSetList = scanSchemeRuleSetService.findScanSchemeRuleSetList(new ScanSchemeRuleSetQuery().setRuleSetId(scanRule.getRuleSetId()));
+        /*List<ScanSchemeRuleSet> schemeRuleSetList = scanSchemeRuleSetService.findScanSchemeRuleSetList(new ScanSchemeRuleSetQuery().setRuleSetId(scanRule.getRuleSetId()));
         if (CollectionUtils.isNotEmpty(schemeRuleSetList)){
             for (ScanSchemeRuleSet schemeRuleSet:schemeRuleSetList){
                 ScanSchemeRule scanSchemeRule = new ScanSchemeRule();
@@ -59,8 +96,13 @@ public class ScanRuleServiceImpl implements ScanRuleService {
                 scanSchemeRule.setScanSchemeId(schemeRuleSet.getScanSchemeId());
                 scanSchemeRuleService.createScanSchemeRule(scanSchemeRule);
             }
-        }
+        }*/
         return scanRuleId;
+    }
+
+    @Override
+    public void createScanRule(List<ScanRule> rules) {
+        scanRuleDao.addList(rules);
     }
 
     @Override

@@ -1,0 +1,85 @@
+'\" t
+.\"     Title: DROP CONVERSION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP CONVERSION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_CONVERSION \- remove a conversion
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP CONVERSION [ IF EXISTS ] \fIname\fR [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP CONVERSION\fR
+removes a previously defined conversion\&. To be able to drop a conversion, you must own the conversion\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the conversion does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of the conversion\&. The conversion name can be schema\-qualified\&.
+.RE
+.PP
+CASCADE
+.br
+RESTRICT
+.RS 4
+These key words do not have any effect, since there are no dependencies on conversions\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To drop the conversion named
+myname:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP CONVERSION myname;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBDROP CONVERSION\fR
+statement in the SQL standard, but a
+\fBDROP TRANSLATION\fR
+statement that goes along with the
+\fBCREATE TRANSLATION\fR
+statement that is similar to the
+\fBCREATE CONVERSION\fR
+statement in PostgreSQL\&.
+.SH "SEE ALSO"
+ALTER CONVERSION (\fBALTER_CONVERSION\fR(7)), CREATE CONVERSION (\fBCREATE_CONVERSION\fR(7))

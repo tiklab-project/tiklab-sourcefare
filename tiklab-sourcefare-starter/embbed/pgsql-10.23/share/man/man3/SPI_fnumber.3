@@ -1,0 +1,63 @@
+'\" t
+.\"     Title: SPI_fnumber
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_FNUMBER" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_fnumber \- determine the column number for the specified column name
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_fnumber(TupleDesc \fIrowdesc\fR, const char * \fIcolname\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_fnumber\fR
+returns the column number for the column with the specified name\&.
+.PP
+If
+\fIcolname\fR
+refers to a system column (e\&.g\&.,
+oid) then the appropriate negative column number will be returned\&. The caller should be careful to test the return value for exact equality to
+SPI_ERROR_NOATTRIBUTE
+to detect an error; testing the result for less than or equal to 0 is not correct unless system columns should be rejected\&.
+.SH "ARGUMENTS"
+.PP
+TupleDesc \fIrowdesc\fR
+.RS 4
+input row description
+.RE
+.PP
+const char * \fIcolname\fR
+.RS 4
+column name
+.RE
+.SH "RETURN VALUE"
+.PP
+Column number (count starts at 1 for user\-defined columns), or
+SPI_ERROR_NOATTRIBUTE
+if the named column was not found\&.

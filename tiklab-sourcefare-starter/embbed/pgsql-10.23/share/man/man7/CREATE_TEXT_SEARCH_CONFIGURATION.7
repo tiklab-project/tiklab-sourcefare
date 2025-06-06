@@ -1,0 +1,85 @@
+'\" t
+.\"     Title: CREATE TEXT SEARCH CONFIGURATION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TEXT SEARCH CONFIGURATION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TEXT_SEARCH_CONFIGURATION \- define a new text search configuration
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE TEXT SEARCH CONFIGURATION \fIname\fR (
+    PARSER = \fIparser_name\fR |
+    COPY = \fIsource_config\fR
+)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TEXT SEARCH CONFIGURATION\fR
+creates a new text search configuration\&. A text search configuration specifies a text search parser that can divide a string into tokens, plus dictionaries that can be used to determine which tokens are of interest for searching\&.
+.PP
+If only the parser is specified, then the new text search configuration initially has no mappings from token types to dictionaries, and therefore will ignore all words\&. Subsequent
+\fBALTER TEXT SEARCH CONFIGURATION\fR
+commands must be used to create mappings to make the configuration useful\&. Alternatively, an existing text search configuration can be copied\&.
+.PP
+If a schema name is given then the text search configuration is created in the specified schema\&. Otherwise it is created in the current schema\&.
+.PP
+The user who defines a text search configuration becomes its owner\&.
+.PP
+Refer to
+Chapter\ \&12
+for further information\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the text search configuration to be created\&. The name can be schema\-qualified\&.
+.RE
+.PP
+\fIparser_name\fR
+.RS 4
+The name of the text search parser to use for this configuration\&.
+.RE
+.PP
+\fIsource_config\fR
+.RS 4
+The name of an existing text search configuration to copy\&.
+.RE
+.SH "NOTES"
+.PP
+The
+PARSER
+and
+COPY
+options are mutually exclusive, because when an existing configuration is copied, its parser selection is copied too\&.
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCREATE TEXT SEARCH CONFIGURATION\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER TEXT SEARCH CONFIGURATION (\fBALTER_TEXT_SEARCH_CONFIGURATION\fR(7)), DROP TEXT SEARCH CONFIGURATION (\fBDROP_TEXT_SEARCH_CONFIGURATION\fR(7))

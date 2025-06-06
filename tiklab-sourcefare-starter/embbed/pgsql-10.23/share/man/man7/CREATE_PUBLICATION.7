@@ -1,0 +1,176 @@
+'\" t
+.\"     Title: CREATE PUBLICATION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE PUBLICATION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_PUBLICATION \- define a new publication
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE PUBLICATION \fIname\fR
+    [ FOR TABLE [ ONLY ] \fItable_name\fR [ * ] [, \&.\&.\&.]
+      | FOR ALL TABLES ]
+    [ WITH ( \fIpublication_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE PUBLICATION\fR
+adds a new publication into the current database\&. The publication name must be distinct from the name of any existing publication in the current database\&.
+.PP
+A publication is essentially a group of tables whose data changes are intended to be replicated through logical replication\&. See
+Section\ \&31.1
+for details about how publications fit into the logical replication setup\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the new publication\&.
+.RE
+.PP
+FOR TABLE
+.RS 4
+Specifies a list of tables to add to the publication\&. If
+ONLY
+is specified before the table name, only that table is added to the publication\&. If
+ONLY
+is not specified, the table and all its descendant tables (if any) are added\&. Optionally,
+*
+can be specified after the table name to explicitly indicate that descendant tables are included\&.
+.sp
+Only persistent base tables can be part of a publication\&. Temporary tables, unlogged tables, foreign tables, materialized views, regular views, and partitioned tables cannot be part of a publication\&. To replicate a partitioned table, add the individual partitions to the publication\&.
+.RE
+.PP
+FOR ALL TABLES
+.RS 4
+Marks the publication as one that replicates changes for all tables in the database, including tables created in the future\&.
+.RE
+.PP
+WITH ( \fIpublication_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+.RS 4
+This clause specifies optional parameters for a publication\&. The following parameters are supported:
+.PP
+publish (string)
+.RS 4
+This parameter determines which DML operations will be published by the new publication to the subscribers\&. The value is comma\-separated list of operations\&. The allowed operations are
+insert,
+update, and
+delete\&. The default is to publish all actions, and so the default value for this option is
+\*(Aqinsert, update, delete\*(Aq\&.
+.RE
+.sp
+.RE
+.SH "NOTES"
+.PP
+If neither
+FOR TABLE
+nor
+FOR ALL TABLES
+is specified, then the publication starts out with an empty set of tables\&. That is useful if tables are to be added later\&.
+.PP
+The creation of a publication does not start replication\&. It only defines a grouping and filtering logic for future subscribers\&.
+.PP
+To create a publication, the invoking user must have the
+CREATE
+privilege for the current database\&. (Of course, superusers bypass this check\&.)
+.PP
+To add a table to a publication, the invoking user must have ownership rights on the table\&. The
+\fBFOR ALL TABLES\fR
+clause requires the invoking user to be a superuser\&.
+.PP
+The tables added to a publication that publishes
+\fBUPDATE\fR
+and/or
+\fBDELETE\fR
+operations must have
+REPLICA IDENTITY
+defined\&. Otherwise those operations will be disallowed on those tables\&.
+.PP
+For an
+\fBINSERT \&.\&.\&. ON CONFLICT\fR
+command, the publication will publish the operation that results from the command\&. Depending on the outcome, it may be published as either
+\fBINSERT\fR
+or
+\fBUPDATE\fR, or it may not be published at all\&.
+.PP
+\fBCOPY \&.\&.\&. FROM\fR
+commands are published as
+\fBINSERT\fR
+operations\&.
+.PP
+\fBTRUNCATE\fR
+and
+DDL
+operations are not published\&.
+.SH "EXAMPLES"
+.PP
+Create a publication that publishes all changes in two tables:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE PUBLICATION mypublication FOR TABLE users, departments;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a publication that publishes all changes in all tables:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE PUBLICATION alltables FOR ALL TABLES;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a publication that only publishes
+\fBINSERT\fR
+operations in one table:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE PUBLICATION insert_only FOR TABLE mydata
+    WITH (publish = \*(Aqinsert\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE PUBLICATION\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+ALTER PUBLICATION (\fBALTER_PUBLICATION\fR(7)), DROP PUBLICATION (\fBDROP_PUBLICATION\fR(7)), CREATE SUBSCRIPTION (\fBCREATE_SUBSCRIPTION\fR(7)), ALTER SUBSCRIPTION (\fBALTER_SUBSCRIPTION\fR(7))

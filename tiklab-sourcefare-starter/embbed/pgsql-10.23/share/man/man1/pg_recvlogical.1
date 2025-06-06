@@ -1,0 +1,302 @@
+'\" t
+.\"     Title: pg_recvlogical
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PG_RECVLOGICAL" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pg_recvlogical \- control PostgreSQL logical decoding streams
+.SH "SYNOPSIS"
+.HP \w'\fBpg_recvlogical\fR\ 'u
+\fBpg_recvlogical\fR [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+\fBpg_recvlogical\fR
+controls logical decoding replication slots and streams data from such replication slots\&.
+.PP
+It creates a replication\-mode connection, so it is subject to the same constraints as
+\fBpg_receivewal\fR(1), plus those for logical replication (see
+Chapter\ \&48)\&.
+.PP
+\fBpg_recvlogical\fR
+has no equivalent to the logical decoding SQL interface\*(Aqs peek and get modes\&. It sends replay confirmations for data lazily as it receives it and on clean exit\&. To examine pending data on a slot without consuming it, use
+\fBpg_logical_slot_peek_changes\fR\&.
+.SH "OPTIONS"
+.PP
+At least one of the following options must be specified to select an action:
+.PP
+\fB\-\-create\-slot\fR
+.RS 4
+Create a new logical replication slot with the name specified by
+\fB\-\-slot\fR, using the output plugin specified by
+\fB\-\-plugin\fR, for the database specified by
+\fB\-\-dbname\fR\&.
+.RE
+.PP
+\fB\-\-drop\-slot\fR
+.RS 4
+Drop the replication slot with the name specified by
+\fB\-\-slot\fR, then exit\&.
+.RE
+.PP
+\fB\-\-start\fR
+.RS 4
+Begin streaming changes from the logical replication slot specified by
+\fB\-\-slot\fR, continuing until terminated by a signal\&. If the server side change stream ends with a server shutdown or disconnect, retry in a loop unless
+\fB\-\-no\-loop\fR
+is specified\&.
+.sp
+The stream format is determined by the output plugin specified when the slot was created\&.
+.sp
+The connection must be to the same database used to create the slot\&.
+.RE
+.PP
+\fB\-\-create\-slot\fR
+and
+\fB\-\-start\fR
+can be specified together\&.
+\fB\-\-drop\-slot\fR
+cannot be combined with another action\&.
+.PP
+The following command\-line options control the location and format of the output and other replication behavior:
+.PP
+\fB\-E \fR\fB\fIlsn\fR\fR
+.br
+\fB\-\-endpos=\fR\fB\fIlsn\fR\fR
+.RS 4
+In
+\fB\-\-start\fR
+mode, automatically stop replication and exit with normal exit status 0 when receiving reaches the specified LSN\&. If specified when not in
+\fB\-\-start\fR
+mode, an error is raised\&.
+.sp
+If there\*(Aqs a record with LSN exactly equal to
+\fIlsn\fR, the record will be output\&.
+.sp
+The
+\fB\-\-endpos\fR
+option is not aware of transaction boundaries and may truncate output partway through a transaction\&. Any partially output transaction will not be consumed and will be replayed again when the slot is next read from\&. Individual messages are never truncated\&.
+.RE
+.PP
+\fB\-f \fR\fB\fIfilename\fR\fR
+.br
+\fB\-\-file=\fR\fB\fIfilename\fR\fR
+.RS 4
+Write received and decoded transaction data into this file\&. Use
+\-
+for
+stdout\&.
+.RE
+.PP
+\fB\-F \fR\fB\fIinterval_seconds\fR\fR
+.br
+\fB\-\-fsync\-interval=\fR\fB\fIinterval_seconds\fR\fR
+.RS 4
+Specifies how often
+pg_recvlogical
+should issue
+\fBfsync()\fR
+calls to ensure the output file is safely flushed to disk\&.
+.sp
+The server will occasionally request the client to perform a flush and report the flush position to the server\&. This setting is in addition to that, to perform flushes more frequently\&.
+.sp
+Specifying an interval of
+0
+disables issuing
+\fBfsync()\fR
+calls altogether, while still reporting progress to the server\&. In this case, data could be lost in the event of a crash\&.
+.RE
+.PP
+\fB\-I \fR\fB\fIlsn\fR\fR
+.br
+\fB\-\-startpos=\fR\fB\fIlsn\fR\fR
+.RS 4
+In
+\fB\-\-start\fR
+mode, start replication from the given LSN\&. For details on the effect of this, see the documentation in
+Chapter\ \&48
+and
+Section\ \&52.4\&. Ignored in other modes\&.
+.RE
+.PP
+\fB\-\-if\-not\-exists\fR
+.RS 4
+Do not error out when
+\fB\-\-create\-slot\fR
+is specified and a slot with the specified name already exists\&.
+.RE
+.PP
+\fB\-n\fR
+.br
+\fB\-\-no\-loop\fR
+.RS 4
+When the connection to the server is lost, do not retry in a loop, just exit\&.
+.RE
+.PP
+\fB\-o \fR\fB\fIname\fR\fR\fB[=\fR\fB\fIvalue\fR\fR\fB]\fR
+.br
+\fB\-\-option=\fR\fB\fIname\fR\fR\fB[=\fR\fB\fIvalue\fR\fR\fB]\fR
+.RS 4
+Pass the option
+\fIname\fR
+to the output plugin with, if specified, the option value
+\fIvalue\fR\&. Which options exist and their effects depends on the used output plugin\&.
+.RE
+.PP
+\fB\-P \fR\fB\fIplugin\fR\fR
+.br
+\fB\-\-plugin=\fR\fB\fIplugin\fR\fR
+.RS 4
+When creating a slot, use the specified logical decoding output plugin\&. See
+Chapter\ \&48\&. This option has no effect if the slot already exists\&.
+.RE
+.PP
+\fB\-s \fR\fB\fIinterval_seconds\fR\fR
+.br
+\fB\-\-status\-interval=\fR\fB\fIinterval_seconds\fR\fR
+.RS 4
+This option has the same effect as the option of the same name in
+\fBpg_receivewal\fR(1)\&. See the description there\&.
+.RE
+.PP
+\fB\-S \fR\fB\fIslot_name\fR\fR
+.br
+\fB\-\-slot=\fR\fB\fIslot_name\fR\fR
+.RS 4
+In
+\fB\-\-start\fR
+mode, use the existing logical replication slot named
+\fIslot_name\fR\&. In
+\fB\-\-create\-slot\fR
+mode, create the slot with this name\&. In
+\fB\-\-drop\-slot\fR
+mode, delete the slot with this name\&.
+.RE
+.PP
+\fB\-v\fR
+.br
+\fB\-\-verbose\fR
+.RS 4
+Enables verbose mode\&.
+.RE
+.PP
+The following command\-line options control the database connection parameters\&.
+.PP
+\fB\-d \fR\fB\fIdbname\fR\fR
+.br
+\fB\-\-dbname=\fR\fB\fIdbname\fR\fR
+.RS 4
+The database to connect to\&. See the description of the actions for what this means in detail\&. The
+\fIdbname\fR
+can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&. Defaults to the user name\&.
+.RE
+.PP
+\fB\-h \fR\fB\fIhostname\-or\-ip\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhostname\-or\-ip\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&. The default is taken from the
+\fBPGHOST\fR
+environment variable, if set, else a Unix domain socket connection is attempted\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&. Defaults to the
+\fBPGPORT\fR
+environment variable, if set, or a compiled\-in default\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIuser\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIuser\fR\fR
+.RS 4
+User name to connect as\&. Defaults to current operating system user name\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+pg_recvlogical
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+pg_recvlogical
+will automatically prompt for a password if the server demands password authentication\&. However,
+pg_recvlogical
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+The following additional options are available:
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+pg_recvlogical
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+pg_recvlogical
+command line arguments, and exit\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+This utility, like most other
+PostgreSQL
+utilities, uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "EXAMPLES"
+.PP
+See
+Section\ \&48.1
+for an example\&.
+.SH "SEE ALSO"
+\fBpg_receivewal\fR(1)

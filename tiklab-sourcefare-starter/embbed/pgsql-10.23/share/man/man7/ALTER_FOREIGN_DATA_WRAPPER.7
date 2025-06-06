@@ -1,0 +1,144 @@
+'\" t
+.\"     Title: ALTER FOREIGN DATA WRAPPER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER FOREIGN DATA WRAPPER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_FOREIGN_DATA_WRAPPER \- change the definition of a foreign\-data wrapper
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER FOREIGN DATA WRAPPER \fIname\fR
+    [ HANDLER \fIhandler_function\fR | NO HANDLER ]
+    [ VALIDATOR \fIvalidator_function\fR | NO VALIDATOR ]
+    [ OPTIONS ( [ ADD | SET | DROP ] \fIoption\fR [\*(Aq\fIvalue\fR\*(Aq] [, \&.\&.\&. ]) ]
+ALTER FOREIGN DATA WRAPPER \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER FOREIGN DATA WRAPPER \fIname\fR RENAME TO \fInew_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER FOREIGN DATA WRAPPER\fR
+changes the definition of a foreign\-data wrapper\&. The first form of the command changes the support functions or the generic options of the foreign\-data wrapper (at least one clause is required)\&. The second form changes the owner of the foreign\-data wrapper\&.
+.PP
+Only superusers can alter foreign\-data wrappers\&. Additionally, only superusers can own foreign\-data wrappers\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing foreign\-data wrapper\&.
+.RE
+.PP
+HANDLER \fIhandler_function\fR
+.RS 4
+Specifies a new handler function for the foreign\-data wrapper\&.
+.RE
+.PP
+NO HANDLER
+.RS 4
+This is used to specify that the foreign\-data wrapper should no longer have a handler function\&.
+.sp
+Note that foreign tables that use a foreign\-data wrapper with no handler cannot be accessed\&.
+.RE
+.PP
+VALIDATOR \fIvalidator_function\fR
+.RS 4
+Specifies a new validator function for the foreign\-data wrapper\&.
+.sp
+Note that it is possible that pre\-existing options of the foreign\-data wrapper, or of dependent servers, user mappings, or foreign tables, are invalid according to the new validator\&.
+PostgreSQL
+does not check for this\&. It is up to the user to make sure that these options are correct before using the modified foreign\-data wrapper\&. However, any options specified in this
+\fBALTER FOREIGN DATA WRAPPER\fR
+command will be checked using the new validator\&.
+.RE
+.PP
+NO VALIDATOR
+.RS 4
+This is used to specify that the foreign\-data wrapper should no longer have a validator function\&.
+.RE
+.PP
+OPTIONS ( [ ADD | SET | DROP ] \fIoption\fR [\*(Aq\fIvalue\fR\*(Aq] [, \&.\&.\&. ] )
+.RS 4
+Change options for the foreign\-data wrapper\&.
+ADD,
+SET, and
+DROP
+specify the action to be performed\&.
+ADD
+is assumed if no operation is explicitly specified\&. Option names must be unique; names and values are also validated using the foreign data wrapper\*(Aqs validator function, if any\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the foreign\-data wrapper\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the foreign\-data wrapper\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Change a foreign\-data wrapper
+dbi, add option
+foo, drop
+bar:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER FOREIGN DATA WRAPPER dbi OPTIONS (ADD foo \*(Aq1\*(Aq, DROP \*(Aqbar\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Change the foreign\-data wrapper
+dbi
+validator to
+bob\&.myvalidator:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER FOREIGN DATA WRAPPER dbi VALIDATOR bob\&.myvalidator;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER FOREIGN DATA WRAPPER\fR
+conforms to ISO/IEC 9075\-9 (SQL/MED), except that the
+HANDLER,
+VALIDATOR,
+OWNER TO, and
+RENAME
+clauses are extensions\&.
+.SH "SEE ALSO"
+CREATE FOREIGN DATA WRAPPER (\fBCREATE_FOREIGN_DATA_WRAPPER\fR(7)), DROP FOREIGN DATA WRAPPER (\fBDROP_FOREIGN_DATA_WRAPPER\fR(7))

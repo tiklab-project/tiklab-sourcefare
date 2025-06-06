@@ -1,0 +1,69 @@
+'\" t
+.\"     Title: LOAD
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "LOAD" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+LOAD \- load a shared library file
+.SH "SYNOPSIS"
+.sp
+.nf
+LOAD \*(Aq\fIfilename\fR\*(Aq
+.fi
+.SH "DESCRIPTION"
+.PP
+This command loads a shared library file into the
+PostgreSQL
+server\*(Aqs address space\&. If the file has been loaded already, the command does nothing\&. Shared library files that contain C functions are automatically loaded whenever one of their functions is called\&. Therefore, an explicit
+\fBLOAD\fR
+is usually only needed to load a library that modifies the server\*(Aqs behavior through
+\(lqhooks\(rq
+rather than providing a set of functions\&.
+.PP
+The library file name is typically given as just a bare file name, which is sought in the server\*(Aqs library search path (set by
+dynamic_library_path)\&. Alternatively it can be given as a full path name\&. In either case the platform\*(Aqs standard shared library file name extension may be omitted\&. See
+Section\ \&37.9.1
+for more information on this topic\&.
+.PP
+Non\-superusers can only apply
+\fBLOAD\fR
+to library files located in
+$libdir/plugins/
+\(em the specified
+\fIfilename\fR
+must begin with exactly that string\&. (It is the database administrator\*(Aqs responsibility to ensure that only
+\(lqsafe\(rq
+libraries are installed there\&.)
+.SH "COMPATIBILITY"
+.PP
+\fBLOAD\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+.PP
+CREATE FUNCTION (\fBCREATE_FUNCTION\fR(7))

@@ -1,0 +1,88 @@
+'\" t
+.\"     Title: DROP OWNED
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP OWNED" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_OWNED \- remove database objects owned by a database role
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP OWNED BY { \fIname\fR | CURRENT_USER | SESSION_USER } [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP OWNED\fR
+drops all the objects within the current database that are owned by one of the specified roles\&. Any privileges granted to the given roles on objects in the current database or on shared objects (databases, tablespaces) will also be revoked\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of a role whose objects will be dropped, and whose privileges will be revoked\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the affected objects, and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the objects owned by a role if any other database objects depend on one of the affected objects\&. This is the default\&.
+.RE
+.SH "NOTES"
+.PP
+\fBDROP OWNED\fR
+is often used to prepare for the removal of one or more roles\&. Because
+\fBDROP OWNED\fR
+only affects the objects in the current database, it is usually necessary to execute this command in each database that contains objects owned by a role that is to be removed\&.
+.PP
+Using the
+CASCADE
+option might make the command recurse to objects owned by other users\&.
+.PP
+The
+REASSIGN OWNED (\fBREASSIGN_OWNED\fR(7))
+command is an alternative that reassigns the ownership of all the database objects owned by one or more roles\&. However,
+\fBREASSIGN OWNED\fR
+does not deal with privileges for other objects\&.
+.PP
+Databases and tablespaces owned by the role(s) will not be removed\&.
+.PP
+See
+Section\ \&21.4
+for more discussion\&.
+.SH "COMPATIBILITY"
+.PP
+The
+\fBDROP OWNED\fR
+command is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+REASSIGN OWNED (\fBREASSIGN_OWNED\fR(7)), DROP ROLE (\fBDROP_ROLE\fR(7))

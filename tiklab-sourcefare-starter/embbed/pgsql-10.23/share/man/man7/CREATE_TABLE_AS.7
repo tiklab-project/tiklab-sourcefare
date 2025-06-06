@@ -1,0 +1,317 @@
+'\" t
+.\"     Title: CREATE TABLE AS
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TABLE AS" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TABLE_AS \- define a new table from the results of a query
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] \fItable_name\fR
+    [ (\fIcolumn_name\fR [, \&.\&.\&.] ) ]
+    [ WITH ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] ) | WITH OIDS | WITHOUT OIDS ]
+    [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+    [ TABLESPACE \fItablespace_name\fR ]
+    AS \fIquery\fR
+    [ WITH [ NO ] DATA ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TABLE AS\fR
+creates a table and fills it with data computed by a
+\fBSELECT\fR
+command\&. The table columns have the names and data types associated with the output columns of the
+\fBSELECT\fR
+(except that you can override the column names by giving an explicit list of new column names)\&.
+.PP
+\fBCREATE TABLE AS\fR
+bears some resemblance to creating a view, but it is really quite different: it creates a new table and evaluates the query just once to fill the new table initially\&. The new table will not track subsequent changes to the source tables of the query\&. In contrast, a view re\-evaluates its defining
+\fBSELECT\fR
+statement whenever it is queried\&.
+.SH "PARAMETERS"
+.PP
+GLOBAL or LOCAL
+.RS 4
+Ignored for compatibility\&. Use of these keywords is deprecated; refer to
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for details\&.
+.RE
+.PP
+TEMPORARY or TEMP
+.RS 4
+If specified, the table is created as a temporary table\&. Refer to
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for details\&.
+.RE
+.PP
+UNLOGGED
+.RS 4
+If specified, the table is created as an unlogged table\&. Refer to
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for details\&.
+.RE
+.PP
+IF NOT EXISTS
+.RS 4
+Do not throw an error if a relation with the same name already exists; simply issue a notice and leave the table unmodified\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the table to be created\&.
+.RE
+.PP
+\fIcolumn_name\fR
+.RS 4
+The name of a column in the new table\&. If column names are not provided, they are taken from the output column names of the query\&.
+.RE
+.PP
+WITH ( \fIstorage_parameter\fR [= \fIvalue\fR] [, \&.\&.\&. ] )
+.RS 4
+This clause specifies optional storage parameters for the new table; see
+Storage Parameters
+for more information\&. The
+WITH
+clause can also include
+OIDS=TRUE
+(or just
+OIDS) to specify that rows of the new table should have OIDs (object identifiers) assigned to them, or
+OIDS=FALSE
+to specify that the rows should not have OIDs\&. See
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for more information\&.
+.RE
+.PP
+WITH OIDS
+.br
+WITHOUT OIDS
+.RS 4
+These are obsolescent syntaxes equivalent to
+WITH (OIDS)
+and
+WITH (OIDS=FALSE), respectively\&. If you wish to give both an
+OIDS
+setting and storage parameters, you must use the
+WITH ( \&.\&.\&. )
+syntax; see above\&.
+.RE
+.PP
+ON COMMIT
+.RS 4
+The behavior of temporary tables at the end of a transaction block can be controlled using
+ON COMMIT\&. The three options are:
+.PP
+PRESERVE ROWS
+.RS 4
+No special action is taken at the ends of transactions\&. This is the default behavior\&.
+.RE
+.PP
+DELETE ROWS
+.RS 4
+All rows in the temporary table will be deleted at the end of each transaction block\&. Essentially, an automatic
+\fBTRUNCATE\fR(7)
+is done at each commit\&.
+.RE
+.PP
+DROP
+.RS 4
+The temporary table will be dropped at the end of the current transaction block\&.
+.RE
+.RE
+.PP
+TABLESPACE \fItablespace_name\fR
+.RS 4
+The
+\fItablespace_name\fR
+is the name of the tablespace in which the new table is to be created\&. If not specified,
+default_tablespace
+is consulted, or
+temp_tablespaces
+if the table is temporary\&.
+.RE
+.PP
+\fIquery\fR
+.RS 4
+A
+\fBSELECT\fR(7),
+TABLE, or
+\fBVALUES\fR(7)
+command, or an
+\fBEXECUTE\fR(7)
+command that runs a prepared
+\fBSELECT\fR,
+\fBTABLE\fR, or
+\fBVALUES\fR
+query\&.
+.RE
+.PP
+WITH [ NO ] DATA
+.RS 4
+This clause specifies whether or not the data produced by the query should be copied into the new table\&. If not, only the table structure is copied\&. The default is to copy the data\&.
+.RE
+.SH "NOTES"
+.PP
+This command is functionally similar to
+SELECT INTO (\fBSELECT_INTO\fR(7)), but it is preferred since it is less likely to be confused with other uses of the
+\fBSELECT INTO\fR
+syntax\&. Furthermore,
+\fBCREATE TABLE AS\fR
+offers a superset of the functionality offered by
+\fBSELECT INTO\fR\&.
+.PP
+The
+\fBCREATE TABLE AS\fR
+command allows the user to explicitly specify whether OIDs should be included\&. If the presence of OIDs is not explicitly specified, the
+default_with_oids
+configuration variable is used\&.
+.SH "EXAMPLES"
+.PP
+Create a new table
+films_recent
+consisting of only recent entries from the table
+films:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TABLE films_recent AS
+  SELECT * FROM films WHERE date_prod >= \*(Aq2002\-01\-01\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To copy a table completely, the short form using the
+TABLE
+command can also be used:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE TABLE films2 AS
+  TABLE films;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a new temporary table
+films_recent, consisting of only recent entries from the table
+films, using a prepared statement\&. The new table has OIDs and will be dropped at commit:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+PREPARE recentfilms(date) AS
+  SELECT * FROM films WHERE date_prod > $1;
+CREATE TEMP TABLE films_recent WITH (OIDS) ON COMMIT DROP AS
+  EXECUTE recentfilms(\*(Aq2002\-01\-01\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE TABLE AS\fR
+conforms to the
+SQL
+standard\&. The following are nonstandard extensions:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The standard requires parentheses around the subquery clause; in
+PostgreSQL, these parentheses are optional\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+In the standard, the
+WITH [ NO ] DATA
+clause is required; in PostgreSQL it is optional\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+PostgreSQL
+handles temporary tables in a way rather different from the standard; see
+CREATE TABLE (\fBCREATE_TABLE\fR(7))
+for details\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The
+WITH
+clause is a
+PostgreSQL
+extension; neither storage parameters nor OIDs are in the standard\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The
+PostgreSQL
+concept of tablespaces is not part of the standard\&. Hence, the clause
+TABLESPACE
+is an extension\&.
+.RE
+.SH "SEE ALSO"
+CREATE MATERIALIZED VIEW (\fBCREATE_MATERIALIZED_VIEW\fR(7)), CREATE TABLE (\fBCREATE_TABLE\fR(7)), \fBEXECUTE\fR(7), \fBSELECT\fR(7), SELECT INTO (\fBSELECT_INTO\fR(7)), \fBVALUES\fR(7)

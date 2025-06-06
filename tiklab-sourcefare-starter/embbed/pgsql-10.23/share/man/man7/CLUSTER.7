@@ -1,0 +1,187 @@
+'\" t
+.\"     Title: CLUSTER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CLUSTER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CLUSTER \- cluster a table according to an index
+.SH "SYNOPSIS"
+.sp
+.nf
+CLUSTER [VERBOSE] \fItable_name\fR [ USING \fIindex_name\fR ]
+CLUSTER [VERBOSE]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCLUSTER\fR
+instructs
+PostgreSQL
+to cluster the table specified by
+\fItable_name\fR
+based on the index specified by
+\fIindex_name\fR\&. The index must already have been defined on
+\fItable_name\fR\&.
+.PP
+When a table is clustered, it is physically reordered based on the index information\&. Clustering is a one\-time operation: when the table is subsequently updated, the changes are not clustered\&. That is, no attempt is made to store new or updated rows according to their index order\&. (If one wishes, one can periodically recluster by issuing the command again\&. Also, setting the table\*(Aqs
+fillfactor
+storage parameter to less than 100% can aid in preserving cluster ordering during updates, since updated rows are kept on the same page if enough space is available there\&.)
+.PP
+When a table is clustered,
+PostgreSQL
+remembers which index it was clustered by\&. The form
+\fBCLUSTER \fR\fB\fItable_name\fR\fR
+reclusters the table using the same index as before\&. You can also use the
+CLUSTER
+or
+SET WITHOUT CLUSTER
+forms of
+ALTER TABLE (\fBALTER_TABLE\fR(7))
+to set the index to be used for future cluster operations, or to clear any previous setting\&.
+.PP
+\fBCLUSTER\fR
+without any parameter reclusters all the previously\-clustered tables in the current database that the calling user owns, or all such tables if called by a superuser\&. This form of
+\fBCLUSTER\fR
+cannot be executed inside a transaction block\&.
+.PP
+When a table is being clustered, an
+ACCESS EXCLUSIVE
+lock is acquired on it\&. This prevents any other database operations (both reads and writes) from operating on the table until the
+\fBCLUSTER\fR
+is finished\&.
+.SH "PARAMETERS"
+.PP
+\fItable_name\fR
+.RS 4
+The name (possibly schema\-qualified) of a table\&.
+.RE
+.PP
+\fIindex_name\fR
+.RS 4
+The name of an index\&.
+.RE
+.PP
+VERBOSE
+.RS 4
+Prints a progress report as each table is clustered\&.
+.RE
+.SH "NOTES"
+.PP
+In cases where you are accessing single rows randomly within a table, the actual order of the data in the table is unimportant\&. However, if you tend to access some data more than others, and there is an index that groups them together, you will benefit from using
+\fBCLUSTER\fR\&. If you are requesting a range of indexed values from a table, or a single indexed value that has multiple rows that match,
+\fBCLUSTER\fR
+will help because once the index identifies the table page for the first row that matches, all other rows that match are probably already on the same table page, and so you save disk accesses and speed up the query\&.
+.PP
+\fBCLUSTER\fR
+can re\-sort the table using either an index scan on the specified index, or (if the index is a b\-tree) a sequential scan followed by sorting\&. It will attempt to choose the method that will be faster, based on planner cost parameters and available statistical information\&.
+.PP
+When an index scan is used, a temporary copy of the table is created that contains the table data in the index order\&. Temporary copies of each index on the table are created as well\&. Therefore, you need free space on disk at least equal to the sum of the table size and the index sizes\&.
+.PP
+When a sequential scan and sort is used, a temporary sort file is also created, so that the peak temporary space requirement is as much as double the table size, plus the index sizes\&. This method is often faster than the index scan method, but if the disk space requirement is intolerable, you can disable this choice by temporarily setting
+enable_sort
+to
+off\&.
+.PP
+It is advisable to set
+maintenance_work_mem
+to a reasonably large value (but not more than the amount of RAM you can dedicate to the
+\fBCLUSTER\fR
+operation) before clustering\&.
+.PP
+Because the planner records statistics about the ordering of tables, it is advisable to run
+\fBANALYZE\fR(7)
+on the newly clustered table\&. Otherwise, the planner might make poor choices of query plans\&.
+.PP
+Because
+\fBCLUSTER\fR
+remembers which indexes are clustered, one can cluster the tables one wants clustered manually the first time, then set up a periodic maintenance script that executes
+\fBCLUSTER\fR
+without any parameters, so that the desired tables are periodically reclustered\&.
+.SH "EXAMPLES"
+.PP
+Cluster the table
+employees
+on the basis of its index
+employees_ind:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CLUSTER employees USING employees_ind;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Cluster the
+employees
+table using the same index that was used before:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CLUSTER employees;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Cluster all tables in the database that have previously been clustered:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CLUSTER;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCLUSTER\fR
+statement in the SQL standard\&.
+.PP
+The syntax
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CLUSTER \fIindex_name\fR ON \fItable_name\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+is also supported for compatibility with pre\-8\&.3
+PostgreSQL
+versions\&.
+.SH "SEE ALSO"
+\fBclusterdb\fR(1)

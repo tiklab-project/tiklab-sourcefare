@@ -1,0 +1,129 @@
+'\" t
+.\"     Title: dblink_fetch
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_FETCH" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_fetch \- returns rows from an open cursor in a remote database
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_fetch(text cursorname, int howmany [, bool fail_on_error]) returns setof record
+dblink_fetch(text connname, text cursorname, int howmany [, bool fail_on_error]) returns setof record
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_fetch\fR
+fetches rows from a cursor previously established by
+\fBdblink_open\fR\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+Name of the connection to use; omit this parameter to use the unnamed connection\&.
+.RE
+.PP
+\fIcursorname\fR
+.RS 4
+The name of the cursor to fetch from\&.
+.RE
+.PP
+\fIhowmany\fR
+.RS 4
+The maximum number of rows to retrieve\&. The next
+\fIhowmany\fR
+rows are fetched, starting at the current cursor position, moving forward\&. Once the cursor has reached its end, no more rows are produced\&.
+.RE
+.PP
+\fIfail_on_error\fR
+.RS 4
+If true (the default when omitted) then an error thrown on the remote side of the connection causes an error to also be thrown locally\&. If false, the remote error is locally reported as a NOTICE, and the function returns no rows\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+The function returns the row(s) fetched from the cursor\&. To use this function, you will need to specify the expected set of columns, as previously discussed for
+\fBdblink\fR\&.
+.SH "NOTES"
+.PP
+On a mismatch between the number of return columns specified in the
+FROM
+clause, and the actual number of columns returned by the remote cursor, an error will be thrown\&. In this event, the remote cursor is still advanced by as many rows as it would have been if the error had not occurred\&. The same is true for any other error occurring in the local query after the remote
+\fBFETCH\fR
+has been done\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_connect(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT dblink_open(\*(Aqfoo\*(Aq, \*(Aqselect proname, prosrc from pg_proc where proname like \*(Aq\*(Aqbytea%\*(Aq\*(Aq\*(Aq);
+ dblink_open
+\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT * FROM dblink_fetch(\*(Aqfoo\*(Aq, 5) AS (funcname name, source text);
+ funcname |  source
+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-
+ byteacat | byteacat
+ byteacmp | byteacmp
+ byteaeq  | byteaeq
+ byteage  | byteage
+ byteagt  | byteagt
+(5 rows)
+
+SELECT * FROM dblink_fetch(\*(Aqfoo\*(Aq, 5) AS (funcname name, source text);
+ funcname  |  source
+\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-
+ byteain   | byteain
+ byteale   | byteale
+ bytealike | bytealike
+ bytealt   | bytealt
+ byteane   | byteane
+(5 rows)
+
+SELECT * FROM dblink_fetch(\*(Aqfoo\*(Aq, 5) AS (funcname name, source text);
+  funcname  |   source
+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-
+ byteanlike | byteanlike
+ byteaout   | byteaout
+(2 rows)
+
+SELECT * FROM dblink_fetch(\*(Aqfoo\*(Aq, 5) AS (funcname name, source text);
+ funcname | source
+\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-
+(0 rows)
+.fi
+.if n \{\
+.RE
+.\}

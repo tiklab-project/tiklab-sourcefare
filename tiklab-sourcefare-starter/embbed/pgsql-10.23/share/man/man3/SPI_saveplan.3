@@ -1,0 +1,80 @@
+'\" t
+.\"     Title: SPI_saveplan
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_SAVEPLAN" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_saveplan \- save a prepared statement
+.SH "SYNOPSIS"
+.sp
+.nf
+SPIPlanPtr SPI_saveplan(SPIPlanPtr \fIplan\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_saveplan\fR
+copies a passed statement (prepared by
+\fBSPI_prepare\fR) into memory that will not be freed by
+\fBSPI_finish\fR
+nor by the transaction manager, and returns a pointer to the copied statement\&. This gives you the ability to reuse prepared statements in the subsequent invocations of your procedure in the current session\&.
+.SH "ARGUMENTS"
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+the prepared statement to be saved
+.RE
+.SH "RETURN VALUE"
+.PP
+Pointer to the copied statement; or
+NULL
+if unsuccessful\&. On error,
+\fISPI_result\fR
+is set thus:
+.PP
+SPI_ERROR_ARGUMENT
+.RS 4
+if
+\fIplan\fR
+is
+NULL
+or invalid
+.RE
+.PP
+SPI_ERROR_UNCONNECTED
+.RS 4
+if called from an unconnected procedure
+.RE
+.SH "NOTES"
+.PP
+The originally passed\-in statement is not freed, so you might wish to do
+\fBSPI_freeplan\fR
+on it to avoid leaking memory until
+\fBSPI_finish\fR\&.
+.PP
+In most cases,
+\fBSPI_keepplan\fR
+is preferred to this function, since it accomplishes largely the same result without needing to physically copy the prepared statement\*(Aqs data structures\&.

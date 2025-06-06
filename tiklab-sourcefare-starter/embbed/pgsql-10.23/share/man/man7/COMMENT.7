@@ -1,0 +1,308 @@
+'\" t
+.\"     Title: COMMENT
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "COMMENT" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+COMMENT \- define or change the comment of an object
+.SH "SYNOPSIS"
+.sp
+.nf
+COMMENT ON
+{
+  ACCESS METHOD \fIobject_name\fR |
+  AGGREGATE \fIaggregate_name\fR ( \fIaggregate_signature\fR ) |
+  CAST (\fIsource_type\fR AS \fItarget_type\fR) |
+  COLLATION \fIobject_name\fR |
+  COLUMN \fIrelation_name\fR\&.\fIcolumn_name\fR |
+  CONSTRAINT \fIconstraint_name\fR ON \fItable_name\fR |
+  CONSTRAINT \fIconstraint_name\fR ON DOMAIN \fIdomain_name\fR |
+  CONVERSION \fIobject_name\fR |
+  DATABASE \fIobject_name\fR |
+  DOMAIN \fIobject_name\fR |
+  EXTENSION \fIobject_name\fR |
+  EVENT TRIGGER \fIobject_name\fR |
+  FOREIGN DATA WRAPPER \fIobject_name\fR |
+  FOREIGN TABLE \fIobject_name\fR |
+  FUNCTION \fIfunction_name\fR [ ( [ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [, \&.\&.\&.] ] ) ] |
+  INDEX \fIobject_name\fR |
+  LARGE OBJECT \fIlarge_object_oid\fR |
+  MATERIALIZED VIEW \fIobject_name\fR |
+  OPERATOR \fIoperator_name\fR (\fIleft_type\fR, \fIright_type\fR) |
+  OPERATOR CLASS \fIobject_name\fR USING \fIindex_method\fR |
+  OPERATOR FAMILY \fIobject_name\fR USING \fIindex_method\fR |
+  POLICY \fIpolicy_name\fR ON \fItable_name\fR |
+  [ PROCEDURAL ] LANGUAGE \fIobject_name\fR |
+  PUBLICATION \fIobject_name\fR |
+  ROLE \fIobject_name\fR |
+  RULE \fIrule_name\fR ON \fItable_name\fR |
+  SCHEMA \fIobject_name\fR |
+  SEQUENCE \fIobject_name\fR |
+  SERVER \fIobject_name\fR |
+  STATISTICS \fIobject_name\fR |
+  SUBSCRIPTION \fIobject_name\fR |
+  TABLE \fIobject_name\fR |
+  TABLESPACE \fIobject_name\fR |
+  TEXT SEARCH CONFIGURATION \fIobject_name\fR |
+  TEXT SEARCH DICTIONARY \fIobject_name\fR |
+  TEXT SEARCH PARSER \fIobject_name\fR |
+  TEXT SEARCH TEMPLATE \fIobject_name\fR |
+  TRANSFORM FOR \fItype_name\fR LANGUAGE \fIlang_name\fR |
+  TRIGGER \fItrigger_name\fR ON \fItable_name\fR |
+  TYPE \fIobject_name\fR |
+  VIEW \fIobject_name\fR
+} IS \*(Aq\fItext\fR\*(Aq
+
+where \fIaggregate_signature\fR is:
+
+* |
+[ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] |
+[ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] ] ORDER BY [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCOMMENT\fR
+stores a comment about a database object\&.
+.PP
+Only one comment string is stored for each object, so to modify a comment, issue a new
+\fBCOMMENT\fR
+command for the same object\&. To remove a comment, write
+NULL
+in place of the text string\&. Comments are automatically dropped when their object is dropped\&.
+.PP
+A
+SHARE UPDATE EXCLUSIVE
+lock is acquired on the object to be commented\&.
+.PP
+For most kinds of object, only the object\*(Aqs owner can set the comment\&. Roles don\*(Aqt have owners, so the rule for
+COMMENT ON ROLE
+is that you must be superuser to comment on a superuser role, or have the
+CREATEROLE
+privilege to comment on non\-superuser roles\&. Likewise, access methods don\*(Aqt have owners either; you must be superuser to comment on an access method\&. Of course, a superuser can comment on anything\&.
+.PP
+Comments can be viewed using
+psql\*(Aqs
+\fB\ed\fR
+family of commands\&. Other user interfaces to retrieve comments can be built atop the same built\-in functions that
+psql
+uses, namely
+\fBobj_description\fR,
+\fBcol_description\fR, and
+\fBshobj_description\fR
+(see
+Table\ \&9.68)\&.
+.SH "PARAMETERS"
+.PP
+\fIobject_name\fR
+.br
+\fIrelation_name\fR\&.\fIcolumn_name\fR
+.br
+\fIaggregate_name\fR
+.br
+\fIconstraint_name\fR
+.br
+\fIfunction_name\fR
+.br
+\fIoperator_name\fR
+.br
+\fIpolicy_name\fR
+.br
+\fIrule_name\fR
+.br
+\fItrigger_name\fR
+.RS 4
+The name of the object to be commented\&. Names of tables, aggregates, collations, conversions, domains, foreign tables, functions, indexes, operators, operator classes, operator families, sequences, statistics, text search objects, types, and views can be schema\-qualified\&. When commenting on a column,
+\fIrelation_name\fR
+must refer to a table, view, composite type, or foreign table\&.
+.RE
+.PP
+\fItable_name\fR
+.br
+\fIdomain_name\fR
+.RS 4
+When creating a comment on a constraint, a trigger, a rule or a policy these parameters specify the name of the table or domain on which that object is defined\&.
+.RE
+.PP
+\fIsource_type\fR
+.RS 4
+The name of the source data type of the cast\&.
+.RE
+.PP
+\fItarget_type\fR
+.RS 4
+The name of the target data type of the cast\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of a function or aggregate argument:
+IN,
+OUT,
+INOUT, or
+VARIADIC\&. If omitted, the default is
+IN\&. Note that
+\fBCOMMENT\fR
+does not actually pay any attention to
+OUT
+arguments, since only the input arguments are needed to determine the function\*(Aqs identity\&. So it is sufficient to list the
+IN,
+INOUT, and
+VARIADIC
+arguments\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of a function or aggregate argument\&. Note that
+\fBCOMMENT\fR
+does not actually pay any attention to argument names, since only the argument data types are needed to determine the function\*(Aqs identity\&.
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+The data type of a function or aggregate argument\&.
+.RE
+.PP
+\fIlarge_object_oid\fR
+.RS 4
+The OID of the large object\&.
+.RE
+.PP
+\fIleft_type\fR
+.br
+\fIright_type\fR
+.RS 4
+The data type(s) of the operator\*(Aqs arguments (optionally schema\-qualified)\&. Write
+NONE
+for the missing argument of a prefix or postfix operator\&.
+.RE
+.PP
+PROCEDURAL
+.RS 4
+This is a noise word\&.
+.RE
+.PP
+\fItype_name\fR
+.RS 4
+The name of the data type of the transform\&.
+.RE
+.PP
+\fIlang_name\fR
+.RS 4
+The name of the language of the transform\&.
+.RE
+.PP
+\fItext\fR
+.RS 4
+The new comment, written as a string literal; or
+NULL
+to drop the comment\&.
+.RE
+.SH "NOTES"
+.PP
+There is presently no security mechanism for viewing comments: any user connected to a database can see all the comments for objects in that database\&. For shared objects such as databases, roles, and tablespaces, comments are stored globally so any user connected to any database in the cluster can see all the comments for shared objects\&. Therefore, don\*(Aqt put security\-critical information in comments\&.
+.SH "EXAMPLES"
+.PP
+Attach a comment to the table
+mytable:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+COMMENT ON TABLE mytable IS \*(AqThis is my table\&.\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Remove it again:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+COMMENT ON TABLE mytable IS NULL;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Some more examples:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+COMMENT ON ACCESS METHOD rtree IS \*(AqR\-Tree access method\*(Aq;
+COMMENT ON AGGREGATE my_aggregate (double precision) IS \*(AqComputes sample variance\*(Aq;
+COMMENT ON CAST (text AS int4) IS \*(AqAllow casts from text to int4\*(Aq;
+COMMENT ON COLLATION "fr_CA" IS \*(AqCanadian French\*(Aq;
+COMMENT ON COLUMN my_table\&.my_column IS \*(AqEmployee ID number\*(Aq;
+COMMENT ON CONVERSION my_conv IS \*(AqConversion to UTF8\*(Aq;
+COMMENT ON CONSTRAINT bar_col_cons ON bar IS \*(AqConstrains column col\*(Aq;
+COMMENT ON CONSTRAINT dom_col_constr ON DOMAIN dom IS \*(AqConstrains col of domain\*(Aq;
+COMMENT ON DATABASE my_database IS \*(AqDevelopment Database\*(Aq;
+COMMENT ON DOMAIN my_domain IS \*(AqEmail Address Domain\*(Aq;
+COMMENT ON EXTENSION hstore IS \*(Aqimplements the hstore data type\*(Aq;
+COMMENT ON FOREIGN DATA WRAPPER mywrapper IS \*(Aqmy foreign data wrapper\*(Aq;
+COMMENT ON FOREIGN TABLE my_foreign_table IS \*(AqEmployee Information in other database\*(Aq;
+COMMENT ON FUNCTION my_function (timestamp) IS \*(AqReturns Roman Numeral\*(Aq;
+COMMENT ON INDEX my_index IS \*(AqEnforces uniqueness on employee ID\*(Aq;
+COMMENT ON LANGUAGE plpython IS \*(AqPython support for stored procedures\*(Aq;
+COMMENT ON LARGE OBJECT 346344 IS \*(AqPlanning document\*(Aq;
+COMMENT ON MATERIALIZED VIEW my_matview IS \*(AqSummary of order history\*(Aq;
+COMMENT ON OPERATOR ^ (text, text) IS \*(AqPerforms intersection of two texts\*(Aq;
+COMMENT ON OPERATOR \- (NONE, integer) IS \*(AqUnary minus\*(Aq;
+COMMENT ON OPERATOR CLASS int4ops USING btree IS \*(Aq4 byte integer operators for btrees\*(Aq;
+COMMENT ON OPERATOR FAMILY integer_ops USING btree IS \*(Aqall integer operators for btrees\*(Aq;
+COMMENT ON POLICY my_policy ON mytable IS \*(AqFilter rows by users\*(Aq;
+COMMENT ON ROLE my_role IS \*(AqAdministration group for finance tables\*(Aq;
+COMMENT ON RULE my_rule ON my_table IS \*(AqLogs updates of employee records\*(Aq;
+COMMENT ON SCHEMA my_schema IS \*(AqDepartmental data\*(Aq;
+COMMENT ON SEQUENCE my_sequence IS \*(AqUsed to generate primary keys\*(Aq;
+COMMENT ON SERVER myserver IS \*(Aqmy foreign server\*(Aq;
+COMMENT ON STATISTICS my_statistics IS \*(AqImproves planner row estimations\*(Aq;
+COMMENT ON TABLE my_schema\&.my_table IS \*(AqEmployee Information\*(Aq;
+COMMENT ON TABLESPACE my_tablespace IS \*(AqTablespace for indexes\*(Aq;
+COMMENT ON TEXT SEARCH CONFIGURATION my_config IS \*(AqSpecial word filtering\*(Aq;
+COMMENT ON TEXT SEARCH DICTIONARY swedish IS \*(AqSnowball stemmer for Swedish language\*(Aq;
+COMMENT ON TEXT SEARCH PARSER my_parser IS \*(AqSplits text into words\*(Aq;
+COMMENT ON TEXT SEARCH TEMPLATE snowball IS \*(AqSnowball stemmer\*(Aq;
+COMMENT ON TRANSFORM FOR hstore LANGUAGE plpythonu IS \*(AqTransform between hstore and Python dict\*(Aq;
+COMMENT ON TRIGGER my_trigger ON my_table IS \*(AqUsed for RI\*(Aq;
+COMMENT ON TYPE complex IS \*(AqComplex number data type\*(Aq;
+COMMENT ON VIEW my_view IS \*(AqView of departmental costs\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCOMMENT\fR
+command in the SQL standard\&.

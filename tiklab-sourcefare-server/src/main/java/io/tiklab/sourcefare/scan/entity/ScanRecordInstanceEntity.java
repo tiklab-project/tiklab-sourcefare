@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 * 扫描记录的实例
 * */
 @Entity
-@Table(name="scan_record_instance")
+@Table(name="wair_scan_record_instance")
 public class ScanRecordInstanceEntity {
     @Id
     @GeneratorValue(length=12)

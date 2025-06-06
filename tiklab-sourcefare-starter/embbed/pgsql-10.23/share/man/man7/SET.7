@@ -1,0 +1,306 @@
+'\" t
+.\"     Title: SET
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SET" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SET \- change a run\-time parameter
+.SH "SYNOPSIS"
+.sp
+.nf
+SET [ SESSION | LOCAL ] \fIconfiguration_parameter\fR { TO | = } { \fIvalue\fR | \*(Aq\fIvalue\fR\*(Aq | DEFAULT }
+SET [ SESSION | LOCAL ] TIME ZONE { \fIvalue\fR | \*(Aq\fIvalue\fR\*(Aq | LOCAL | DEFAULT }
+.fi
+.SH "DESCRIPTION"
+.PP
+The
+\fBSET\fR
+command changes run\-time configuration parameters\&. Many of the run\-time parameters listed in
+Chapter\ \&19
+can be changed on\-the\-fly with
+\fBSET\fR\&. (But some require superuser privileges to change, and others cannot be changed after server or session start\&.)
+\fBSET\fR
+only affects the value used by the current session\&.
+.PP
+If
+\fBSET\fR
+(or equivalently
+\fBSET SESSION\fR) is issued within a transaction that is later aborted, the effects of the
+\fBSET\fR
+command disappear when the transaction is rolled back\&. Once the surrounding transaction is committed, the effects will persist until the end of the session, unless overridden by another
+\fBSET\fR\&.
+.PP
+The effects of
+\fBSET LOCAL\fR
+last only till the end of the current transaction, whether committed or not\&. A special case is
+\fBSET\fR
+followed by
+\fBSET LOCAL\fR
+within a single transaction: the
+\fBSET LOCAL\fR
+value will be seen until the end of the transaction, but afterwards (if the transaction is committed) the
+\fBSET\fR
+value will take effect\&.
+.PP
+The effects of
+\fBSET\fR
+or
+\fBSET LOCAL\fR
+are also canceled by rolling back to a savepoint that is earlier than the command\&.
+.PP
+If
+\fBSET LOCAL\fR
+is used within a function that has a
+SET
+option for the same variable (see
+CREATE FUNCTION (\fBCREATE_FUNCTION\fR(7))), the effects of the
+\fBSET LOCAL\fR
+command disappear at function exit; that is, the value in effect when the function was called is restored anyway\&. This allows
+\fBSET LOCAL\fR
+to be used for dynamic or repeated changes of a parameter within a function, while still having the convenience of using the
+SET
+option to save and restore the caller\*(Aqs value\&. However, a regular
+\fBSET\fR
+command overrides any surrounding function\*(Aqs
+SET
+option; its effects will persist unless rolled back\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+In
+PostgreSQL
+versions 8\&.0 through 8\&.2, the effects of a
+\fBSET LOCAL\fR
+would be canceled by releasing an earlier savepoint, or by successful exit from a
+PL/pgSQL
+exception block\&. This behavior has been changed because it was deemed unintuitive\&.
+.sp .5v
+.RE
+.SH "PARAMETERS"
+.PP
+SESSION
+.RS 4
+Specifies that the command takes effect for the current session\&. (This is the default if neither
+SESSION
+nor
+LOCAL
+appears\&.)
+.RE
+.PP
+LOCAL
+.RS 4
+Specifies that the command takes effect for only the current transaction\&. After
+\fBCOMMIT\fR
+or
+\fBROLLBACK\fR, the session\-level setting takes effect again\&. Issuing this outside of a transaction block emits a warning and otherwise has no effect\&.
+.RE
+.PP
+\fIconfiguration_parameter\fR
+.RS 4
+Name of a settable run\-time parameter\&. Available parameters are documented in
+Chapter\ \&19
+and below\&.
+.RE
+.PP
+\fIvalue\fR
+.RS 4
+New value of parameter\&. Values can be specified as string constants, identifiers, numbers, or comma\-separated lists of these, as appropriate for the particular parameter\&.
+DEFAULT
+can be written to specify resetting the parameter to its default value (that is, whatever value it would have had if no
+\fBSET\fR
+had been executed in the current session)\&.
+.RE
+.PP
+Besides the configuration parameters documented in
+Chapter\ \&19, there are a few that can only be adjusted using the
+\fBSET\fR
+command or that have a special syntax:
+.PP
+SCHEMA
+.RS 4
+SET SCHEMA \*(Aq\fIvalue\fR\*(Aq
+is an alias for
+SET search_path TO \fIvalue\fR\&. Only one schema can be specified using this syntax\&.
+.RE
+.PP
+NAMES
+.RS 4
+SET NAMES \fIvalue\fR
+is an alias for
+SET client_encoding TO \fIvalue\fR\&.
+.RE
+.PP
+SEED
+.RS 4
+Sets the internal seed for the random number generator (the function
+\fBrandom\fR)\&. Allowed values are floating\-point numbers between \-1 and 1, which are then multiplied by 2^31\-1\&.
+.sp
+The seed can also be set by invoking the function
+\fBsetseed\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT setseed(\fIvalue\fR);
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+TIME ZONE
+.RS 4
+SET TIME ZONE \*(Aq\fIvalue\fR\*(Aq
+is an alias for
+SET timezone TO \*(Aq\fIvalue\fR\*(Aq\&. The syntax
+SET TIME ZONE
+allows special syntax for the time zone specification\&. Here are examples of valid values:
+.PP
+\*(AqPST8PDT\*(Aq
+.RS 4
+The time zone for Berkeley, California\&.
+.RE
+.PP
+\*(AqEurope/Rome\*(Aq
+.RS 4
+The time zone for Italy\&.
+.RE
+.PP
+\-7
+.RS 4
+The time zone 7 hours west from UTC (equivalent to PDT)\&. Positive values are east from UTC\&.
+.RE
+.PP
+INTERVAL \*(Aq\-08:00\*(Aq HOUR TO MINUTE
+.RS 4
+The time zone 8 hours west from UTC (equivalent to PST)\&.
+.RE
+.PP
+LOCAL
+.br
+DEFAULT
+.RS 4
+Set the time zone to your local time zone (that is, the server\*(Aqs default value of
+\fItimezone\fR)\&.
+.RE
+.sp
+Timezone settings given as numbers or intervals are internally translated to POSIX timezone syntax\&. For example, after
+SET TIME ZONE \-7,
+\fBSHOW TIME ZONE\fR
+would report
+<\-07>+07\&.
+.sp
+Time zone abbreviations are not supported by
+\fBSET\fR; see
+Section\ \&8.5.3
+for more information about time zones\&.
+.RE
+.SH "NOTES"
+.PP
+The function
+\fBset_config\fR
+provides equivalent functionality; see
+Section\ \&9.26\&. Also, it is possible to UPDATE the
+pg_settings
+system view to perform the equivalent of
+\fBSET\fR\&.
+.SH "EXAMPLES"
+.PP
+Set the schema search path:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SET search_path TO my_schema, public;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Set the style of date to traditional
+POSTGRES
+with
+\(lqday before month\(rq
+input convention:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SET datestyle TO postgres, dmy;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Set the time zone for Berkeley, California:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SET TIME ZONE \*(AqPST8PDT\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Set the time zone for Italy:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SET TIME ZONE \*(AqEurope/Rome\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+SET TIME ZONE
+extends syntax defined in the SQL standard\&. The standard allows only numeric time zone offsets while
+PostgreSQL
+allows more flexible time\-zone specifications\&. All other
+SET
+features are
+PostgreSQL
+extensions\&.
+.SH "SEE ALSO"
+\fBRESET\fR(7), \fBSHOW\fR(7)

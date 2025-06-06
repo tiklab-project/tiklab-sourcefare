@@ -1,0 +1,320 @@
+'\" t
+.\"     Title: DELETE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DELETE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DELETE \- delete rows of a table
+.SH "SYNOPSIS"
+.sp
+.nf
+[ WITH [ RECURSIVE ] \fIwith_query\fR [, \&.\&.\&.] ]
+DELETE FROM [ ONLY ] \fItable_name\fR [ * ] [ [ AS ] \fIalias\fR ]
+    [ USING \fIfrom_item\fR [, \&.\&.\&.] ]
+    [ WHERE \fIcondition\fR | WHERE CURRENT OF \fIcursor_name\fR ]
+    [ RETURNING * | \fIoutput_expression\fR [ [ AS ] \fIoutput_name\fR ] [, \&.\&.\&.] ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDELETE\fR
+deletes rows that satisfy the
+WHERE
+clause from the specified table\&. If the
+WHERE
+clause is absent, the effect is to delete all rows in the table\&. The result is a valid, but empty table\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBTip\fR
+.ps -1
+.br
+.PP
+\fBTRUNCATE\fR(7)
+provides a faster mechanism to remove all rows from a table\&.
+.sp .5v
+.RE
+.PP
+There are two ways to delete rows in a table using information contained in other tables in the database: using sub\-selects, or specifying additional tables in the
+USING
+clause\&. Which technique is more appropriate depends on the specific circumstances\&.
+.PP
+The optional
+RETURNING
+clause causes
+\fBDELETE\fR
+to compute and return value(s) based on each row actually deleted\&. Any expression using the table\*(Aqs columns, and/or columns of other tables mentioned in
+USING, can be computed\&. The syntax of the
+RETURNING
+list is identical to that of the output list of
+\fBSELECT\fR\&.
+.PP
+You must have the
+DELETE
+privilege on the table to delete from it, as well as the
+SELECT
+privilege for any table in the
+USING
+clause or whose values are read in the
+\fIcondition\fR\&.
+.SH "PARAMETERS"
+.PP
+\fIwith_query\fR
+.RS 4
+The
+WITH
+clause allows you to specify one or more subqueries that can be referenced by name in the
+\fBDELETE\fR
+query\&. See
+Section\ \&7.8
+and
+\fBSELECT\fR(7)
+for details\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name (optionally schema\-qualified) of the table to delete rows from\&. If
+ONLY
+is specified before the table name, matching rows are deleted from the named table only\&. If
+ONLY
+is not specified, matching rows are also deleted from any tables inheriting from the named table\&. Optionally,
+*
+can be specified after the table name to explicitly indicate that descendant tables are included\&.
+.RE
+.PP
+\fIalias\fR
+.RS 4
+A substitute name for the target table\&. When an alias is provided, it completely hides the actual name of the table\&. For example, given
+DELETE FROM foo AS f, the remainder of the
+\fBDELETE\fR
+statement must refer to this table as
+f
+not
+foo\&.
+.RE
+.PP
+\fIfrom_item\fR
+.RS 4
+A table expression allowing columns from other tables to appear in the
+WHERE
+condition\&. This uses the same syntax as the
+FROM Clause
+of a
+\fBSELECT\fR
+statement; for example, an alias for the table name can be specified\&. Do not repeat the target table as a
+\fIfrom_item\fR
+unless you wish to set up a self\-join (in which case it must appear with an alias in the
+\fIfrom_item\fR)\&.
+.RE
+.PP
+\fIcondition\fR
+.RS 4
+An expression that returns a value of type
+boolean\&. Only rows for which this expression returns
+true
+will be deleted\&.
+.RE
+.PP
+\fIcursor_name\fR
+.RS 4
+The name of the cursor to use in a
+WHERE CURRENT OF
+condition\&. The row to be deleted is the one most recently fetched from this cursor\&. The cursor must be a non\-grouping query on the
+\fBDELETE\fR\*(Aqs target table\&. Note that
+WHERE CURRENT OF
+cannot be specified together with a Boolean condition\&. See
+\fBDECLARE\fR(7)
+for more information about using cursors with
+WHERE CURRENT OF\&.
+.RE
+.PP
+\fIoutput_expression\fR
+.RS 4
+An expression to be computed and returned by the
+\fBDELETE\fR
+command after each row is deleted\&. The expression can use any column names of the table named by
+\fItable_name\fR
+or table(s) listed in
+USING\&. Write
+*
+to return all columns\&.
+.RE
+.PP
+\fIoutput_name\fR
+.RS 4
+A name to use for a returned column\&.
+.RE
+.SH "OUTPUTS"
+.PP
+On successful completion, a
+\fBDELETE\fR
+command returns a command tag of the form
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE \fIcount\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The
+\fIcount\fR
+is the number of rows deleted\&. Note that the number may be less than the number of rows that matched the
+\fIcondition\fR
+when deletes were suppressed by a
+BEFORE DELETE
+trigger\&. If
+\fIcount\fR
+is 0, no rows were deleted by the query (this is not considered an error)\&.
+.PP
+If the
+\fBDELETE\fR
+command contains a
+RETURNING
+clause, the result will be similar to that of a
+\fBSELECT\fR
+statement containing the columns and values defined in the
+RETURNING
+list, computed over the row(s) deleted by the command\&.
+.SH "NOTES"
+.PP
+PostgreSQL
+lets you reference columns of other tables in the
+WHERE
+condition by specifying the other tables in the
+USING
+clause\&. For example, to delete all films produced by a given producer, one can do:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE FROM films USING producers
+  WHERE producer_id = producers\&.id AND producers\&.name = \*(Aqfoo\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+What is essentially happening here is a join between
+films
+and
+producers, with all successfully joined
+films
+rows being marked for deletion\&. This syntax is not standard\&. A more standard way to do it is:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE FROM films
+  WHERE producer_id IN (SELECT id FROM producers WHERE name = \*(Aqfoo\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+In some cases the join style is easier to write or faster to execute than the sub\-select style\&.
+.SH "EXAMPLES"
+.PP
+Delete all films but musicals:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE FROM films WHERE kind <> \*(AqMusical\*(Aq;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Clear the table
+films:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE FROM films;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Delete completed tasks, returning full details of the deleted rows:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE FROM tasks WHERE status = \*(AqDONE\*(Aq RETURNING *;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Delete the row of
+tasks
+on which the cursor
+c_tasks
+is currently positioned:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DELETE FROM tasks WHERE CURRENT OF c_tasks;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+This command conforms to the
+SQL
+standard, except that the
+USING
+and
+RETURNING
+clauses are
+PostgreSQL
+extensions, as is the ability to use
+WITH
+with
+\fBDELETE\fR\&.
+.SH "SEE ALSO"
+\fBTRUNCATE\fR(7)

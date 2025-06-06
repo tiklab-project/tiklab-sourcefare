@@ -1,0 +1,108 @@
+'\" t
+.\"     Title: ALTER TRIGGER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER TRIGGER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_TRIGGER \- change the definition of a trigger
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER TRIGGER \fIname\fR ON \fItable_name\fR RENAME TO \fInew_name\fR
+ALTER TRIGGER \fIname\fR ON \fItable_name\fR DEPENDS ON EXTENSION \fIextension_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER TRIGGER\fR
+changes properties of an existing trigger\&. The
+RENAME
+clause changes the name of the given trigger without otherwise changing the trigger definition\&. The
+DEPENDS ON EXTENSION
+clause marks the trigger as dependent on an extension, such that if the extension is dropped, the trigger will automatically be dropped as well\&.
+.PP
+You must own the table on which the trigger acts to be allowed to change its properties\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing trigger to alter\&.
+.RE
+.PP
+\fItable_name\fR
+.RS 4
+The name of the table on which this trigger acts\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name for the trigger\&.
+.RE
+.PP
+\fIextension_name\fR
+.RS 4
+The name of the extension that the trigger is to depend on\&.
+.RE
+.SH "NOTES"
+.PP
+The ability to temporarily enable or disable a trigger is provided by
+ALTER TABLE (\fBALTER_TABLE\fR(7)), not by
+\fBALTER TRIGGER\fR, because
+\fBALTER TRIGGER\fR
+has no convenient way to express the option of enabling or disabling all of a table\*(Aqs triggers at once\&.
+.SH "EXAMPLES"
+.PP
+To rename an existing trigger:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TRIGGER emp_stamp ON emp RENAME TO emp_track_chgs;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To mark a trigger as being dependent on an extension:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER TRIGGER emp_stamp ON emp DEPENDS ON EXTENSION emplib;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBALTER TRIGGER\fR
+is a
+PostgreSQL
+extension of the SQL standard\&.
+.SH "SEE ALSO"
+ALTER TABLE (\fBALTER_TABLE\fR(7))

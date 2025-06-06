@@ -1,0 +1,71 @@
+'\" t
+.\"     Title: dblink_send_query
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_SEND_QUERY" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_send_query \- sends an async query to a remote database
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_send_query(text connname, text sql) returns int
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_send_query\fR
+sends a query to be executed asynchronously, that is, without immediately waiting for the result\&. There must not be an async query already in progress on the connection\&.
+.PP
+After successfully dispatching an async query, completion status can be checked with
+\fBdblink_is_busy\fR, and the results are ultimately collected with
+\fBdblink_get_result\fR\&. It is also possible to attempt to cancel an active async query using
+\fBdblink_cancel_query\fR\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+Name of the connection to use\&.
+.RE
+.PP
+\fIsql\fR
+.RS 4
+The SQL statement that you wish to execute in the remote database, for example
+select * from pg_class\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+Returns 1 if the query was successfully dispatched, 0 otherwise\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_send_query(\*(Aqdtest1\*(Aq, \*(AqSELECT * FROM foo WHERE f1 < 3\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}

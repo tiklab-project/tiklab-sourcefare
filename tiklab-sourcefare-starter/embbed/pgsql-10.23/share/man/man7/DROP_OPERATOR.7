@@ -1,0 +1,141 @@
+'\" t
+.\"     Title: DROP OPERATOR
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP OPERATOR" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_OPERATOR \- remove an operator
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP OPERATOR [ IF EXISTS ] \fIname\fR ( { \fIleft_type\fR | NONE } , { \fIright_type\fR | NONE } ) [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP OPERATOR\fR
+drops an existing operator from the database system\&. To execute this command you must be the owner of the operator\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the operator does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing operator\&.
+.RE
+.PP
+\fIleft_type\fR
+.RS 4
+The data type of the operator\*(Aqs left operand; write
+NONE
+if the operator has no left operand\&.
+.RE
+.PP
+\fIright_type\fR
+.RS 4
+The data type of the operator\*(Aqs right operand; write
+NONE
+if the operator has no right operand\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the operator (such as views using it), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the operator if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Remove the power operator
+a^b
+for type
+integer:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP OPERATOR ^ (integer, integer);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Remove the left unary bitwise complement operator
+~b
+for type
+bit:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP OPERATOR ~ (none, bit);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Remove the right unary factorial operator
+x!
+for type
+bigint:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP OPERATOR ! (bigint, none);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Remove multiple operators in one command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP OPERATOR ~ (none, bit), ! (bigint, none);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBDROP OPERATOR\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE OPERATOR (\fBCREATE_OPERATOR\fR(7)), ALTER OPERATOR (\fBALTER_OPERATOR\fR(7))

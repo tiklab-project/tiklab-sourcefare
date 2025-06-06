@@ -1,0 +1,87 @@
+'\" t
+.\"     Title: DROP FOREIGN TABLE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP FOREIGN TABLE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_FOREIGN_TABLE \- remove a foreign table
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP FOREIGN TABLE [ IF EXISTS ] \fIname\fR [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP FOREIGN TABLE\fR
+removes a foreign table\&. Only the owner of a foreign table can remove it\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the foreign table does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of the foreign table to drop\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the foreign table (such as views), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the foreign table if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To destroy two foreign tables,
+films
+and
+distributors:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP FOREIGN TABLE films, distributors;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+This command conforms to the ISO/IEC 9075\-9 (SQL/MED), except that the standard only allows one foreign table to be dropped per command, and apart from the
+IF EXISTS
+option, which is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+ALTER FOREIGN TABLE (\fBALTER_FOREIGN_TABLE\fR(7)), CREATE FOREIGN TABLE (\fBCREATE_FOREIGN_TABLE\fR(7))

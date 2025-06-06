@@ -1,0 +1,299 @@
+'\" t
+.\"     Title: REVOKE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "REVOKE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+REVOKE \- remove access privileges
+.SH "SYNOPSIS"
+.sp
+.nf
+REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }
+    [, \&.\&.\&.] | ALL [ PRIVILEGES ] }
+    ON { [ TABLE ] \fItable_name\fR [, \&.\&.\&.]
+         | ALL TABLES IN SCHEMA \fIschema_name\fR [, \&.\&.\&.] }
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | INSERT | UPDATE | REFERENCES } ( \fIcolumn_name\fR [, \&.\&.\&.] )
+    [, \&.\&.\&.] | ALL [ PRIVILEGES ] ( \fIcolumn_name\fR [, \&.\&.\&.] ) }
+    ON [ TABLE ] \fItable_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { USAGE | SELECT | UPDATE }
+    [, \&.\&.\&.] | ALL [ PRIVILEGES ] }
+    ON { SEQUENCE \fIsequence_name\fR [, \&.\&.\&.]
+         | ALL SEQUENCES IN SCHEMA \fIschema_name\fR [, \&.\&.\&.] }
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { CREATE | CONNECT | TEMPORARY | TEMP } [, \&.\&.\&.] | ALL [ PRIVILEGES ] }
+    ON DATABASE \fIdatabase_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON DOMAIN \fIdomain_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON FOREIGN DATA WRAPPER \fIfdw_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON FOREIGN SERVER \fIserver_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { EXECUTE | ALL [ PRIVILEGES ] }
+    ON { FUNCTION \fIfunction_name\fR [ ( [ [ \fIargmode\fR ] [ \fIarg_name\fR ] \fIarg_type\fR [, \&.\&.\&.] ] ) ] [, \&.\&.\&.]
+         | ALL FUNCTIONS IN SCHEMA \fIschema_name\fR [, \&.\&.\&.] }
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON LANGUAGE \fIlang_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | UPDATE } [, \&.\&.\&.] | ALL [ PRIVILEGES ] }
+    ON LARGE OBJECT \fIloid\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { CREATE | USAGE } [, \&.\&.\&.] | ALL [ PRIVILEGES ] }
+    ON SCHEMA \fIschema_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { CREATE | ALL [ PRIVILEGES ] }
+    ON TABLESPACE \fItablespace_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON TYPE \fItype_name\fR [, \&.\&.\&.]
+    FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ ADMIN OPTION FOR ]
+    \fIrole_name\fR [, \&.\&.\&.] FROM \fIrole_specification\fR [, \&.\&.\&.]
+    [ GRANTED BY \fIrole_specification\fR ]
+    [ CASCADE | RESTRICT ]
+
+where \fIrole_specification\fR can be:
+
+    [ GROUP ] \fIrole_name\fR
+  | PUBLIC
+  | CURRENT_USER
+  | SESSION_USER
+.fi
+.SH "DESCRIPTION"
+.PP
+The
+\fBREVOKE\fR
+command revokes previously granted privileges from one or more roles\&. The key word
+PUBLIC
+refers to the implicitly defined group of all roles\&.
+.PP
+See the description of the
+\fBGRANT\fR(7)
+command for the meaning of the privilege types\&.
+.PP
+Note that any particular role will have the sum of privileges granted directly to it, privileges granted to any role it is presently a member of, and privileges granted to
+PUBLIC\&. Thus, for example, revoking
+SELECT
+privilege from
+PUBLIC
+does not necessarily mean that all roles have lost
+SELECT
+privilege on the object: those who have it granted directly or via another role will still have it\&. Similarly, revoking
+SELECT
+from a user might not prevent that user from using
+SELECT
+if
+PUBLIC
+or another membership role still has
+SELECT
+rights\&.
+.PP
+If
+GRANT OPTION FOR
+is specified, only the grant option for the privilege is revoked, not the privilege itself\&. Otherwise, both the privilege and the grant option are revoked\&.
+.PP
+If a user holds a privilege with grant option and has granted it to other users then the privileges held by those other users are called dependent privileges\&. If the privilege or the grant option held by the first user is being revoked and dependent privileges exist, those dependent privileges are also revoked if
+CASCADE
+is specified; if it is not, the revoke action will fail\&. This recursive revocation only affects privileges that were granted through a chain of users that is traceable to the user that is the subject of this
+REVOKE
+command\&. Thus, the affected users might effectively keep the privilege if it was also granted through other users\&.
+.PP
+When revoking privileges on a table, the corresponding column privileges (if any) are automatically revoked on each column of the table, as well\&. On the other hand, if a role has been granted privileges on a table, then revoking the same privileges from individual columns will have no effect\&.
+.PP
+When revoking membership in a role,
+GRANT OPTION
+is instead called
+ADMIN OPTION, but the behavior is similar\&. This form of the command also allows a
+GRANTED BY
+option, but that option is currently ignored (except for checking the existence of the named role)\&. Note also that this form of the command does not allow the noise word
+GROUP
+in
+\fIrole_specification\fR\&.
+.SH "NOTES"
+.PP
+Use
+\fBpsql\fR(1)\*(Aqs
+\fB\edp\fR
+command to display the privileges granted on existing tables and columns\&. See
+\fBGRANT\fR(7)
+for information about the format\&. For non\-table objects there are other
+\fB\ed\fR
+commands that can display their privileges\&.
+.PP
+A user can only revoke privileges that were granted directly by that user\&. If, for example, user A has granted a privilege with grant option to user B, and user B has in turn granted it to user C, then user A cannot revoke the privilege directly from C\&. Instead, user A could revoke the grant option from user B and use the
+CASCADE
+option so that the privilege is in turn revoked from user C\&. For another example, if both A and B have granted the same privilege to C, A can revoke their own grant but not B\*(Aqs grant, so C will still effectively have the privilege\&.
+.PP
+When a non\-owner of an object attempts to
+\fBREVOKE\fR
+privileges on the object, the command will fail outright if the user has no privileges whatsoever on the object\&. As long as some privilege is available, the command will proceed, but it will revoke only those privileges for which the user has grant options\&. The
+\fBREVOKE ALL PRIVILEGES\fR
+forms will issue a warning message if no grant options are held, while the other forms will issue a warning if grant options for any of the privileges specifically named in the command are not held\&. (In principle these statements apply to the object owner as well, but since the owner is always treated as holding all grant options, the cases can never occur\&.)
+.PP
+If a superuser chooses to issue a
+\fBGRANT\fR
+or
+\fBREVOKE\fR
+command, the command is performed as though it were issued by the owner of the affected object\&. Since all privileges ultimately come from the object owner (possibly indirectly via chains of grant options), it is possible for a superuser to revoke all privileges, but this might require use of
+CASCADE
+as stated above\&.
+.PP
+\fBREVOKE\fR
+can also be done by a role that is not the owner of the affected object, but is a member of the role that owns the object, or is a member of a role that holds privileges
+WITH GRANT OPTION
+on the object\&. In this case the command is performed as though it were issued by the containing role that actually owns the object or holds the privileges
+WITH GRANT OPTION\&. For example, if table
+t1
+is owned by role
+g1, of which role
+u1
+is a member, then
+u1
+can revoke privileges on
+t1
+that are recorded as being granted by
+g1\&. This would include grants made by
+u1
+as well as by other members of role
+g1\&.
+.PP
+If the role executing
+\fBREVOKE\fR
+holds privileges indirectly via more than one role membership path, it is unspecified which containing role will be used to perform the command\&. In such cases it is best practice to use
+\fBSET ROLE\fR
+to become the specific role you want to do the
+\fBREVOKE\fR
+as\&. Failure to do so might lead to revoking privileges other than the ones you intended, or not revoking anything at all\&.
+.SH "EXAMPLES"
+.PP
+Revoke insert privilege for the public on table
+films:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+REVOKE INSERT ON films FROM PUBLIC;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Revoke all privileges from user
+manuel
+on view
+kinds:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+REVOKE ALL PRIVILEGES ON kinds FROM manuel;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Note that this actually means
+\(lqrevoke all privileges that I granted\(rq\&.
+.PP
+Revoke membership in role
+admins
+from user
+joe:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+REVOKE admins FROM joe;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The compatibility notes of the
+\fBGRANT\fR(7)
+command apply analogously to
+\fBREVOKE\fR\&. The keyword
+RESTRICT
+or
+CASCADE
+is required according to the standard, but
+PostgreSQL
+assumes
+RESTRICT
+by default\&.
+.SH "SEE ALSO"
+.sp
+\fBGRANT\fR(7)

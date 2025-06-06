@@ -1,0 +1,89 @@
+#application config
+app:
+  name: sourcewair
+  version: ee
+
+DATA_HOME: C:\tiklab\tiklab-sourcewair
+#web config
+server:
+  port: 9900
+
+#dal config for mysql jdbc
+jdbc:
+  #driverClassName: com.mysql.cj.jdbc.Driver
+  #url: jdbc:mysql://172.10.1.10:3306/tiklab_sourcewair?characterEncoding=utf8&useSSL=false
+  driverClassName: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:9901/tiklab_sourcewair?stringtype=unspecified
+  username: postgres
+  password: darth2020
+
+postgresql:
+  embbed:
+    enable: true
+  database: tiklab_sourcewair
+  db:
+    port: 9901
+    username: postgres
+    password: darth2020
+    address: ${DATA_HOME}/postgresql
+
+#eas config
+soular:
+  embbed:
+    enable: true
+
+base:
+  url: http://localhost:9900
+
+
+
+#dcs config
+dcs:
+  server:
+    enabled: true
+    mode: server
+    port: 9903
+    datapath: ${DATA_HOME}/caches
+  client:
+    url:  127.0.0.1:9903
+    group: g1
+    database: dcs1
+    expire: 7200
+
+
+#licences config
+licences:
+  path: ${DATA_HOME}/licences
+
+repository:
+  address: ${DATA_HOME}/repository
+
+backups:
+  time: 0 0 2 * * ?
+  dir:  ${DATA_HOME}/backups
+  xpack:
+    dir: ${DATA_HOME}/repository
+
+#packaging configuration
+spring:
+  security:
+    user:
+      name: admin         # 默认用户名
+      password: 123456
+
+visible:
+  address: ""
+
+management:
+  endpoints:
+    enabled-by-default: false   # 默认禁用所有端点
+    web:
+      exposure:
+        include: shutdown # 显式启用 shutdown 端点
+  endpoint:
+    shutdown:
+      enabled: true
+
+postin:
+  scan:
+    package: io.tiklab.sourcewair

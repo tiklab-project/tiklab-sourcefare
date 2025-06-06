@@ -28,6 +28,12 @@ public interface ScanRuleService {
     String createScanRule(@NotNull @Valid ScanRule scanRule);
 
     /**
+     * 批量添加扫描规则
+     * @param rules
+     */
+    void createScanRule(@NotNull List<ScanRule> rules);
+
+    /**
     * 更新
     * @param scanRule
     */

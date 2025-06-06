@@ -1,0 +1,167 @@
+'\" t
+.\"     Title: SHOW
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SHOW" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SHOW \- show the value of a run\-time parameter
+.SH "SYNOPSIS"
+.sp
+.nf
+SHOW \fIname\fR
+SHOW ALL
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSHOW\fR
+will display the current setting of run\-time parameters\&. These variables can be set using the
+\fBSET\fR
+statement, by editing the
+postgresql\&.conf
+configuration file, through the
+\fBPGOPTIONS\fR
+environmental variable (when using
+libpq
+or a
+libpq\-based application), or through command\-line flags when starting the
+\fBpostgres\fR
+server\&. See
+Chapter\ \&19
+for details\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of a run\-time parameter\&. Available parameters are documented in
+Chapter\ \&19
+and on the
+\fBSET\fR(7)
+reference page\&. In addition, there are a few parameters that can be shown but not set:
+.PP
+SERVER_VERSION
+.RS 4
+Shows the server\*(Aqs version number\&.
+.RE
+.PP
+SERVER_ENCODING
+.RS 4
+Shows the server\-side character set encoding\&. At present, this parameter can be shown but not set, because the encoding is determined at database creation time\&.
+.RE
+.PP
+LC_COLLATE
+.RS 4
+Shows the database\*(Aqs locale setting for collation (text ordering)\&. At present, this parameter can be shown but not set, because the setting is determined at database creation time\&.
+.RE
+.PP
+LC_CTYPE
+.RS 4
+Shows the database\*(Aqs locale setting for character classification\&. At present, this parameter can be shown but not set, because the setting is determined at database creation time\&.
+.RE
+.PP
+IS_SUPERUSER
+.RS 4
+True if the current role has superuser privileges\&.
+.RE
+.RE
+.PP
+ALL
+.RS 4
+Show the values of all configuration parameters, with descriptions\&.
+.RE
+.SH "NOTES"
+.PP
+The function
+\fBcurrent_setting\fR
+produces equivalent output; see
+Section\ \&9.26\&. Also, the
+pg_settings
+system view produces the same information\&.
+.SH "EXAMPLES"
+.PP
+Show the current setting of the parameter
+\fIDateStyle\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SHOW DateStyle;
+ DateStyle
+\-\-\-\-\-\-\-\-\-\-\-
+ ISO, MDY
+(1 row)
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Show the current setting of the parameter
+\fIgeqo\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SHOW geqo;
+ geqo
+\-\-\-\-\-\-
+ on
+(1 row)
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Show all settings:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SHOW ALL;
+            name         | setting |                description                                                          
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ allow_system_table_mods | off     | Allows modifications of the structure of \&.\&.\&.
+    \&.
+    \&.
+    \&.
+ xmloption               | content | Sets whether XML data in implicit parsing \&.\&.\&.
+ zero_damaged_pages      | off     | Continues processing past damaged page headers\&.
+(196 rows)
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBSHOW\fR
+command is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+\fBSET\fR(7), \fBRESET\fR(7)

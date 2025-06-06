@@ -1,0 +1,81 @@
+'\" t
+.\"     Title: SPI_register_trigger_data
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_REGISTER_TRIGGER_DATA" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_register_trigger_data \- make ephemeral trigger data available in SPI queries
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_register_trigger_data(TriggerData *\fItdata\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_register_trigger_data\fR
+makes any ephemeral relations captured by a trigger available to queries planned and executed through the current SPI connection\&. Currently, this means the transition tables captured by an
+AFTER
+trigger defined with a
+REFERENCING OLD/NEW TABLE AS
+\&.\&.\&. clause\&. This function should be called by a PL trigger handler function after connecting\&.
+.SH "ARGUMENTS"
+.PP
+TriggerData *\fItdata\fR
+.RS 4
+the
+TriggerData
+object passed to a trigger handler function as
+fcinfo\->context
+.RE
+.SH "RETURN VALUE"
+.PP
+If the execution of the command was successful then the following (nonnegative) value will be returned:
+.PP
+SPI_OK_TD_REGISTER
+.RS 4
+if the captured trigger data (if any) has been successfully registered
+.RE
+.PP
+On error, one of the following negative values is returned:
+.PP
+SPI_ERROR_ARGUMENT
+.RS 4
+if
+\fItdata\fR
+is
+NULL
+.RE
+.PP
+SPI_ERROR_UNCONNECTED
+.RS 4
+if called from an unconnected procedure
+.RE
+.PP
+SPI_ERROR_REL_DUPLICATE
+.RS 4
+if the name of any trigger data transient relation is already registered for this connection
+.RE

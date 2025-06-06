@@ -1,0 +1,143 @@
+'\" t
+.\"     Title: CREATE FOREIGN DATA WRAPPER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE FOREIGN DATA WRAPPER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_FOREIGN_DATA_WRAPPER \- define a new foreign\-data wrapper
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE FOREIGN DATA WRAPPER \fIname\fR
+    [ HANDLER \fIhandler_function\fR | NO HANDLER ]
+    [ VALIDATOR \fIvalidator_function\fR | NO VALIDATOR ]
+    [ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE FOREIGN DATA WRAPPER\fR
+creates a new foreign\-data wrapper\&. The user who defines a foreign\-data wrapper becomes its owner\&.
+.PP
+The foreign\-data wrapper name must be unique within the database\&.
+.PP
+Only superusers can create foreign\-data wrappers\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the foreign\-data wrapper to be created\&.
+.RE
+.PP
+HANDLER \fIhandler_function\fR
+.RS 4
+\fIhandler_function\fR
+is the name of a previously registered function that will be called to retrieve the execution functions for foreign tables\&. The handler function must take no arguments, and its return type must be
+fdw_handler\&.
+.sp
+It is possible to create a foreign\-data wrapper with no handler function, but foreign tables using such a wrapper can only be declared, not accessed\&.
+.RE
+.PP
+VALIDATOR \fIvalidator_function\fR
+.RS 4
+\fIvalidator_function\fR
+is the name of a previously registered function that will be called to check the generic options given to the foreign\-data wrapper, as well as options for foreign servers, user mappings and foreign tables using the foreign\-data wrapper\&. If no validator function or
+NO VALIDATOR
+is specified, then options will not be checked at creation time\&. (Foreign\-data wrappers will possibly ignore or reject invalid option specifications at run time, depending on the implementation\&.) The validator function must take two arguments: one of type
+text[], which will contain the array of options as stored in the system catalogs, and one of type
+oid, which will be the OID of the system catalog containing the options\&. The return type is ignored; the function should report invalid options using the
+\fBereport(ERROR)\fR
+function\&.
+.RE
+.PP
+OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] )
+.RS 4
+This clause specifies options for the new foreign\-data wrapper\&. The allowed option names and values are specific to each foreign data wrapper and are validated using the foreign\-data wrapper\*(Aqs validator function\&. Option names must be unique\&.
+.RE
+.SH "NOTES"
+.PP
+PostgreSQL\*(Aqs foreign\-data functionality is still under active development\&. Optimization of queries is primitive (and mostly left to the wrapper, too)\&. Thus, there is considerable room for future performance improvements\&.
+.SH "EXAMPLES"
+.PP
+Create a useless foreign\-data wrapper
+dummy:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FOREIGN DATA WRAPPER dummy;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a foreign\-data wrapper
+file
+with handler function
+file_fdw_handler:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FOREIGN DATA WRAPPER file HANDLER file_fdw_handler;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a foreign\-data wrapper
+mywrapper
+with some options:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE FOREIGN DATA WRAPPER mywrapper
+    OPTIONS (debug \*(Aqtrue\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE FOREIGN DATA WRAPPER\fR
+conforms to ISO/IEC 9075\-9 (SQL/MED), with the exception that the
+HANDLER
+and
+VALIDATOR
+clauses are extensions and the standard clauses
+LIBRARY
+and
+LANGUAGE
+are not implemented in
+PostgreSQL\&.
+.PP
+Note, however, that the SQL/MED functionality as a whole is not yet conforming\&.
+.SH "SEE ALSO"
+ALTER FOREIGN DATA WRAPPER (\fBALTER_FOREIGN_DATA_WRAPPER\fR(7)), DROP FOREIGN DATA WRAPPER (\fBDROP_FOREIGN_DATA_WRAPPER\fR(7)), CREATE SERVER (\fBCREATE_SERVER\fR(7)), CREATE USER MAPPING (\fBCREATE_USER_MAPPING\fR(7)), CREATE FOREIGN TABLE (\fBCREATE_FOREIGN_TABLE\fR(7))

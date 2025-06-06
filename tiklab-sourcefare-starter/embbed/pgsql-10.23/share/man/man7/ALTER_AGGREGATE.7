@@ -1,0 +1,187 @@
+'\" t
+.\"     Title: ALTER AGGREGATE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER AGGREGATE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_AGGREGATE \- change the definition of an aggregate function
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER AGGREGATE \fIname\fR ( \fIaggregate_signature\fR ) RENAME TO \fInew_name\fR
+ALTER AGGREGATE \fIname\fR ( \fIaggregate_signature\fR )
+                OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER AGGREGATE \fIname\fR ( \fIaggregate_signature\fR ) SET SCHEMA \fInew_schema\fR
+
+where \fIaggregate_signature\fR is:
+
+* |
+[ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] |
+[ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ] ] ORDER BY [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [ , \&.\&.\&. ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER AGGREGATE\fR
+changes the definition of an aggregate function\&.
+.PP
+You must own the aggregate function to use
+\fBALTER AGGREGATE\fR\&. To change the schema of an aggregate function, you must also have
+CREATE
+privilege on the new schema\&. To alter the owner, you must also be a direct or indirect member of the new owning role, and that role must have
+CREATE
+privilege on the aggregate function\*(Aqs schema\&. (These restrictions enforce that altering the owner doesn\*(Aqt do anything you couldn\*(Aqt do by dropping and recreating the aggregate function\&. However, a superuser can alter ownership of any aggregate function anyway\&.)
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing aggregate function\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of an argument:
+IN
+or
+VARIADIC\&. If omitted, the default is
+IN\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of an argument\&. Note that
+\fBALTER AGGREGATE\fR
+does not actually pay any attention to argument names, since only the argument data types are needed to determine the aggregate function\*(Aqs identity\&.
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+An input data type on which the aggregate function operates\&. To reference a zero\-argument aggregate function, write
+*
+in place of the list of argument specifications\&. To reference an ordered\-set aggregate function, write
+ORDER BY
+between the direct and aggregated argument specifications\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the aggregate function\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The new owner of the aggregate function\&.
+.RE
+.PP
+\fInew_schema\fR
+.RS 4
+The new schema for the aggregate function\&.
+.RE
+.SH "NOTES"
+.PP
+The recommended syntax for referencing an ordered\-set aggregate is to write
+ORDER BY
+between the direct and aggregated argument specifications, in the same style as in
+CREATE AGGREGATE (\fBCREATE_AGGREGATE\fR(7))\&. However, it will also work to omit
+ORDER BY
+and just run the direct and aggregated argument specifications into a single list\&. In this abbreviated form, if
+VARIADIC "any"
+was used in both the direct and aggregated argument lists, write
+VARIADIC "any"
+only once\&.
+.SH "EXAMPLES"
+.PP
+To rename the aggregate function
+myavg
+for type
+integer
+to
+my_average:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER AGGREGATE myavg(integer) RENAME TO my_average;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To change the owner of the aggregate function
+myavg
+for type
+integer
+to
+joe:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER AGGREGATE myavg(integer) OWNER TO joe;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To move the ordered\-set aggregate
+mypercentile
+with direct argument of type
+float8
+and aggregated argument of type
+integer
+into schema
+myschema:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER AGGREGATE mypercentile(float8 ORDER BY integer) SET SCHEMA myschema;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This will work too:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER AGGREGATE mypercentile(float8, integer) SET SCHEMA myschema;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER AGGREGATE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE AGGREGATE (\fBCREATE_AGGREGATE\fR(7)), DROP AGGREGATE (\fBDROP_AGGREGATE\fR(7))

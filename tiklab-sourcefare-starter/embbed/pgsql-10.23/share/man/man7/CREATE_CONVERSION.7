@@ -1,0 +1,134 @@
+'\" t
+.\"     Title: CREATE CONVERSION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE CONVERSION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_CONVERSION \- define a new encoding conversion
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE [ DEFAULT ] CONVERSION \fIname\fR
+    FOR \fIsource_encoding\fR TO \fIdest_encoding\fR FROM \fIfunction_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE CONVERSION\fR
+defines a new conversion between character set encodings\&. Also, conversions that are marked
+DEFAULT
+can be used for automatic encoding conversion between client and server\&. For this purpose, two conversions, from encoding A to B
+\fIand\fR
+from encoding B to A, must be defined\&.
+.PP
+To be able to create a conversion, you must have
+EXECUTE
+privilege on the function and
+CREATE
+privilege on the destination schema\&.
+.SH "PARAMETERS"
+.PP
+DEFAULT
+.RS 4
+The
+DEFAULT
+clause indicates that this conversion is the default for this particular source to destination encoding\&. There should be only one default encoding in a schema for the encoding pair\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of the conversion\&. The conversion name can be schema\-qualified\&. If it is not, the conversion is defined in the current schema\&. The conversion name must be unique within a schema\&.
+.RE
+.PP
+\fIsource_encoding\fR
+.RS 4
+The source encoding name\&.
+.RE
+.PP
+\fIdest_encoding\fR
+.RS 4
+The destination encoding name\&.
+.RE
+.PP
+\fIfunction_name\fR
+.RS 4
+The function used to perform the conversion\&. The function name can be schema\-qualified\&. If it is not, the function will be looked up in the path\&.
+.sp
+The function must have the following signature:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+conv_proc(
+    integer,  \-\- source encoding ID
+    integer,  \-\- destination encoding ID
+    cstring,  \-\- source string (null terminated C string)
+    internal, \-\- destination (fill with a null terminated C string)
+    integer   \-\- source string length
+) RETURNS void;
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.SH "NOTES"
+.PP
+Use
+\fBDROP CONVERSION\fR
+to remove user\-defined conversions\&.
+.PP
+The privileges required to create a conversion might be changed in a future release\&.
+.SH "EXAMPLES"
+.PP
+To create a conversion from encoding
+UTF8
+to
+LATIN1
+using
+\fBmyfunc\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE CONVERSION myconv FOR \*(AqUTF8\*(Aq TO \*(AqLATIN1\*(Aq FROM myfunc;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE CONVERSION\fR
+is a
+PostgreSQL
+extension\&. There is no
+\fBCREATE CONVERSION\fR
+statement in the SQL standard, but a
+\fBCREATE TRANSLATION\fR
+statement that is very similar in purpose and syntax\&.
+.SH "SEE ALSO"
+ALTER CONVERSION (\fBALTER_CONVERSION\fR(7)), CREATE FUNCTION (\fBCREATE_FUNCTION\fR(7)), DROP CONVERSION (\fBDROP_CONVERSION\fR(7))

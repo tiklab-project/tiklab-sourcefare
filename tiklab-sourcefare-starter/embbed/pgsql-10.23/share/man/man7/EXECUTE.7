@@ -1,0 +1,84 @@
+'\" t
+.\"     Title: EXECUTE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "EXECUTE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+EXECUTE \- execute a prepared statement
+.SH "SYNOPSIS"
+.sp
+.nf
+EXECUTE \fIname\fR [ ( \fIparameter\fR [, \&.\&.\&.] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBEXECUTE\fR
+is used to execute a previously prepared statement\&. Since prepared statements only exist for the duration of a session, the prepared statement must have been created by a
+\fBPREPARE\fR
+statement executed earlier in the current session\&.
+.PP
+If the
+\fBPREPARE\fR
+statement that created the statement specified some parameters, a compatible set of parameters must be passed to the
+\fBEXECUTE\fR
+statement, or else an error is raised\&. Note that (unlike functions) prepared statements are not overloaded based on the type or number of their parameters; the name of a prepared statement must be unique within a database session\&.
+.PP
+For more information on the creation and usage of prepared statements, see
+\fBPREPARE\fR(7)\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the prepared statement to execute\&.
+.RE
+.PP
+\fIparameter\fR
+.RS 4
+The actual value of a parameter to the prepared statement\&. This must be an expression yielding a value that is compatible with the data type of this parameter, as was determined when the prepared statement was created\&.
+.RE
+.SH "OUTPUTS"
+.PP
+The command tag returned by
+\fBEXECUTE\fR
+is that of the prepared statement, and not
+EXECUTE\&.
+.SH "EXAMPLES"
+.PP
+Examples are given in the
+EXAMPLES
+section of the
+\fBPREPARE\fR(7)
+documentation\&.
+.SH "COMPATIBILITY"
+.PP
+The SQL standard includes an
+\fBEXECUTE\fR
+statement, but it is only for use in embedded SQL\&. This version of the
+\fBEXECUTE\fR
+statement also uses a somewhat different syntax\&.
+.SH "SEE ALSO"
+\fBDEALLOCATE\fR(7), \fBPREPARE\fR(7)

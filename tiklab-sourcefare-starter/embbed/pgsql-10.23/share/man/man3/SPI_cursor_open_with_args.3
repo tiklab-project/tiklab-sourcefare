@@ -1,0 +1,127 @@
+'\" t
+.\"     Title: SPI_cursor_open_with_args
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_CURSOR_OPEN_WITH_ARGS" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_cursor_open_with_args \- set up a cursor using a query and parameters
+.SH "SYNOPSIS"
+.sp
+.nf
+Portal SPI_cursor_open_with_args(const char *\fIname\fR,
+                                 const char *\fIcommand\fR,
+                                 int \fInargs\fR, Oid *\fIargtypes\fR,
+                                 Datum *\fIvalues\fR, const char *\fInulls\fR,
+                                 bool \fIread_only\fR, int \fIcursorOptions\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_cursor_open_with_args\fR
+sets up a cursor (internally, a portal) that will execute the specified query\&. Most of the parameters have the same meanings as the corresponding parameters to
+\fBSPI_prepare_cursor\fR
+and
+\fBSPI_cursor_open\fR\&.
+.PP
+For one\-time query execution, this function should be preferred over
+\fBSPI_prepare_cursor\fR
+followed by
+\fBSPI_cursor_open\fR\&. If the same command is to be executed with many different parameters, either method might be faster, depending on the cost of re\-planning versus the benefit of custom plans\&.
+.PP
+The passed\-in parameter data will be copied into the cursor\*(Aqs portal, so it can be freed while the cursor still exists\&.
+.SH "ARGUMENTS"
+.PP
+const char * \fIname\fR
+.RS 4
+name for portal, or
+NULL
+to let the system select a name
+.RE
+.PP
+const char * \fIcommand\fR
+.RS 4
+command string
+.RE
+.PP
+int \fInargs\fR
+.RS 4
+number of input parameters ($1,
+$2, etc\&.)
+.RE
+.PP
+Oid * \fIargtypes\fR
+.RS 4
+an array of length
+\fInargs\fR, containing the
+OIDs of the data types of the parameters
+.RE
+.PP
+Datum * \fIvalues\fR
+.RS 4
+an array of length
+\fInargs\fR, containing the actual parameter values
+.RE
+.PP
+const char * \fInulls\fR
+.RS 4
+an array of length
+\fInargs\fR, describing which parameters are null
+.sp
+If
+\fInulls\fR
+is
+NULL
+then
+\fBSPI_cursor_open_with_args\fR
+assumes that no parameters are null\&. Otherwise, each entry of the
+\fInulls\fR
+array should be
+\*(Aq\ \&\*(Aq
+if the corresponding parameter value is non\-null, or
+\*(Aqn\*(Aq
+if the corresponding parameter value is null\&. (In the latter case, the actual value in the corresponding
+\fIvalues\fR
+entry doesn\*(Aqt matter\&.) Note that
+\fInulls\fR
+is not a text string, just an array: it does not need a
+\*(Aq\e0\*(Aq
+terminator\&.
+.RE
+.PP
+bool \fIread_only\fR
+.RS 4
+true
+for read\-only execution
+.RE
+.PP
+int \fIcursorOptions\fR
+.RS 4
+integer bit mask of cursor options; zero produces default behavior
+.RE
+.SH "RETURN VALUE"
+.PP
+Pointer to portal containing the cursor\&. Note there is no error return convention; any error will be reported via
+\fBelog\fR\&.

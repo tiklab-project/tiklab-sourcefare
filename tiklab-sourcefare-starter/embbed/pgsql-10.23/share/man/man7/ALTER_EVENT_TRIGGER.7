@@ -1,0 +1,74 @@
+'\" t
+.\"     Title: ALTER EVENT TRIGGER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER EVENT TRIGGER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_EVENT_TRIGGER \- change the definition of an event trigger
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER EVENT TRIGGER \fIname\fR DISABLE
+ALTER EVENT TRIGGER \fIname\fR ENABLE [ REPLICA | ALWAYS ]
+ALTER EVENT TRIGGER \fIname\fR OWNER TO { \fInew_owner\fR | CURRENT_USER | SESSION_USER }
+ALTER EVENT TRIGGER \fIname\fR RENAME TO \fInew_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER EVENT TRIGGER\fR
+changes properties of an existing event trigger\&.
+.PP
+You must be superuser to alter an event trigger\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of an existing trigger to alter\&.
+.RE
+.PP
+\fInew_owner\fR
+.RS 4
+The user name of the new owner of the event trigger\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the event trigger\&.
+.RE
+.PP
+DISABLE/ENABLE [ REPLICA | ALWAYS ] TRIGGER
+.RS 4
+These forms configure the firing of event triggers\&. A disabled trigger is still known to the system, but is not executed when its triggering event occurs\&. See also
+session_replication_role\&.
+.RE
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER EVENT TRIGGER\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+CREATE EVENT TRIGGER (\fBCREATE_EVENT_TRIGGER\fR(7)), DROP EVENT TRIGGER (\fBDROP_EVENT_TRIGGER\fR(7))

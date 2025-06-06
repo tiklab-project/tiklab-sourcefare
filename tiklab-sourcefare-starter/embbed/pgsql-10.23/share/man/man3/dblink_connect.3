@@ -1,0 +1,156 @@
+'\" t
+.\"     Title: dblink_connect
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DBLINK_CONNECT" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dblink_connect \- opens a persistent connection to a remote database
+.SH "SYNOPSIS"
+.sp
+.nf
+dblink_connect(text connstr) returns text
+dblink_connect(text connname, text connstr) returns text
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBdblink_connect()\fR
+establishes a connection to a remote
+PostgreSQL
+database\&. The server and database to be contacted are identified through a standard
+libpq
+connection string\&. Optionally, a name can be assigned to the connection\&. Multiple named connections can be open at once, but only one unnamed connection is permitted at a time\&. The connection will persist until closed or until the database session is ended\&.
+.PP
+The connection string may also be the name of an existing foreign server\&. It is recommended to use the foreign\-data wrapper
+dblink_fdw
+when defining the foreign server\&. See the example below, as well as
+CREATE SERVER (\fBCREATE_SERVER\fR(7))
+and
+CREATE USER MAPPING (\fBCREATE_USER_MAPPING\fR(7))\&.
+.SH "ARGUMENTS"
+.PP
+\fIconnname\fR
+.RS 4
+The name to use for this connection; if omitted, an unnamed connection is opened, replacing any existing unnamed connection\&.
+.RE
+.PP
+\fIconnstr\fR
+.RS 4
+libpq\-style connection info string, for example
+hostaddr=127\&.0\&.0\&.1 port=5432 dbname=mydb user=postgres password=mypasswd options=\-csearch_path=\&. For details see
+Section\ \&33.1.1\&. Alternatively, the name of a foreign server\&.
+.RE
+.SH "RETURN VALUE"
+.PP
+Returns status, which is always
+OK
+(since any error causes the function to throw an error instead of returning)\&.
+.SH "NOTES"
+.PP
+If untrusted users have access to a database that has not adopted a
+secure schema usage pattern, begin each session by removing publicly\-writable schemas from
+\fIsearch_path\fR\&. One could, for example, add
+options=\-csearch_path=
+to
+\fIconnstr\fR\&. This consideration is not specific to
+dblink; it applies to every interface for executing arbitrary SQL commands\&.
+.PP
+Only superusers may use
+\fBdblink_connect\fR
+to create non\-password\-authenticated connections\&. If non\-superusers need this capability, use
+\fBdblink_connect_u\fR
+instead\&.
+.PP
+It is unwise to choose connection names that contain equal signs, as this opens a risk of confusion with connection info strings in other
+dblink
+functions\&.
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SELECT dblink_connect(\*(Aqdbname=postgres options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT dblink_connect(\*(Aqmyconn\*(Aq, \*(Aqdbname=postgres options=\-csearch_path=\*(Aq);
+ dblink_connect
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+\-\- FOREIGN DATA WRAPPER functionality
+\-\- Note: local connection must require password authentication for this to work properly
+\-\-       Otherwise, you will receive the following error from dblink_connect():
+\-\-       \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\-\-       ERROR:  password is required
+\-\-       DETAIL:  Non\-superuser cannot connect if the server does not request a password\&.
+\-\-       HINT:  Target server\*(Aqs authentication method must be changed\&.
+
+CREATE SERVER fdtest FOREIGN DATA WRAPPER dblink_fdw OPTIONS (hostaddr \*(Aq127\&.0\&.0\&.1\*(Aq, dbname \*(Aqcontrib_regression\*(Aq);
+
+CREATE USER regress_dblink_user WITH PASSWORD \*(Aqsecret\*(Aq;
+CREATE USER MAPPING FOR regress_dblink_user SERVER fdtest OPTIONS (user \*(Aqregress_dblink_user\*(Aq, password \*(Aqsecret\*(Aq);
+GRANT USAGE ON FOREIGN SERVER fdtest TO regress_dblink_user;
+GRANT SELECT ON TABLE foo TO regress_dblink_user;
+
+\eset ORIGINAL_USER :USER
+\ec \- regress_dblink_user
+SELECT dblink_connect(\*(Aqmyconn\*(Aq, \*(Aqfdtest\*(Aq);
+ dblink_connect 
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+ OK
+(1 row)
+
+SELECT * FROM dblink(\*(Aqmyconn\*(Aq, \*(AqSELECT * FROM foo\*(Aq) AS t(a int, b text, c text[]);
+ a  | b |       c       
+\-\-\-\-+\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+  0 | a | {a0,b0,c0}
+  1 | b | {a1,b1,c1}
+  2 | c | {a2,b2,c2}
+  3 | d | {a3,b3,c3}
+  4 | e | {a4,b4,c4}
+  5 | f | {a5,b5,c5}
+  6 | g | {a6,b6,c6}
+  7 | h | {a7,b7,c7}
+  8 | i | {a8,b8,c8}
+  9 | j | {a9,b9,c9}
+ 10 | k | {a10,b10,c10}
+(11 rows)
+
+\ec \- :ORIGINAL_USER
+REVOKE USAGE ON FOREIGN SERVER fdtest FROM regress_dblink_user;
+REVOKE SELECT ON TABLE foo FROM regress_dblink_user;
+DROP USER MAPPING FOR regress_dblink_user SERVER fdtest;
+DROP USER regress_dblink_user;
+DROP SERVER fdtest;
+.fi
+.if n \{\
+.RE
+.\}

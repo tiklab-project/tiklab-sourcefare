@@ -7,7 +7,7 @@ import java.sql.Timestamp;
  * 扫描规则集实体
  * */
 @Entity
-@Table(name="scan_rule_set")
+@Table(name="wair_scan_rule_set")
 public class ScanRuleSetEntity {
     @Id
     @GeneratorValue(length=12)

@@ -1,0 +1,107 @@
+'\" t
+.\"     Title: RESET
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "RESET" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+RESET \- restore the value of a run\-time parameter to the default value
+.SH "SYNOPSIS"
+.sp
+.nf
+RESET \fIconfiguration_parameter\fR
+RESET ALL
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBRESET\fR
+restores run\-time parameters to their default values\&.
+\fBRESET\fR
+is an alternative spelling for
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+SET \fIconfiguration_parameter\fR TO DEFAULT
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Refer to
+\fBSET\fR(7)
+for details\&.
+.PP
+The default value is defined as the value that the parameter would have had, if no
+\fBSET\fR
+had ever been issued for it in the current session\&. The actual source of this value might be a compiled\-in default, the configuration file, command\-line options, or per\-database or per\-user default settings\&. This is subtly different from defining it as
+\(lqthe value that the parameter had at session start\(rq, because if the value came from the configuration file, it will be reset to whatever is specified by the configuration file now\&. See
+Chapter\ \&19
+for details\&.
+.PP
+The transactional behavior of
+\fBRESET\fR
+is the same as
+\fBSET\fR: its effects will be undone by transaction rollback\&.
+.SH "PARAMETERS"
+.PP
+\fIconfiguration_parameter\fR
+.RS 4
+Name of a settable run\-time parameter\&. Available parameters are documented in
+Chapter\ \&19
+and on the
+\fBSET\fR(7)
+reference page\&.
+.RE
+.PP
+ALL
+.RS 4
+Resets all settable run\-time parameters to default values\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Set the
+\fItimezone\fR
+configuration variable to its default value:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+RESET timezone;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+\fBRESET\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+\fBSET\fR(7), \fBSHOW\fR(7)

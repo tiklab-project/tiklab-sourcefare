@@ -1,0 +1,187 @@
+'\" t
+.\"     Title: DROP FUNCTION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP FUNCTION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_FUNCTION \- remove a function
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP FUNCTION [ IF EXISTS ] \fIname\fR [ ( [ [ \fIargmode\fR ] [ \fIargname\fR ] \fIargtype\fR [, \&.\&.\&.] ] ) ] [, \&.\&.\&.]
+    [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP FUNCTION\fR
+removes the definition of an existing function\&. To execute this command the user must be the owner of the function\&. The argument types to the function must be specified, since several different functions can exist with the same name and different argument lists\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the function does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name (optionally schema\-qualified) of an existing function\&. If no argument list is specified, the name must be unique in its schema\&.
+.RE
+.PP
+\fIargmode\fR
+.RS 4
+The mode of an argument:
+IN,
+OUT,
+INOUT, or
+VARIADIC\&. If omitted, the default is
+IN\&. Note that
+\fBDROP FUNCTION\fR
+does not actually pay any attention to
+OUT
+arguments, since only the input arguments are needed to determine the function\*(Aqs identity\&. So it is sufficient to list the
+IN,
+INOUT, and
+VARIADIC
+arguments\&.
+.RE
+.PP
+\fIargname\fR
+.RS 4
+The name of an argument\&. Note that
+\fBDROP FUNCTION\fR
+does not actually pay any attention to argument names, since only the argument data types are needed to determine the function\*(Aqs identity\&.
+.RE
+.PP
+\fIargtype\fR
+.RS 4
+The data type(s) of the function\*(Aqs arguments (optionally schema\-qualified), if any\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the function (such as operators or triggers), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the function if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+This command removes the square root function:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP FUNCTION sqrt(integer);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Drop multiple functions in one command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP FUNCTION sqrt(integer), sqrt(bigint);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+If the function name is unique in its schema, it can be referred to without an argument list:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP FUNCTION update_employee_salaries;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Note that this is different from
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP FUNCTION update_employee_salaries();
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+which refers to a function with zero arguments, whereas the first variant can refer to a function with any number of arguments, including zero, as long as the name is unique\&.
+.SH "COMPATIBILITY"
+.PP
+This command conforms to the SQL standard, with these
+PostgreSQL
+extensions:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The standard only allows one function to be dropped per command\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The
+IF EXISTS
+option
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The ability to specify argument modes and names
+.RE
+.sp
+.SH "SEE ALSO"
+CREATE FUNCTION (\fBCREATE_FUNCTION\fR(7)), ALTER FUNCTION (\fBALTER_FUNCTION\fR(7))

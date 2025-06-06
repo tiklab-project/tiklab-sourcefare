@@ -1,0 +1,97 @@
+'\" t
+.\"     Title: DROP EXTENSION
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP EXTENSION" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_EXTENSION \- remove an extension
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP EXTENSION [ IF EXISTS ] \fIname\fR [, \&.\&.\&.] [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP EXTENSION\fR
+removes extensions from the database\&. Dropping an extension causes its component objects to be dropped as well\&.
+.PP
+You must own the extension to use
+\fBDROP EXTENSION\fR\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the extension does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of an installed extension\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the extension, and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the extension if any objects depend on it (other than its own member objects and other extensions listed in the same
+\fBDROP\fR
+command)\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To remove the extension
+hstore
+from the current database:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP EXTENSION hstore;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This command will fail if any of
+hstore\*(Aqs objects are in use in the database, for example if any tables have columns of the
+hstore
+type\&. Add the
+CASCADE
+option to forcibly remove those dependent objects as well\&.
+.SH "COMPATIBILITY"
+.PP
+\fBDROP EXTENSION\fR
+is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE EXTENSION (\fBCREATE_EXTENSION\fR(7)), ALTER EXTENSION (\fBALTER_EXTENSION\fR(7))

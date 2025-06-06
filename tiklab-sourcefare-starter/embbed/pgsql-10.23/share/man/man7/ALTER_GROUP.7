@@ -1,0 +1,112 @@
+'\" t
+.\"     Title: ALTER GROUP
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "ALTER GROUP" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ALTER_GROUP \- change role name or membership
+.SH "SYNOPSIS"
+.sp
+.nf
+ALTER GROUP \fIrole_specification\fR ADD USER \fIuser_name\fR [, \&.\&.\&. ]
+ALTER GROUP \fIrole_specification\fR DROP USER \fIuser_name\fR [, \&.\&.\&. ]
+
+where \fIrole_specification\fR can be:
+
+    \fIrole_name\fR
+  | CURRENT_USER
+  | SESSION_USER
+
+ALTER GROUP \fIgroup_name\fR RENAME TO \fInew_name\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBALTER GROUP\fR
+changes the attributes of a user group\&. This is an obsolete command, though still accepted for backwards compatibility, because groups (and users too) have been superseded by the more general concept of roles\&.
+.PP
+The first two variants add users to a group or remove them from a group\&. (Any role can play the part of either a
+\(lquser\(rq
+or a
+\(lqgroup\(rq
+for this purpose\&.) These variants are effectively equivalent to granting or revoking membership in the role named as the
+\(lqgroup\(rq; so the preferred way to do this is to use
+\fBGRANT\fR(7)
+or
+\fBREVOKE\fR(7)\&.
+.PP
+The third variant changes the name of the group\&. This is exactly equivalent to renaming the role with
+ALTER ROLE (\fBALTER_ROLE\fR(7))\&.
+.SH "PARAMETERS"
+.PP
+\fIgroup_name\fR
+.RS 4
+The name of the group (role) to modify\&.
+.RE
+.PP
+\fIuser_name\fR
+.RS 4
+Users (roles) that are to be added to or removed from the group\&. The users must already exist;
+\fBALTER GROUP\fR
+does not create or drop users\&.
+.RE
+.PP
+\fInew_name\fR
+.RS 4
+The new name of the group\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Add users to a group:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER GROUP staff ADD USER karl, john;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Remove a user from a group:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ALTER GROUP workers DROP USER beth;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBALTER GROUP\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+\fBGRANT\fR(7), \fBREVOKE\fR(7), ALTER ROLE (\fBALTER_ROLE\fR(7))

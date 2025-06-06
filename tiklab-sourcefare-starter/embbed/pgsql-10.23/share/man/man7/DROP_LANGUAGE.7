@@ -1,0 +1,106 @@
+'\" t
+.\"     Title: DROP LANGUAGE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP LANGUAGE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_LANGUAGE \- remove a procedural language
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP [ PROCEDURAL ] LANGUAGE [ IF EXISTS ] \fIname\fR [ CASCADE | RESTRICT ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP LANGUAGE\fR
+removes the definition of a previously registered procedural language\&. You must be a superuser or the owner of the language to use
+\fBDROP LANGUAGE\fR\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.PP
+As of
+PostgreSQL
+9\&.1, most procedural languages have been made into
+\(lqextensions\(rq, and should therefore be removed with
+DROP EXTENSION (\fBDROP_EXTENSION\fR(7))
+not
+\fBDROP LANGUAGE\fR\&.
+.sp .5v
+.RE
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the language does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of an existing procedural language\&. For backward compatibility, the name can be enclosed by single quotes\&.
+.RE
+.PP
+CASCADE
+.RS 4
+Automatically drop objects that depend on the language (such as functions in the language), and in turn all objects that depend on those objects (see
+Section\ \&5.13)\&.
+.RE
+.PP
+RESTRICT
+.RS 4
+Refuse to drop the language if any objects depend on it\&. This is the default\&.
+.RE
+.SH "EXAMPLES"
+.PP
+This command removes the procedural language
+plsample:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP LANGUAGE plsample;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBDROP LANGUAGE\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER LANGUAGE (\fBALTER_LANGUAGE\fR(7)), CREATE LANGUAGE (\fBCREATE_LANGUAGE\fR(7))

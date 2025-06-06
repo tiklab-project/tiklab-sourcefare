@@ -1,0 +1,578 @@
+'\" t
+.\"     Title: pg_basebackup
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PG_BASEBACKUP" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pg_basebackup \- take a base backup of a PostgreSQL cluster
+.SH "SYNOPSIS"
+.HP \w'\fBpg_basebackup\fR\ 'u
+\fBpg_basebackup\fR [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+pg_basebackup
+is used to take base backups of a running
+PostgreSQL
+database cluster\&. These are taken without affecting other clients to the database, and can be used both for point\-in\-time recovery (see
+Section\ \&25.3) and as the starting point for a log shipping or streaming replication standby servers (see
+Section\ \&26.2)\&.
+.PP
+pg_basebackup
+makes a binary copy of the database cluster files, while making sure the system is put in and out of backup mode automatically\&. Backups are always taken of the entire database cluster; it is not possible to back up individual databases or database objects\&. For individual database backups, a tool such as
+\fBpg_dump\fR(1)
+must be used\&.
+.PP
+The backup is made over a regular
+PostgreSQL
+connection, and uses the replication protocol\&. The connection must be made with a superuser or a user having
+REPLICATION
+permissions (see
+Section\ \&21.2), and
+pg_hba\&.conf
+must explicitly permit the replication connection\&. The server must also be configured with
+max_wal_senders
+set high enough to leave at least one session available for the backup and one for WAL streaming (if used)\&.
+.PP
+There can be multiple
+\fBpg_basebackup\fRs running at the same time, but it is better from a performance point of view to take only one backup, and copy the result\&.
+.PP
+pg_basebackup
+can make a base backup from not only the master but also the standby\&. To take a backup from the standby, set up the standby so that it can accept replication connections (that is, set
+\fImax_wal_senders\fR
+and
+hot_standby, and configure
+host\-based authentication)\&. You will also need to enable
+full_page_writes
+on the master\&.
+.PP
+Note that there are some limitations in an online backup from the standby:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+The backup history file is not created in the database cluster backed up\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+pg_basebackup
+cannot force the standby to switch to a new WAL file at the end of backup\&. When you are using
+\-X none, if write activity on the primary is low,
+pg_basebackup
+may need to wait a long time for the last WAL file required for the backup to be switched and archived\&. In this case, it may be useful to run
+\fBpg_switch_wal\fR
+on the primary in order to trigger an immediate WAL file switch\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+If the standby is promoted to the master during online backup, the backup fails\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+All WAL records required for the backup must contain sufficient full\-page writes, which requires you to enable
+\fIfull_page_writes\fR
+on the master and not to use a tool like
+pg_compresslog
+as
+\fIarchive_command\fR
+to remove full\-page writes from WAL files\&.
+.RE
+.sp
+.SH "OPTIONS"
+.PP
+The following command\-line options control the location and format of the output\&.
+.PP
+\fB\-D \fR\fB\fIdirectory\fR\fR
+.br
+\fB\-\-pgdata=\fR\fB\fIdirectory\fR\fR
+.RS 4
+Directory to write the output to\&.
+pg_basebackup
+will create the directory and any parent directories if necessary\&. The directory may already exist, but it is an error if the directory already exists and is not empty\&.
+.sp
+When the backup is in tar mode, and the directory is specified as
+\-
+(dash), the tar file will be written to
+stdout\&.
+.sp
+This option is required\&.
+.RE
+.PP
+\fB\-F \fR\fB\fIformat\fR\fR
+.br
+\fB\-\-format=\fR\fB\fIformat\fR\fR
+.RS 4
+Selects the format for the output\&.
+\fIformat\fR
+can be one of the following:
+.PP
+p
+.br
+plain
+.RS 4
+Write the output as plain files, with the same layout as the current data directory and tablespaces\&. When the cluster has no additional tablespaces, the whole database will be placed in the target directory\&. If the cluster contains additional tablespaces, the main data directory will be placed in the target directory, but all other tablespaces will be placed in the same absolute path as they have on the source server\&. (See
+\fB\-\-tablespace\-mapping\fR
+to change that\&.)
+.sp
+This is the default format\&.
+.RE
+.PP
+t
+.br
+tar
+.RS 4
+Write the output as tar files in the target directory\&. The main data directory will be written to a file named
+base\&.tar, and all other tablespaces will be named after the tablespace OID\&.
+.sp
+If the value
+\-
+(dash) is specified as target directory, the tar contents will be written to standard output, suitable for piping to for example
+gzip\&. This is only possible if the cluster has no additional tablespaces and WAL streaming is not used\&.
+.RE
+.RE
+.PP
+\fB\-r \fR\fB\fIrate\fR\fR
+.br
+\fB\-\-max\-rate=\fR\fB\fIrate\fR\fR
+.RS 4
+The maximum transfer rate of data transferred from the server\&. Values are in kilobytes per second\&. Use a suffix of
+M
+to indicate megabytes per second\&. A suffix of
+k
+is also accepted, and has no effect\&. Valid values are between 32 kilobytes per second and 1024 megabytes per second\&.
+.sp
+The purpose is to limit the impact of
+pg_basebackup
+on the running server\&.
+.sp
+This option always affects transfer of the data directory\&. Transfer of WAL files is only affected if the collection method is
+fetch\&.
+.RE
+.PP
+\fB\-R\fR
+.br
+\fB\-\-write\-recovery\-conf\fR
+.RS 4
+Write a minimal
+recovery\&.conf
+in the output directory (or into the base archive file when using tar format) to ease setting up a standby server\&. The
+recovery\&.conf
+file will record the connection settings and, if specified, the replication slot that
+pg_basebackup
+is using, so that the streaming replication will use the same settings later on\&.
+.RE
+.PP
+\fB\-S \fR\fB\fIslotname\fR\fR
+.br
+\fB\-\-slot=\fR\fB\fIslotname\fR\fR
+.RS 4
+This option can only be used together with
+\-X stream\&. It causes the WAL streaming to use the specified replication slot\&. If the base backup is intended to be used as a streaming replication standby using replication slots, it should then use the same replication slot name in
+recovery\&.conf\&. That way, it is ensured that the server does not remove any necessary WAL data in the time between the end of the base backup and the start of streaming replication\&.
+.sp
+If this option is not specified and the server supports temporary replication slots (version 10 and later), then a temporary replication slot is automatically used for WAL streaming\&.
+.RE
+.PP
+\fB\-\-no\-slot\fR
+.RS 4
+This option prevents the creation of a temporary replication slot during the backup even if it\*(Aqs supported by the server\&.
+.sp
+Temporary replication slots are created by default if no slot name is given with the option
+\fB\-S\fR
+when using log streaming\&.
+.sp
+The main purpose of this option is to allow taking a base backup when the server is out of free replication slots\&. Using replication slots is almost always preferred, because it prevents needed WAL from being removed by the server during the backup\&.
+.RE
+.PP
+\fB\-T \fR\fB\fIolddir\fR\fR\fB=\fR\fB\fInewdir\fR\fR
+.br
+\fB\-\-tablespace\-mapping=\fR\fB\fIolddir\fR\fR\fB=\fR\fB\fInewdir\fR\fR
+.RS 4
+Relocate the tablespace in directory
+\fIolddir\fR
+to
+\fInewdir\fR
+during the backup\&. To be effective,
+\fIolddir\fR
+must exactly match the path specification of the tablespace as it is currently defined\&. (But it is not an error if there is no tablespace in
+\fIolddir\fR
+contained in the backup\&.) Both
+\fIolddir\fR
+and
+\fInewdir\fR
+must be absolute paths\&. If a path happens to contain a
+=
+sign, escape it with a backslash\&. This option can be specified multiple times for multiple tablespaces\&. See examples below\&.
+.sp
+If a tablespace is relocated in this way, the symbolic links inside the main data directory are updated to point to the new location\&. So the new data directory is ready to be used for a new server instance with all tablespaces in the updated locations\&.
+.sp
+Currently, this option only works with plain output format; it is ignored if tar format is selected\&.
+.RE
+.PP
+\fB\-\-waldir=\fR\fB\fIwaldir\fR\fR
+.RS 4
+Specifies the location for the write\-ahead log directory\&.
+\fIwaldir\fR
+must be an absolute path\&. The write\-ahead log directory can only be specified when the backup is in plain mode\&.
+.RE
+.PP
+\fB\-X \fR\fB\fImethod\fR\fR
+.br
+\fB\-\-wal\-method=\fR\fB\fImethod\fR\fR
+.RS 4
+Includes the required write\-ahead log files (WAL files) in the backup\&. This will include all write\-ahead logs generated during the backup\&. Unless the method
+none
+is specified, it is possible to start a postmaster directly in the extracted directory without the need to consult the log archive, thus making this a completely standalone backup\&.
+.sp
+The following methods for collecting the write\-ahead logs are supported:
+.PP
+n
+.br
+none
+.RS 4
+Don\*(Aqt include write\-ahead log in the backup\&.
+.RE
+.PP
+f
+.br
+fetch
+.RS 4
+The write\-ahead log files are collected at the end of the backup\&. Therefore, it is necessary for the
+wal_keep_segments
+parameter to be set high enough that the log is not removed before the end of the backup\&. If the log has been rotated when it\*(Aqs time to transfer it, the backup will fail and be unusable\&.
+.sp
+When tar format mode is used, the write\-ahead log files will be written to the
+base\&.tar
+file\&.
+.RE
+.PP
+s
+.br
+stream
+.RS 4
+Stream the write\-ahead log while the backup is created\&. This will open a second connection to the server and start streaming the write\-ahead log in parallel while running the backup\&. Therefore, it will use up two connections configured by the
+max_wal_senders
+parameter\&. As long as the client can keep up with write\-ahead log received, using this mode requires no extra write\-ahead logs to be saved on the master\&.
+.sp
+When tar format mode is used, the write\-ahead log files will be written to a separate file named
+pg_wal\&.tar
+(if the server is a version earlier than 10, the file will be named
+pg_xlog\&.tar)\&.
+.sp
+This value is the default\&.
+.RE
+.sp
+.RE
+.PP
+\fB\-z\fR
+.br
+\fB\-\-gzip\fR
+.RS 4
+Enables gzip compression of tar file output, with the default compression level\&. Compression is only available when using the tar format, and the suffix
+\&.gz
+will automatically be added to all tar filenames\&.
+.RE
+.PP
+\fB\-Z \fR\fB\fIlevel\fR\fR
+.br
+\fB\-\-compress=\fR\fB\fIlevel\fR\fR
+.RS 4
+Enables gzip compression of tar file output, and specifies the compression level (0 through 9, 0 being no compression and 9 being best compression)\&. Compression is only available when using the tar format, and the suffix
+\&.gz
+will automatically be added to all tar filenames\&.
+.RE
+.PP
+The following command\-line options control the generation of the backup and the running of the program\&.
+.PP
+\fB\-c \fR\fB\fIfast|spread\fR\fR
+.br
+\fB\-\-checkpoint=\fR\fB\fIfast|spread\fR\fR
+.RS 4
+Sets checkpoint mode to fast (immediate) or spread (default) (see
+Section\ \&25.3.3)\&.
+.RE
+.PP
+\fB\-l \fR\fB\fIlabel\fR\fR
+.br
+\fB\-\-label=\fR\fB\fIlabel\fR\fR
+.RS 4
+Sets the label for the backup\&. If none is specified, a default value of
+\(lqpg_basebackup base backup\(rq
+will be used\&.
+.RE
+.PP
+\fB\-n\fR
+.br
+\fB\-\-no\-clean\fR
+.RS 4
+By default, when
+\fBpg_basebackup\fR
+aborts with an error, it removes any directories it might have created before discovering that it cannot finish the job (for example, data directory and write\-ahead log directory)\&. This option inhibits tidying\-up and is thus useful for debugging\&.
+.sp
+Note that tablespace directories are not cleaned up either way\&.
+.RE
+.PP
+\fB\-P\fR
+.br
+\fB\-\-progress\fR
+.RS 4
+Enables progress reporting\&. Turning this on will deliver an approximate progress report during the backup\&. Since the database may change during the backup, this is only an approximation and may not end at exactly
+100%\&. In particular, when WAL log is included in the backup, the total amount of data cannot be estimated in advance, and in this case the estimated target size will increase once it passes the total estimate without WAL\&.
+.sp
+When this is enabled, the backup will start by enumerating the size of the entire database, and then go back and send the actual contents\&. This may make the backup take slightly longer, and in particular it will take longer before the first data is sent\&.
+.RE
+.PP
+\fB\-N\fR
+.br
+\fB\-\-no\-sync\fR
+.RS 4
+By default,
+\fBpg_basebackup\fR
+will wait for all files to be written safely to disk\&. This option causes
+\fBpg_basebackup\fR
+to return without waiting, which is faster, but means that a subsequent operating system crash can leave the base backup corrupt\&. Generally, this option is useful for testing but should not be used when creating a production installation\&.
+.RE
+.PP
+\fB\-v\fR
+.br
+\fB\-\-verbose\fR
+.RS 4
+Enables verbose mode\&. Will output some extra steps during startup and shutdown, as well as show the exact file name that is currently being processed if progress reporting is also enabled\&.
+.RE
+.PP
+The following command\-line options control the database connection parameters\&.
+.PP
+\fB\-d \fR\fB\fIconnstr\fR\fR
+.br
+\fB\-\-dbname=\fR\fB\fIconnstr\fR\fR
+.RS 4
+Specifies parameters used to connect to the server, as a
+connection string; these will override any conflicting command line options\&.
+.sp
+The option is called
+\-\-dbname
+for consistency with other client applications, but because
+pg_basebackup
+doesn\*(Aqt connect to any particular database in the cluster, database name in the connection string will be ignored\&.
+.RE
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&. The default is taken from the
+\fBPGHOST\fR
+environment variable, if set, else a Unix domain socket connection is attempted\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&. Defaults to the
+\fBPGPORT\fR
+environment variable, if set, or a compiled\-in default\&.
+.RE
+.PP
+\fB\-s \fR\fB\fIinterval\fR\fR
+.br
+\fB\-\-status\-interval=\fR\fB\fIinterval\fR\fR
+.RS 4
+Specifies the number of seconds between status packets sent back to the server\&. This allows for easier monitoring of the progress from server\&. A value of zero disables the periodic status updates completely, although an update will still be sent when requested by the server, to avoid timeout disconnect\&. The default value is 10 seconds\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+pg_basebackup
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+pg_basebackup
+will automatically prompt for a password if the server demands password authentication\&. However,
+pg_basebackup
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+Other options are also available:
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+pg_basebackup
+version and exit\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+pg_basebackup
+command line arguments, and exit\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+This utility, like most other
+PostgreSQL
+utilities, uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "NOTES"
+.PP
+At the beginning of the backup, a checkpoint needs to be written on the server the backup is taken from\&. Especially if the option
+\-\-checkpoint=fast
+is not used, this can take some time during which
+pg_basebackup
+will be appear to be idle\&.
+.PP
+The backup will include all files in the data directory and tablespaces, including the configuration files and any additional files placed in the directory by third parties, except certain temporary files managed by PostgreSQL\&. But only regular files and directories are copied, except that symbolic links used for tablespaces are preserved\&. Symbolic links pointing to certain directories known to PostgreSQL are copied as empty directories\&. Other symbolic links and special device files are skipped\&. See
+Section\ \&52.4
+for the precise details\&.
+.PP
+Tablespaces will in plain format by default be backed up to the same path they have on the server, unless the option
+\-\-tablespace\-mapping
+is used\&. Without this option, running a plain format base backup on the same host as the server will not work if tablespaces are in use, because the backup would have to be written to the same directory locations as the original tablespaces\&.
+.PP
+When tar format mode is used, it is the user\*(Aqs responsibility to unpack each tar file before starting the PostgreSQL server\&. If there are additional tablespaces, the tar files for them need to be unpacked in the correct locations\&. In this case the symbolic links for those tablespaces will be created by the server according to the contents of the
+tablespace_map
+file that is included in the
+base\&.tar
+file\&.
+.PP
+pg_basebackup
+works with servers of the same or an older major version, down to 9\&.1\&. However, WAL streaming mode (\-X stream) only works with server version 9\&.3 and later, and tar format mode (\-\-format=tar) of the current version only works with server version 9\&.5 or later\&.
+.SH "EXAMPLES"
+.PP
+To create a base backup of the server at
+mydbserver
+and store it in the local directory
+/usr/local/pgsql/data:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_basebackup \-h mydbserver \-D /usr/local/pgsql/data\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To create a backup of the local server with one compressed tar file for each tablespace, and store it in the directory
+backup, showing a progress report while running:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_basebackup \-D backup \-Ft \-z \-P\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To create a backup of a single\-tablespace local database and compress this with
+bzip2:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_basebackup \-D \- \-Ft \-X fetch | bzip2 > backup\&.tar\&.bz2\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+(This command will fail if there are multiple tablespaces in the database\&.)
+.PP
+To create a backup of a local database where the tablespace in
+/opt/ts
+is relocated to
+\&./backup/ts:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBpg_basebackup \-D backup/data \-T /opt/ts=$(pwd)/backup/ts\fR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "SEE ALSO"
+\fBpg_dump\fR(1)

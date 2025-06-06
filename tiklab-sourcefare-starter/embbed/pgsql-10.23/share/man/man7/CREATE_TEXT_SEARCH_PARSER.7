@@ -1,0 +1,97 @@
+'\" t
+.\"     Title: CREATE TEXT SEARCH PARSER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE TEXT SEARCH PARSER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_TEXT_SEARCH_PARSER \- define a new text search parser
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE TEXT SEARCH PARSER \fIname\fR (
+    START = \fIstart_function\fR ,
+    GETTOKEN = \fIgettoken_function\fR ,
+    END = \fIend_function\fR ,
+    LEXTYPES = \fIlextypes_function\fR
+    [, HEADLINE = \fIheadline_function\fR ]
+)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE TEXT SEARCH PARSER\fR
+creates a new text search parser\&. A text search parser defines a method for splitting a text string into tokens and assigning types (categories) to the tokens\&. A parser is not particularly useful by itself, but must be bound into a text search configuration along with some text search dictionaries to be used for searching\&.
+.PP
+If a schema name is given then the text search parser is created in the specified schema\&. Otherwise it is created in the current schema\&.
+.PP
+You must be a superuser to use
+\fBCREATE TEXT SEARCH PARSER\fR\&. (This restriction is made because an erroneous text search parser definition could confuse or even crash the server\&.)
+.PP
+Refer to
+Chapter\ \&12
+for further information\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+The name of the text search parser to be created\&. The name can be schema\-qualified\&.
+.RE
+.PP
+\fIstart_function\fR
+.RS 4
+The name of the start function for the parser\&.
+.RE
+.PP
+\fIgettoken_function\fR
+.RS 4
+The name of the get\-next\-token function for the parser\&.
+.RE
+.PP
+\fIend_function\fR
+.RS 4
+The name of the end function for the parser\&.
+.RE
+.PP
+\fIlextypes_function\fR
+.RS 4
+The name of the lextypes function for the parser (a function that returns information about the set of token types it produces)\&.
+.RE
+.PP
+\fIheadline_function\fR
+.RS 4
+The name of the headline function for the parser (a function that summarizes a set of tokens)\&.
+.RE
+.PP
+The function names can be schema\-qualified if necessary\&. Argument types are not given, since the argument list for each type of function is predetermined\&. All except the headline function are required\&.
+.PP
+The arguments can appear in any order, not only the one shown above\&.
+.SH "COMPATIBILITY"
+.PP
+There is no
+\fBCREATE TEXT SEARCH PARSER\fR
+statement in the SQL standard\&.
+.SH "SEE ALSO"
+ALTER TEXT SEARCH PARSER (\fBALTER_TEXT_SEARCH_PARSER\fR(7)), DROP TEXT SEARCH PARSER (\fBDROP_TEXT_SEARCH_PARSER\fR(7))

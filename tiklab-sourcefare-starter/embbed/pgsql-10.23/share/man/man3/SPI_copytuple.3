@@ -1,0 +1,60 @@
+'\" t
+.\"     Title: SPI_copytuple
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_COPYTUPLE" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_copytuple \- make a copy of a row in the upper executor context
+.SH "SYNOPSIS"
+.sp
+.nf
+HeapTuple SPI_copytuple(HeapTuple \fIrow\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_copytuple\fR
+makes a copy of a row in the upper executor context\&. This is normally used to return a modified row from a trigger\&. In a function declared to return a composite type, use
+\fBSPI_returntuple\fR
+instead\&.
+.PP
+This function can only be used while connected to SPI\&. Otherwise, it returns NULL and sets
+\fISPI_result\fR
+to
+SPI_ERROR_UNCONNECTED\&.
+.SH "ARGUMENTS"
+.PP
+HeapTuple \fIrow\fR
+.RS 4
+row to be copied
+.RE
+.SH "RETURN VALUE"
+.PP
+the copied row, or
+NULL
+on error (see
+\fISPI_result\fR
+for an error indication)

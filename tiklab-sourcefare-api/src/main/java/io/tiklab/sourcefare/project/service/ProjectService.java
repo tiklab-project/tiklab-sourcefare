@@ -11,7 +11,7 @@ import io.tiklab.toolkit.join.annotation.JoinProvider;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@JoinProvider(model = ProjectService.class)
+@JoinProvider(model = Project.class)
 public interface ProjectService {
 
 

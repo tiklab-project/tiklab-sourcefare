@@ -1,0 +1,131 @@
+'\" t
+.\"     Title: SPI_execute_plan
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_EXECUTE_PLAN" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_execute_plan \- execute a statement prepared by \fBSPI_prepare\fR
+.SH "SYNOPSIS"
+.sp
+.nf
+int SPI_execute_plan(SPIPlanPtr \fIplan\fR, Datum * \fIvalues\fR, const char * \fInulls\fR,
+                     bool \fIread_only\fR, long \fIcount\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_execute_plan\fR
+executes a statement prepared by
+\fBSPI_prepare\fR
+or one of its siblings\&.
+\fIread_only\fR
+and
+\fIcount\fR
+have the same interpretation as in
+\fBSPI_execute\fR\&.
+.SH "ARGUMENTS"
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+prepared statement (returned by
+\fBSPI_prepare\fR)
+.RE
+.PP
+Datum * \fIvalues\fR
+.RS 4
+An array of actual parameter values\&. Must have same length as the statement\*(Aqs number of arguments\&.
+.RE
+.PP
+const char * \fInulls\fR
+.RS 4
+An array describing which parameters are null\&. Must have same length as the statement\*(Aqs number of arguments\&.
+.sp
+If
+\fInulls\fR
+is
+NULL
+then
+\fBSPI_execute_plan\fR
+assumes that no parameters are null\&. Otherwise, each entry of the
+\fInulls\fR
+array should be
+\*(Aq\ \&\*(Aq
+if the corresponding parameter value is non\-null, or
+\*(Aqn\*(Aq
+if the corresponding parameter value is null\&. (In the latter case, the actual value in the corresponding
+\fIvalues\fR
+entry doesn\*(Aqt matter\&.) Note that
+\fInulls\fR
+is not a text string, just an array: it does not need a
+\*(Aq\e0\*(Aq
+terminator\&.
+.RE
+.PP
+bool \fIread_only\fR
+.RS 4
+true
+for read\-only execution
+.RE
+.PP
+long \fIcount\fR
+.RS 4
+maximum number of rows to return, or
+0
+for no limit
+.RE
+.SH "RETURN VALUE"
+.PP
+The return value is the same as for
+\fBSPI_execute\fR, with the following additional possible error (negative) results:
+.PP
+SPI_ERROR_ARGUMENT
+.RS 4
+if
+\fIplan\fR
+is
+NULL
+or invalid, or
+\fIcount\fR
+is less than 0
+.RE
+.PP
+SPI_ERROR_PARAM
+.RS 4
+if
+\fIvalues\fR
+is
+NULL
+and
+\fIplan\fR
+was prepared with some parameters
+.RE
+.PP
+\fISPI_processed\fR
+and
+\fISPI_tuptable\fR
+are set as in
+\fBSPI_execute\fR
+if successful\&.

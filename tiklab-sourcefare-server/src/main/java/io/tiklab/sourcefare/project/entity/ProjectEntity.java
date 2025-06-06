@@ -6,7 +6,7 @@ import io.tiklab.dal.jpa.annotation.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name="scan_project")
+@Table(name="wair_project")
 public class ProjectEntity extends BaseModel {
 
     @Id

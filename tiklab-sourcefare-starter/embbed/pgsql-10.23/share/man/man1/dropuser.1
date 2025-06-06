@@ -1,0 +1,213 @@
+'\" t
+.\"     Title: dropuser
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROPUSER" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dropuser \- remove a PostgreSQL user account
+.SH "SYNOPSIS"
+.HP \w'\fBdropuser\fR\ 'u
+\fBdropuser\fR [\fIconnection\-option\fR...] [\fIoption\fR...] [\fIusername\fR]
+.SH "DESCRIPTION"
+.PP
+dropuser
+removes an existing
+PostgreSQL
+user\&. Only superusers and users with the
+CREATEROLE
+privilege can remove
+PostgreSQL
+users\&. (To remove a superuser, you must yourself be a superuser\&.)
+.PP
+dropuser
+is a wrapper around the
+SQL
+command
+DROP ROLE (\fBDROP_ROLE\fR(7))\&. There is no effective difference between dropping users via this utility and via other methods for accessing the server\&.
+.SH "OPTIONS"
+.PP
+dropuser
+accepts the following command\-line arguments:
+.PP
+\fIusername\fR
+.RS 4
+Specifies the name of the
+PostgreSQL
+user to be removed\&. You will be prompted for a name if none is specified on the command line and the
+\fB\-i\fR/\fB\-\-interactive\fR
+option is used\&.
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\fR
+.RS 4
+Echo the commands that
+dropuser
+generates and sends to the server\&.
+.RE
+.PP
+\fB\-i\fR
+.br
+\fB\-\-interactive\fR
+.RS 4
+Prompt for confirmation before actually removing the user, and prompt for the user name if none is specified on the command line\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+dropuser
+version and exit\&.
+.RE
+.PP
+\fB\-\-if\-exists\fR
+.RS 4
+Do not throw an error if the user does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+dropuser
+command line arguments, and exit\&.
+.RE
+.PP
+dropuser
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as (not the user name to drop)\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+dropuser
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+dropuser
+will automatically prompt for a password if the server demands password authentication\&. However,
+dropuser
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "DIAGNOSTICS"
+.PP
+In case of difficulty, see
+DROP ROLE (\fBDROP_ROLE\fR(7))
+and
+\fBpsql\fR(1)
+for discussions of potential problems and error messages\&. The database server must be running at the targeted host\&. Also, any default connection settings and environment variables used by the
+libpq
+front\-end library will apply\&.
+.SH "EXAMPLES"
+.PP
+To remove user
+joe
+from the default database server:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBdropuser joe\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To remove user
+joe
+using the server on host
+eden, port 5000, with verification and a peek at the underlying command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBdropuser \-p 5000 \-h eden \-i \-e joe\fR
+Role "joe" will be permanently removed\&.
+Are you sure? (y/n) \fBy\fR
+DROP ROLE joe;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+\fBcreateuser\fR(1), DROP ROLE (\fBDROP_ROLE\fR(7))

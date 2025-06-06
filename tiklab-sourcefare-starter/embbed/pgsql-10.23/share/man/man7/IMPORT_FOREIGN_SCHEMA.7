@@ -1,0 +1,132 @@
+'\" t
+.\"     Title: IMPORT FOREIGN SCHEMA
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "IMPORT FOREIGN SCHEMA" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+IMPORT_FOREIGN_SCHEMA \- import table definitions from a foreign server
+.SH "SYNOPSIS"
+.sp
+.nf
+IMPORT FOREIGN SCHEMA \fIremote_schema\fR
+    [ { LIMIT TO | EXCEPT } ( \fItable_name\fR [, \&.\&.\&.] ) ]
+    FROM SERVER \fIserver_name\fR
+    INTO \fIlocal_schema\fR
+    [ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBIMPORT FOREIGN SCHEMA\fR
+creates foreign tables that represent tables existing on a foreign server\&. The new foreign tables will be owned by the user issuing the command and are created with the correct column definitions and options to match the remote tables\&.
+.PP
+By default, all tables and views existing in a particular schema on the foreign server are imported\&. Optionally, the list of tables can be limited to a specified subset, or specific tables can be excluded\&. The new foreign tables are all created in the target schema, which must already exist\&.
+.PP
+To use
+\fBIMPORT FOREIGN SCHEMA\fR, the user must have
+USAGE
+privilege on the foreign server, as well as
+CREATE
+privilege on the target schema\&.
+.SH "PARAMETERS"
+.PP
+\fIremote_schema\fR
+.RS 4
+The remote schema to import from\&. The specific meaning of a remote schema depends on the foreign data wrapper in use\&.
+.RE
+.PP
+LIMIT TO ( \fItable_name\fR [, \&.\&.\&.] )
+.RS 4
+Import only foreign tables matching one of the given table names\&. Other tables existing in the foreign schema will be ignored\&.
+.RE
+.PP
+EXCEPT ( \fItable_name\fR [, \&.\&.\&.] )
+.RS 4
+Exclude specified foreign tables from the import\&. All tables existing in the foreign schema will be imported except the ones listed here\&.
+.RE
+.PP
+\fIserver_name\fR
+.RS 4
+The foreign server to import from\&.
+.RE
+.PP
+\fIlocal_schema\fR
+.RS 4
+The schema in which the imported foreign tables will be created\&.
+.RE
+.PP
+OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&.] )
+.RS 4
+Options to be used during the import\&. The allowed option names and values are specific to each foreign data wrapper\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Import table definitions from a remote schema
+foreign_films
+on server
+film_server, creating the foreign tables in local schema
+films:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+IMPORT FOREIGN SCHEMA foreign_films
+    FROM SERVER film_server INTO films;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+As above, but import only the two tables
+actors
+and
+directors
+(if they exist):
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+IMPORT FOREIGN SCHEMA foreign_films LIMIT TO (actors, directors)
+    FROM SERVER film_server INTO films;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The
+\fBIMPORT FOREIGN SCHEMA\fR
+command conforms to the
+SQL
+standard, except that the
+OPTIONS
+clause is a
+PostgreSQL
+extension\&.
+.SH "SEE ALSO"
+CREATE FOREIGN TABLE (\fBCREATE_FOREIGN_TABLE\fR(7)), CREATE SERVER (\fBCREATE_SERVER\fR(7))

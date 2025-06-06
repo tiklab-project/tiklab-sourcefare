@@ -1,0 +1,92 @@
+'\" t
+.\"     Title: DROP ROLE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROP ROLE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+DROP_ROLE \- remove a database role
+.SH "SYNOPSIS"
+.sp
+.nf
+DROP ROLE [ IF EXISTS ] \fIname\fR [, \&.\&.\&.]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBDROP ROLE\fR
+removes the specified role(s)\&. To drop a superuser role, you must be a superuser yourself; to drop non\-superuser roles, you must have
+CREATEROLE
+privilege\&.
+.PP
+A role cannot be removed if it is still referenced in any database of the cluster; an error will be raised if so\&. Before dropping the role, you must drop all the objects it owns (or reassign their ownership) and revoke any privileges the role has been granted on other objects\&. The
+REASSIGN OWNED (\fBREASSIGN_OWNED\fR(7))
+and
+DROP OWNED (\fBDROP_OWNED\fR(7))
+commands can be useful for this purpose; see
+Section\ \&21.4
+for more discussion\&.
+.PP
+However, it is not necessary to remove role memberships involving the role;
+\fBDROP ROLE\fR
+automatically revokes any memberships of the target role in other roles, and of other roles in the target role\&. The other roles are not dropped nor otherwise affected\&.
+.SH "PARAMETERS"
+.PP
+IF EXISTS
+.RS 4
+Do not throw an error if the role does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+The name of the role to remove\&.
+.RE
+.SH "NOTES"
+.PP
+PostgreSQL
+includes a program
+\fBdropuser\fR(1)
+that has the same functionality as this command (in fact, it calls this command) but can be run from the command shell\&.
+.SH "EXAMPLES"
+.PP
+To drop a role:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+DROP ROLE jonathan;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COMPATIBILITY"
+.PP
+The SQL standard defines
+\fBDROP ROLE\fR, but it allows only one role to be dropped at a time, and it specifies different privilege requirements than
+PostgreSQL
+uses\&.
+.SH "SEE ALSO"
+CREATE ROLE (\fBCREATE_ROLE\fR(7)), ALTER ROLE (\fBALTER_ROLE\fR(7)), SET ROLE (\fBSET_ROLE\fR(7))

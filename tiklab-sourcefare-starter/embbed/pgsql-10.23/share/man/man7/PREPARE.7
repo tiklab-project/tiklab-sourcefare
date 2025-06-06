@@ -1,0 +1,169 @@
+'\" t
+.\"     Title: PREPARE
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "PREPARE" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+PREPARE \- prepare a statement for execution
+.SH "SYNOPSIS"
+.sp
+.nf
+PREPARE \fIname\fR [ ( \fIdata_type\fR [, \&.\&.\&.] ) ] AS \fIstatement\fR
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBPREPARE\fR
+creates a prepared statement\&. A prepared statement is a server\-side object that can be used to optimize performance\&. When the
+\fBPREPARE\fR
+statement is executed, the specified statement is parsed, analyzed, and rewritten\&. When an
+\fBEXECUTE\fR
+command is subsequently issued, the prepared statement is planned and executed\&. This division of labor avoids repetitive parse analysis work, while allowing the execution plan to depend on the specific parameter values supplied\&.
+.PP
+Prepared statements can take parameters: values that are substituted into the statement when it is executed\&. When creating the prepared statement, refer to parameters by position, using
+$1,
+$2, etc\&. A corresponding list of parameter data types can optionally be specified\&. When a parameter\*(Aqs data type is not specified or is declared as
+unknown, the type is inferred from the context in which the parameter is first used (if possible)\&. When executing the statement, specify the actual values for these parameters in the
+\fBEXECUTE\fR
+statement\&. Refer to
+\fBEXECUTE\fR(7)
+for more information about that\&.
+.PP
+Prepared statements only last for the duration of the current database session\&. When the session ends, the prepared statement is forgotten, so it must be recreated before being used again\&. This also means that a single prepared statement cannot be used by multiple simultaneous database clients; however, each client can create their own prepared statement to use\&. Prepared statements can be manually cleaned up using the
+\fBDEALLOCATE\fR(7)
+command\&.
+.PP
+Prepared statements potentially have the largest performance advantage when a single session is being used to execute a large number of similar statements\&. The performance difference will be particularly significant if the statements are complex to plan or rewrite, e\&.g\&., if the query involves a join of many tables or requires the application of several rules\&. If the statement is relatively simple to plan and rewrite but relatively expensive to execute, the performance advantage of prepared statements will be less noticeable\&.
+.SH "PARAMETERS"
+.PP
+\fIname\fR
+.RS 4
+An arbitrary name given to this particular prepared statement\&. It must be unique within a single session and is subsequently used to execute or deallocate a previously prepared statement\&.
+.RE
+.PP
+\fIdata_type\fR
+.RS 4
+The data type of a parameter to the prepared statement\&. If the data type of a particular parameter is unspecified or is specified as
+unknown, it will be inferred from the context in which the parameter is first used\&. To refer to the parameters in the prepared statement itself, use
+$1,
+$2, etc\&.
+.RE
+.PP
+\fIstatement\fR
+.RS 4
+Any
+\fBSELECT\fR,
+\fBINSERT\fR,
+\fBUPDATE\fR,
+\fBDELETE\fR, or
+\fBVALUES\fR
+statement\&.
+.RE
+.SH "NOTES"
+.PP
+Prepared statements can use generic plans rather than re\-planning with each set of supplied
+\fBEXECUTE\fR
+values\&. This occurs immediately for prepared statements with no parameters; otherwise it occurs only after five or more executions produce plans whose estimated cost average (including planning overhead) is more expensive than the generic plan cost estimate\&. Once a generic plan is chosen, it is used for the remaining lifetime of the prepared statement\&. Using
+\fBEXECUTE\fR
+values which are rare in columns with many duplicates can generate custom plans that are so much cheaper than the generic plan, even after adding planning overhead, that the generic plan might never be used\&.
+.PP
+A generic plan assumes that each value supplied to
+\fBEXECUTE\fR
+is one of the column\*(Aqs distinct values and that column values are uniformly distributed\&. For example, if statistics record three distinct column values, a generic plan assumes a column equality comparison will match 33% of processed rows\&. Column statistics also allow generic plans to accurately compute the selectivity of unique columns\&. Comparisons on non\-uniformly\-distributed columns and specification of non\-existent values affects the average plan cost, and hence if and when a generic plan is chosen\&.
+.PP
+To examine the query plan
+PostgreSQL
+is using for a prepared statement, use
+\fBEXPLAIN\fR(7), e\&.g\&.,
+\fBEXPLAIN EXECUTE\fR\&. If a generic plan is in use, it will contain parameter symbols
+$\fIn\fR, while a custom plan will have the supplied parameter values substituted into it\&. The row estimates in the generic plan reflect the selectivity computed for the parameters\&.
+.PP
+For more information on query planning and the statistics collected by
+PostgreSQL
+for that purpose, see the
+\fBANALYZE\fR(7)
+documentation\&.
+.PP
+Although the main point of a prepared statement is to avoid repeated parse analysis and planning of the statement,
+PostgreSQL
+will force re\-analysis and re\-planning of the statement before using it whenever database objects used in the statement have undergone definitional (DDL) changes since the previous use of the prepared statement\&. Also, if the value of
+search_path
+changes from one use to the next, the statement will be re\-parsed using the new
+\fIsearch_path\fR\&. (This latter behavior is new as of
+PostgreSQL
+9\&.3\&.) These rules make use of a prepared statement semantically almost equivalent to re\-submitting the same query text over and over, but with a performance benefit if no object definitions are changed, especially if the best plan remains the same across uses\&. An example of a case where the semantic equivalence is not perfect is that if the statement refers to a table by an unqualified name, and then a new table of the same name is created in a schema appearing earlier in the
+\fIsearch_path\fR, no automatic re\-parse will occur since no object used in the statement changed\&. However, if some other change forces a re\-parse, the new table will be referenced in subsequent uses\&.
+.PP
+You can see all prepared statements available in the session by querying the
+pg_prepared_statements
+system view\&.
+.SH "EXAMPLES"
+.PP
+Create a prepared statement for an
+\fBINSERT\fR
+statement, and then execute it:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+PREPARE fooplan (int, text, bool, numeric) AS
+    INSERT INTO foo VALUES($1, $2, $3, $4);
+EXECUTE fooplan(1, \*(AqHunter Valley\*(Aq, \*(Aqt\*(Aq, 200\&.00);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Create a prepared statement for a
+\fBSELECT\fR
+statement, and then execute it:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+PREPARE usrrptplan (int) AS
+    SELECT * FROM users u, logs l WHERE u\&.usrid=$1 AND u\&.usrid=l\&.usrid
+    AND l\&.date = $2;
+EXECUTE usrrptplan(1, current_date);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Note that the data type of the second parameter is not specified, so it is inferred from the context in which
+$2
+is used\&.
+.SH "COMPATIBILITY"
+.PP
+The SQL standard includes a
+\fBPREPARE\fR
+statement, but it is only for use in embedded SQL\&. This version of the
+\fBPREPARE\fR
+statement also uses a somewhat different syntax\&.
+.SH "SEE ALSO"
+\fBDEALLOCATE\fR(7), \fBEXECUTE\fR(7)

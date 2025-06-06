@@ -1,0 +1,370 @@
+'\" t
+.\"     Title: createuser
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATEUSER" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+createuser \- define a new PostgreSQL user account
+.SH "SYNOPSIS"
+.HP \w'\fBcreateuser\fR\ 'u
+\fBcreateuser\fR [\fIconnection\-option\fR...] [\fIoption\fR...] [\fIusername\fR]
+.SH "DESCRIPTION"
+.PP
+createuser
+creates a new
+PostgreSQL
+user (or more precisely, a role)\&. Only superusers and users with
+CREATEROLE
+privilege can create new users, so
+createuser
+must be invoked by someone who can connect as a superuser or a user with
+CREATEROLE
+privilege\&.
+.PP
+If you wish to create a new superuser, you must connect as a superuser, not merely with
+CREATEROLE
+privilege\&. Being a superuser implies the ability to bypass all access permission checks within the database, so superuser access should not be granted lightly\&.
+.PP
+createuser
+is a wrapper around the
+SQL
+command
+CREATE ROLE (\fBCREATE_ROLE\fR(7))\&. There is no effective difference between creating users via this utility and via other methods for accessing the server\&.
+.SH "OPTIONS"
+.PP
+createuser
+accepts the following command\-line arguments:
+.PP
+\fIusername\fR
+.RS 4
+Specifies the name of the
+PostgreSQL
+user to be created\&. This name must be different from all existing roles in this
+PostgreSQL
+installation\&.
+.RE
+.PP
+\fB\-c \fR\fB\fInumber\fR\fR
+.br
+\fB\-\-connection\-limit=\fR\fB\fInumber\fR\fR
+.RS 4
+Set a maximum number of connections for the new user\&. The default is to set no limit\&.
+.RE
+.PP
+\fB\-d\fR
+.br
+\fB\-\-createdb\fR
+.RS 4
+The new user will be allowed to create databases\&.
+.RE
+.PP
+\fB\-D\fR
+.br
+\fB\-\-no\-createdb\fR
+.RS 4
+The new user will not be allowed to create databases\&. This is the default\&.
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\fR
+.RS 4
+Echo the commands that
+createuser
+generates and sends to the server\&.
+.RE
+.PP
+\fB\-E\fR
+.br
+\fB\-\-encrypted\fR
+.RS 4
+This option is obsolete but still accepted for backward compatibility\&.
+.RE
+.PP
+\fB\-g \fR\fB\fIrole\fR\fR
+.br
+\fB\-\-role=\fR\fB\fIrole\fR\fR
+.RS 4
+Indicates role to which this role will be added immediately as a new member\&. Multiple roles to which this role will be added as a member can be specified by writing multiple
+\fB\-g\fR
+switches\&.
+.RE
+.PP
+\fB\-i\fR
+.br
+\fB\-\-inherit\fR
+.RS 4
+The new role will automatically inherit privileges of roles it is a member of\&. This is the default\&.
+.RE
+.PP
+\fB\-I\fR
+.br
+\fB\-\-no\-inherit\fR
+.RS 4
+The new role will not automatically inherit privileges of roles it is a member of\&.
+.RE
+.PP
+\fB\-\-interactive\fR
+.RS 4
+Prompt for the user name if none is specified on the command line, and also prompt for whichever of the options
+\fB\-d\fR/\fB\-D\fR,
+\fB\-r\fR/\fB\-R\fR,
+\fB\-s\fR/\fB\-S\fR
+is not specified on the command line\&. (This was the default behavior up to PostgreSQL 9\&.1\&.)
+.RE
+.PP
+\fB\-l\fR
+.br
+\fB\-\-login\fR
+.RS 4
+The new user will be allowed to log in (that is, the user name can be used as the initial session user identifier)\&. This is the default\&.
+.RE
+.PP
+\fB\-L\fR
+.br
+\fB\-\-no\-login\fR
+.RS 4
+The new user will not be allowed to log in\&. (A role without login privilege is still useful as a means of managing database permissions\&.)
+.RE
+.PP
+\fB\-P\fR
+.br
+\fB\-\-pwprompt\fR
+.RS 4
+If given,
+createuser
+will issue a prompt for the password of the new user\&. This is not necessary if you do not plan on using password authentication\&.
+.RE
+.PP
+\fB\-r\fR
+.br
+\fB\-\-createrole\fR
+.RS 4
+The new user will be allowed to create new roles (that is, this user will have
+CREATEROLE
+privilege)\&.
+.RE
+.PP
+\fB\-R\fR
+.br
+\fB\-\-no\-createrole\fR
+.RS 4
+The new user will not be allowed to create new roles\&. This is the default\&.
+.RE
+.PP
+\fB\-s\fR
+.br
+\fB\-\-superuser\fR
+.RS 4
+The new user will be a superuser\&.
+.RE
+.PP
+\fB\-S\fR
+.br
+\fB\-\-no\-superuser\fR
+.RS 4
+The new user will not be a superuser\&. This is the default\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+createuser
+version and exit\&.
+.RE
+.PP
+\fB\-\-replication\fR
+.RS 4
+The new user will have the
+REPLICATION
+privilege, which is described more fully in the documentation for
+CREATE ROLE (\fBCREATE_ROLE\fR(7))\&.
+.RE
+.PP
+\fB\-\-no\-replication\fR
+.RS 4
+The new user will not have the
+REPLICATION
+privilege, which is described more fully in the documentation for
+CREATE ROLE (\fBCREATE_ROLE\fR(7))\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+createuser
+command line arguments, and exit\&.
+.RE
+.PP
+createuser
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as (not the user name to create)\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+createuser
+to prompt for a password (for connecting to the server, not for the password of the new user)\&.
+.sp
+This option is never essential, since
+createuser
+will automatically prompt for a password if the server demands password authentication\&. However,
+createuser
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "DIAGNOSTICS"
+.PP
+In case of difficulty, see
+CREATE ROLE (\fBCREATE_ROLE\fR(7))
+and
+\fBpsql\fR(1)
+for discussions of potential problems and error messages\&. The database server must be running at the targeted host\&. Also, any default connection settings and environment variables used by the
+libpq
+front\-end library will apply\&.
+.SH "EXAMPLES"
+.PP
+To create a user
+joe
+on the default database server:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBcreateuser joe\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To create a user
+joe
+on the default database server with prompting for some additional attributes:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBcreateuser \-\-interactive joe\fR
+Shall the new role be a superuser? (y/n) \fBn\fR
+Shall the new role be allowed to create databases? (y/n) \fBn\fR
+Shall the new role be allowed to create more new roles? (y/n) \fBn\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To create the same user
+joe
+using the server on host
+eden, port 5000, with attributes explicitly specified, taking a look at the underlying command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBcreateuser \-h eden \-p 5000 \-S \-D \-R \-e joe\fR
+CREATE ROLE joe NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To create the user
+joe
+as a superuser, and assign a password immediately:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBcreateuser \-P \-s \-e joe\fR
+Enter password for new role: \fBxyzzy\fR
+Enter it again: \fBxyzzy\fR
+CREATE ROLE joe PASSWORD \*(Aqmd5b5f5ba1a423792b526f799ae4eb3d59e\*(Aq SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+In the above example, the new password isn\*(Aqt actually echoed when typed, but we show what was typed for clarity\&. As you see, the password is encrypted before it is sent to the client\&.
+.SH "SEE ALSO"
+\fBdropuser\fR(1), CREATE ROLE (\fBCREATE_ROLE\fR(7))

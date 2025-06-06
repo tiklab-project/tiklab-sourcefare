@@ -1,0 +1,116 @@
+'\" t
+.\"     Title: CREATE SERVER
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "CREATE SERVER" "7" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CREATE_SERVER \- define a new foreign server
+.SH "SYNOPSIS"
+.sp
+.nf
+CREATE SERVER [IF NOT EXISTS] \fIserver_name\fR [ TYPE \*(Aq\fIserver_type\fR\*(Aq ] [ VERSION \*(Aq\fIserver_version\fR\*(Aq ]
+    FOREIGN DATA WRAPPER \fIfdw_name\fR
+    [ OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] ) ]
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBCREATE SERVER\fR
+defines a new foreign server\&. The user who defines the server becomes its owner\&.
+.PP
+A foreign server typically encapsulates connection information that a foreign\-data wrapper uses to access an external data resource\&. Additional user\-specific connection information may be specified by means of user mappings\&.
+.PP
+The server name must be unique within the database\&.
+.PP
+Creating a server requires
+USAGE
+privilege on the foreign\-data wrapper being used\&.
+.SH "PARAMETERS"
+.PP
+IF NOT EXISTS
+.RS 4
+Do not throw an error if a server with the same name already exists\&. A notice is issued in this case\&. Note that there is no guarantee that the existing server is anything like the one that would have been created\&.
+.RE
+.PP
+\fIserver_name\fR
+.RS 4
+The name of the foreign server to be created\&.
+.RE
+.PP
+\fIserver_type\fR
+.RS 4
+Optional server type, potentially useful to foreign\-data wrappers\&.
+.RE
+.PP
+\fIserver_version\fR
+.RS 4
+Optional server version, potentially useful to foreign\-data wrappers\&.
+.RE
+.PP
+\fIfdw_name\fR
+.RS 4
+The name of the foreign\-data wrapper that manages the server\&.
+.RE
+.PP
+OPTIONS ( \fIoption\fR \*(Aq\fIvalue\fR\*(Aq [, \&.\&.\&. ] )
+.RS 4
+This clause specifies the options for the server\&. The options typically define the connection details of the server, but the actual names and values are dependent on the server\*(Aqs foreign\-data wrapper\&.
+.RE
+.SH "NOTES"
+.PP
+When using the
+dblink
+module, a foreign server\*(Aqs name can be used as an argument of the
+\fBdblink_connect\fR(3)
+function to indicate the connection parameters\&. It is necessary to have the
+USAGE
+privilege on the foreign server to be able to use it in this way\&.
+.SH "EXAMPLES"
+.PP
+Create a server
+myserver
+that uses the foreign\-data wrapper
+postgres_fdw:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CREATE SERVER myserver FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host \*(Aqfoo\*(Aq, dbname \*(Aqfoodb\*(Aq, port \*(Aq5432\*(Aq);
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+See
+postgres_fdw
+for more details\&.
+.SH "COMPATIBILITY"
+.PP
+\fBCREATE SERVER\fR
+conforms to ISO/IEC 9075\-9 (SQL/MED)\&.
+.SH "SEE ALSO"
+ALTER SERVER (\fBALTER_SERVER\fR(7)), DROP SERVER (\fBDROP_SERVER\fR(7)), CREATE FOREIGN DATA WRAPPER (\fBCREATE_FOREIGN_DATA_WRAPPER\fR(7)), CREATE FOREIGN TABLE (\fBCREATE_FOREIGN_TABLE\fR(7)), CREATE USER MAPPING (\fBCREATE_USER_MAPPING\fR(7))

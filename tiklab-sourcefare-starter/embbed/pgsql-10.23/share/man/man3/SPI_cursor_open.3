@@ -1,0 +1,102 @@
+'\" t
+.\"     Title: SPI_cursor_open
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "SPI_CURSOR_OPEN" "3" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+SPI_cursor_open \- set up a cursor using a statement created with \fBSPI_prepare\fR
+.SH "SYNOPSIS"
+.sp
+.nf
+Portal SPI_cursor_open(const char * \fIname\fR, SPIPlanPtr \fIplan\fR,
+                       Datum * \fIvalues\fR, const char * \fInulls\fR,
+                       bool \fIread_only\fR)
+.fi
+.SH "DESCRIPTION"
+.PP
+\fBSPI_cursor_open\fR
+sets up a cursor (internally, a portal) that will execute a statement prepared by
+\fBSPI_prepare\fR\&. The parameters have the same meanings as the corresponding parameters to
+\fBSPI_execute_plan\fR\&.
+.PP
+Using a cursor instead of executing the statement directly has two benefits\&. First, the result rows can be retrieved a few at a time, avoiding memory overrun for queries that return many rows\&. Second, a portal can outlive the current procedure (it can, in fact, live to the end of the current transaction)\&. Returning the portal name to the procedure\*(Aqs caller provides a way of returning a row set as result\&.
+.PP
+The passed\-in parameter data will be copied into the cursor\*(Aqs portal, so it can be freed while the cursor still exists\&.
+.SH "ARGUMENTS"
+.PP
+const char * \fIname\fR
+.RS 4
+name for portal, or
+NULL
+to let the system select a name
+.RE
+.PP
+SPIPlanPtr \fIplan\fR
+.RS 4
+prepared statement (returned by
+\fBSPI_prepare\fR)
+.RE
+.PP
+Datum * \fIvalues\fR
+.RS 4
+An array of actual parameter values\&. Must have same length as the statement\*(Aqs number of arguments\&.
+.RE
+.PP
+const char * \fInulls\fR
+.RS 4
+An array describing which parameters are null\&. Must have same length as the statement\*(Aqs number of arguments\&.
+.sp
+If
+\fInulls\fR
+is
+NULL
+then
+\fBSPI_cursor_open\fR
+assumes that no parameters are null\&. Otherwise, each entry of the
+\fInulls\fR
+array should be
+\*(Aq\ \&\*(Aq
+if the corresponding parameter value is non\-null, or
+\*(Aqn\*(Aq
+if the corresponding parameter value is null\&. (In the latter case, the actual value in the corresponding
+\fIvalues\fR
+entry doesn\*(Aqt matter\&.) Note that
+\fInulls\fR
+is not a text string, just an array: it does not need a
+\*(Aq\e0\*(Aq
+terminator\&.
+.RE
+.PP
+bool \fIread_only\fR
+.RS 4
+true
+for read\-only execution
+.RE
+.SH "RETURN VALUE"
+.PP
+Pointer to portal containing the cursor\&. Note there is no error return convention; any error will be reported via
+\fBelog\fR\&.

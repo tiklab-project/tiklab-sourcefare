@@ -1,0 +1,215 @@
+'\" t
+.\"     Title: dropdb
+.\"    Author: The PostgreSQL Global Development Group
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2022
+.\"    Manual: PostgreSQL 10.23 Documentation
+.\"    Source: PostgreSQL 10.23
+.\"  Language: English
+.\"
+.TH "DROPDB" "1" "2022" "PostgreSQL 10.23" "PostgreSQL 10.23 Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dropdb \- remove a PostgreSQL database
+.SH "SYNOPSIS"
+.HP \w'\fBdropdb\fR\ 'u
+\fBdropdb\fR [\fIconnection\-option\fR...] [\fIoption\fR...] \fIdbname\fR
+.SH "DESCRIPTION"
+.PP
+dropdb
+destroys an existing
+PostgreSQL
+database\&. The user who executes this command must be a database superuser or the owner of the database\&.
+.PP
+dropdb
+is a wrapper around the
+SQL
+command
+DROP DATABASE (\fBDROP_DATABASE\fR(7))\&. There is no effective difference between dropping databases via this utility and via other methods for accessing the server\&.
+.SH "OPTIONS"
+.PP
+dropdb
+accepts the following command\-line arguments:
+.PP
+\fIdbname\fR
+.RS 4
+Specifies the name of the database to be removed\&.
+.RE
+.PP
+\fB\-e\fR
+.br
+\fB\-\-echo\fR
+.RS 4
+Echo the commands that
+dropdb
+generates and sends to the server\&.
+.RE
+.PP
+\fB\-i\fR
+.br
+\fB\-\-interactive\fR
+.RS 4
+Issues a verification prompt before doing anything destructive\&.
+.RE
+.PP
+\fB\-V\fR
+.br
+\fB\-\-version\fR
+.RS 4
+Print the
+dropdb
+version and exit\&.
+.RE
+.PP
+\fB\-\-if\-exists\fR
+.RS 4
+Do not throw an error if the database does not exist\&. A notice is issued in this case\&.
+.RE
+.PP
+\fB\-?\fR
+.br
+\fB\-\-help\fR
+.RS 4
+Show help about
+dropdb
+command line arguments, and exit\&.
+.RE
+.PP
+dropdb
+also accepts the following command\-line arguments for connection parameters:
+.PP
+\fB\-h \fR\fB\fIhost\fR\fR
+.br
+\fB\-\-host=\fR\fB\fIhost\fR\fR
+.RS 4
+Specifies the host name of the machine on which the server is running\&. If the value begins with a slash, it is used as the directory for the Unix domain socket\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR
+.br
+\fB\-\-port=\fR\fB\fIport\fR\fR
+.RS 4
+Specifies the TCP port or local Unix domain socket file extension on which the server is listening for connections\&.
+.RE
+.PP
+\fB\-U \fR\fB\fIusername\fR\fR
+.br
+\fB\-\-username=\fR\fB\fIusername\fR\fR
+.RS 4
+User name to connect as\&.
+.RE
+.PP
+\fB\-w\fR
+.br
+\fB\-\-no\-password\fR
+.RS 4
+Never issue a password prompt\&. If the server requires password authentication and a password is not available by other means such as a
+\&.pgpass
+file, the connection attempt will fail\&. This option can be useful in batch jobs and scripts where no user is present to enter a password\&.
+.RE
+.PP
+\fB\-W\fR
+.br
+\fB\-\-password\fR
+.RS 4
+Force
+dropdb
+to prompt for a password before connecting to a database\&.
+.sp
+This option is never essential, since
+dropdb
+will automatically prompt for a password if the server demands password authentication\&. However,
+dropdb
+will waste a connection attempt finding out that the server wants a password\&. In some cases it is worth typing
+\fB\-W\fR
+to avoid the extra connection attempt\&.
+.RE
+.PP
+\fB\-\-maintenance\-db=\fR\fB\fIdbname\fR\fR
+.RS 4
+Specifies the name of the database to connect to in order to drop the target database\&. If not specified, the
+postgres
+database will be used; if that does not exist (or is the database being dropped),
+template1
+will be used\&. This can be a
+connection string\&. If so, connection string parameters will override any conflicting command line options\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBPGHOST\fR
+.br
+\fBPGPORT\fR
+.br
+\fBPGUSER\fR
+.RS 4
+Default connection parameters
+.RE
+.PP
+This utility, like most other
+PostgreSQL
+utilities, also uses the environment variables supported by
+libpq
+(see
+Section\ \&33.14)\&.
+.SH "DIAGNOSTICS"
+.PP
+In case of difficulty, see
+DROP DATABASE (\fBDROP_DATABASE\fR(7))
+and
+\fBpsql\fR(1)
+for discussions of potential problems and error messages\&. The database server must be running at the targeted host\&. Also, any default connection settings and environment variables used by the
+libpq
+front\-end library will apply\&.
+.SH "EXAMPLES"
+.PP
+To destroy the database
+demo
+on the default database server:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBdropdb demo\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To destroy the database
+demo
+using the server on host
+eden, port 5000, with verification and a peek at the underlying command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ \fBdropdb \-p 5000 \-h eden \-i \-e demo\fR
+Database "demo" will be permanently deleted\&.
+Are you sure? (y/n) \fBy\fR
+DROP DATABASE demo;
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+\fBcreatedb\fR(1), DROP DATABASE (\fBDROP_DATABASE\fR(7))
