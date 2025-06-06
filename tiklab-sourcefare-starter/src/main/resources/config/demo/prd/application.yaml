@@ -1,53 +1,52 @@
-#application config
 app:
-  name: tiklab-sourcewair
-  path: ${APP_HOME}
+  name: tiklab-sourcefare
   version: ee
 
-#web config
+APP_HOME: ${APP_HOME}
+application: sourcefare
+
 server:
   port: 8090
 
-#dal config
 
-#dal config for mysql jdbc
+
 jdbc:
   driverClassName: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5490/tiklab_sourcefare_ee?stringtype=unspecified
+  url: jdbc:postgresql://localhost:5435/tiklab_sourcefare?stringtype=unspecified
   username: postgres
   password: darth2020
 
 
+#plugin config
+DATA_HOME: /opt/tiklab/sourcefare
+
+plugin:
+  path: ${DATA_HOME}/plugin
+
 postgresql:
   embbed:
     enable: true
-  database: tiklab_sourcefare_ee
+  database: tiklab_sourcefare
   db:
-    port: 5490
+    port: 5435
     username: postgres
     password: darth2020
     address: ${DATA_HOME}/postgresql
 
-#soular config
 soular:
   embbed:
     enable: false
-  address: http://soular-ee.demo.tiklab.net
-
-DATA_HOME: /opt/thoughtware/sourcefare_ee
-
-base:
-  url: http://soular-ce.demo.tiklab.net
+  address: http://e.tiklab.net
 
 #dfs config
 dfs:
   server:
     enabled: false
     mode: server
-    port: 4100
+    port: 4005
     datapath: ${DATA_HOME}/files
   client:
-    url: 127.0.0.1:4100
+    url: 127.0.0.1:4005
     bucket: ${app.name}
 
 #dcs config
@@ -55,10 +54,10 @@ dcs:
   server:
     enabled: true
     mode: server
-    port: 5100
+    port: 5005
     datapath: ${DATA_HOME}/caches
   client:
-    url: 127.0.0.1:5100
+    url: 127.0.0.1:5005
     group: g1
     database: dcs1
     expire: 7200
@@ -68,41 +67,53 @@ dss:
   server:
     enabled: false
     mode: server
-    port: 6100
+    port: 6005
     datapath: ${DATA_HOME}/index
   client:
-    url: 127.0.0.1:6100
+    url: 127.0.0.1:6005
     bucket: ${app.name}
 
-
-#plugin config
-plugin.path: ${APP_HOME}/plugin
+datapath: ${DATA_HOME}/caches
 
 
+
+message:
+  sms:
+    enabled: true
+
+base:
+  url: http://e.eas.tiklab.net
+
+
+#homes
 homes:
-  address: http://homes.tiklab.net
+  address: http://homes.tiklab.cn
 
-
-#licences config
+#license
 licences:
   path: ${DATA_HOME}/licences
 
 #file
 file:
-  path: http://file.thoughtware.net
+  path: http://file.tiklab.net
+
+
 
 repository:
-  address: ${DATA_HOME}/repository
+  address: ${DATA_HOME}/project
 
 
+
+visit:
+  address: http://e.sourcefare.tiklab.net
 
 backups:
   time: 0 0 2 * * ?
-  dir: /data/backup
-  xpack:
+  dir: /data
+  xcode:
     dir: ${DATA_HOME}/repository
 
 
 postin:
   scan:
-    package: io.tiklab.hadess
+    package: io.tiklab.sourcefare
