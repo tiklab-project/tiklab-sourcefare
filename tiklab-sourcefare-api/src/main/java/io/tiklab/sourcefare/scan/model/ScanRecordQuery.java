@@ -19,9 +19,13 @@ public class ScanRecordQuery {
 
     private String projectId;
 
-    @ApiProperty(name ="scanPlayId",desc = "扫描计划id")
-    private String scanPlayId;
 
+
+    @ApiProperty(name ="playWay",desc = "扫描计划方式")
+    private String playWay;
+
+    @ApiProperty(name ="scanResult",desc = "扫描结果")
+    private String scanResult;
 
 
     public List<Order> getOrderParams() {
@@ -44,16 +48,25 @@ public class ScanRecordQuery {
         return projectId;
     }
 
-    public void setProjectId(String projectId) {
+    public ScanRecordQuery setProjectId(String projectId) {
         this.projectId = projectId;
-    }
-
-    public String getScanPlayId() {
-        return scanPlayId;
-    }
-
-    public ScanRecordQuery setScanPlayId(String scanPlayId) {
-        this.scanPlayId = scanPlayId;
         return this;
+    }
+
+
+    public String getScanResult() {
+        return scanResult;
+    }
+
+    public void setScanResult(String scanResult) {
+        this.scanResult = scanResult;
+    }
+
+    public String getPlayWay() {
+        return playWay;
+    }
+
+    public void setPlayWay(String playWay) {
+        this.playWay = playWay;
     }
 }

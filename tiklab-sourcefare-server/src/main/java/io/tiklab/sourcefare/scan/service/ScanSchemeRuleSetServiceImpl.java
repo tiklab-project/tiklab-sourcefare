@@ -40,7 +40,13 @@ public class ScanSchemeRuleSetServiceImpl implements ScanSchemeRuleSetService {
 
     @Autowired
     ScanRuleService scanRuleService;
-
+    @Override
+    public String createSchemeRuleSet(ScanSchemeRuleSet scanSchemeRuleSet) {
+        ScanSchemeRuleSetEntity scanSchemeRuleSetEntity = BeanMapper.map(scanSchemeRuleSet, ScanSchemeRuleSetEntity.class);
+        scanSchemeRuleSetEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        String scanSchemeRuleSetId= scanSchemeRuleSetDao.createScanSchemeRuleSet(scanSchemeRuleSetEntity);
+        return scanSchemeRuleSetId;
+    }
 
     @Override
     public String createScanSchemeRuleSet(@NotNull @Valid ScanSchemeRuleSet scanSchemeRuleSet) {
@@ -63,6 +69,8 @@ public class ScanSchemeRuleSetServiceImpl implements ScanSchemeRuleSetService {
         }
         return scanSchemeRuleSetId;
     }
+
+
 
     @Override
     public void updateScanSchemeRuleSet(@NotNull @Valid ScanSchemeRuleSet scanSchemeRuleSet) {
@@ -125,7 +133,7 @@ public class ScanSchemeRuleSetServiceImpl implements ScanSchemeRuleSetService {
         List<ScanSchemeRuleSetEntity> scanSchemeRuleSetEntityList = scanSchemeRuleSetDao.findScanSchemeRuleSetList(ScanSchemeRuleSetQuery);
 
         List<ScanSchemeRuleSet> scanSchemeRuleSetList = BeanMapper.mapList(scanSchemeRuleSetEntityList, ScanSchemeRuleSet.class);
-        joinTemplate.joinQuery(scanSchemeRuleSetList);
+        joinTemplate.joinQuery(scanSchemeRuleSetList,new String[]{"scanRuleSet"});
         if(CollectionUtils.isNotEmpty(scanSchemeRuleSetList)){
             for (ScanSchemeRuleSet ruleSet:scanSchemeRuleSetList){
                 List<ScanSchemeRule> schemeRuleList = scanSchemeRuleService.findScanSchemeRuleList(new ScanSchemeRuleQuery().setSchemeRulesetId(ruleSet.getId()));

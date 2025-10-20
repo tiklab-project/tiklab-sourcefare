@@ -7,11 +7,12 @@ import io.tiklab.toolkit.beans.annotation.Mapper;
 import io.tiklab.toolkit.beans.annotation.Mapping;
 import io.tiklab.toolkit.beans.annotation.Mappings;
 import io.tiklab.toolkit.join.annotation.Join;
-import io.tiklab.toolkit.join.annotation.JoinQuery;
+import io.tiklab.toolkit.join.annotation.JoinField;
 import io.tiklab.user.user.model.User;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 @ApiModel
 @Join
@@ -22,16 +23,6 @@ public class ScanRecord implements Serializable {
     private String id;
 
 
-    @ApiProperty(name="scanPlay",desc="扫描计划")
-    @Mappings({
-            @Mapping(source = "scanPlay.id",target = "scanPlayId")
-    })
-    @JoinQuery(key = "id")
-    private ScanPlay scanPlay;
-
-    @ApiProperty(name="scanObject",desc="扫描对象 （git 提交的id）")
-    private String scanObject;
-
     @ApiProperty(name="projectId",desc="项目")
     private String projectId;
 
@@ -39,13 +30,13 @@ public class ScanRecord implements Serializable {
     @Mappings({
             @Mapping(source = "scanUser.id",target = "scanUserId")
     })
-    @JoinQuery(key = "id")
+    @JoinField(key = "id")
     private User scanUser;
 
-    @ApiProperty(name="scanResult",desc="扫描结果 执行中：run 通过：success、失败：fail")
+    @ApiProperty(name="scanResult",desc="扫描结果 执行中：run 通过：success、失败：fail 、运行失败：execFail")
     private String scanResult;
 
-    @ApiProperty(name="scanWay",desc="扫描方式 hand：手动")
+    @ApiProperty(name="scanWay",desc="扫描方式 client、server")
     private String scanWay;
 
     @ApiProperty(name="scanTime",desc="扫描耗时")
@@ -71,13 +62,15 @@ public class ScanRecord implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
     private Timestamp createTime;
 
-    @ApiProperty(name="execLog",desc="日志")
-    private String execLog;
 
 
     /*-----其他字段-----*/
     @ApiProperty(name="storageCodePath",desc="代码存储位置,相对位置")
     private String storageCodePath;
+
+
+    @ApiProperty(name="typeList",desc="扫描类型统计")
+    private List typeList;
 
 
     public String getId() {
@@ -88,13 +81,6 @@ public class ScanRecord implements Serializable {
         this.id = id;
     }
 
-    public ScanPlay getScanPlay() {
-        return scanPlay;
-    }
-
-    public void setScanPlay(ScanPlay scanPlay) {
-        this.scanPlay = scanPlay;
-    }
 
     public String getProjectId() {
         return projectId;
@@ -160,13 +146,7 @@ public class ScanRecord implements Serializable {
         this.scanWay = scanWay;
     }
 
-    public String getScanObject() {
-        return scanObject;
-    }
 
-    public void setScanObject(String scanObject) {
-        this.scanObject = scanObject;
-    }
 
     public Integer getErrorTrouble() {
         return errorTrouble;
@@ -193,13 +173,6 @@ public class ScanRecord implements Serializable {
         this.scanTime = scanTime;
     }
 
-    public String getExecLog() {
-        return execLog;
-    }
-
-    public void setExecLog(String execLog) {
-        this.execLog = execLog;
-    }
 
     public String getStorageCodePath() {
         return storageCodePath;
@@ -207,5 +180,13 @@ public class ScanRecord implements Serializable {
 
     public void setStorageCodePath(String storageCodePath) {
         this.storageCodePath = storageCodePath;
+    }
+
+    public List getTypeList() {
+        return typeList;
+    }
+
+    public void setTypeList(List typeList) {
+        this.typeList = typeList;
     }
 }

@@ -25,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/scanScheme")
-@Api(name = "ScanSchemeController",desc = "扫描方案")
+//@Api(name = "ScanSchemeController",desc = "扫描方案")
 public class ScanSchemeController {
 
     private static Logger logger = LoggerFactory.getLogger(ScanSchemeController.class);
@@ -95,5 +95,12 @@ public class ScanSchemeController {
 
         return Result.ok(pagination);
     }
+    @RequestMapping(path = "/findScanSchemeByLanguage",method = RequestMethod.POST)
+    @ApiMethod(name = "findScanSchemeByLanguage",desc = "通过语言查询扫描方案")
+    @ApiParam(name = "scanSchemeQuery",desc = "language",required = true)
+    public Result<List<ScanScheme>> findScanSchemeByLanguage(@RequestBody @Valid @NotNull ScanSchemeQuery scanSchemeQuery){
+        List<ScanScheme> scanSchemeList =  scanSchemeService.findScanSchemeByLanguage(scanSchemeQuery);
 
+        return Result.ok(scanSchemeList);
+    }
 }

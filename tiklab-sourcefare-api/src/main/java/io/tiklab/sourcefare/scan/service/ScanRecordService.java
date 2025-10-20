@@ -77,11 +77,14 @@ public interface ScanRecordService {
 
     /**
      * 查询列表
-     * @param scanPlayId
+     * @param projectId
      * @return
      */
-    ScanRecord findScanRecordByPlayId(String scanPlayId);
+    List<ScanRecord> findScanRecordListByProjectId(String projectId);
 
+    //查询最新的扫描记录
+
+    ScanRecord findNewScanRecord(String projectId);
     /**
     * 按分页查询
     * @param scanRecordQuery

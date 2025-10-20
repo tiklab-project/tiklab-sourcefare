@@ -1,11 +1,6 @@
 app:
-  name: tiklab-sourcewair
+  name: tiklab-sourcefare
 
-spring:
-  main:
-    allow-bean-definition-overriding: true
-  freemarker:
-    checkTemplateLocation: false
 
 server:
   port: 8010
@@ -17,7 +12,8 @@ DATA_HOME: ${user.home}/tiklab/${app.name}
 #database config
 jdbc:
   driverClassName: org.postgresql.Driver
-  url: jdbc:postgresql://172.10.1.10:5432/sourcewair_ce?stringtype=unspecified
+  url: jdbc:postgresql://172.10.1.10:5432/tiklab_sourcefare?stringtype=unspecified
+   #url: jdbc:postgresql://172.13.1.23:5435/tiklab_sourcefare?stringtype=unspecified
   username: postgres
   password: darth2020
 
@@ -26,7 +22,7 @@ postgresql:
   embbed:
     enable: false
   type: local
-  database: tiklab-sourcewair
+  database: tiklab_sourcefare
 
 #dcs config
 dcs:
@@ -40,43 +36,17 @@ dcs:
     database: dcs1
     expire: 7200
 
-soular:
-  embbed:
-    enable: true
 
-message:
-  sms:
-    enabled: true
+# (local:本地登录  soular:统一登录)
+auth:
+  type: local
+  soular:
+    address: http://192.168.10.15:8080
+  expire: 86400 # 过期时间，单位秒，默认1天
 
-base:
+external:
   url: http://192.168.10.9:8090
 
-repository:
-  address: ${DATA_HOME}/repository
 
 
-ws:
-  name: local
-  server:
-    enabled: true
-  enterprise: default
-  url : localhost:8091
 
-#license
-licences:
-  path: ${DATA_HOME}/licences
-
-
-backups:
-  time: 0 0 2 * * ?
-  dir: ${DATA_HOME}/backups
-  xcode:
-    dir: ${DATA_HOME}/repository
-
-
-spotbugs:
-  address: /embbed/spotbugs-4.8.1/bin
-
-postin:
-  scan:
-    package: io.tiklab.sourcewair

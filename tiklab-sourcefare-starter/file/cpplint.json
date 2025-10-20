@@ -1,0 +1,543 @@
+[{"ruleSetName":"[c/c++]安全规则包",
+  "language":"C++",
+  "describe":"C/C++ 安全检测规则包，基于CppLint实现的安全检测功能",
+  "ruleList":[{
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"cpplint",
+    "ruleName":"runtime/arrays",
+    "ruleOverview":"Do not use variable-length arrays.  Use an appropriately named, ('k' followed by CamelCase) compile-time constant for the size.",
+    "desc":"Do not use variable-length arrays.  Use an appropriately named, ('k' followed by CamelCase) compile-time constant for the size."
+  }, {
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"cpplint",
+    "ruleName":"runtime/casting",
+    "ruleOverview":"Are you taking an address of a cast? This is dangerous: could be a temp var. Take the address before doing the cast, rather than after ",
+    "desc":"Are you taking an address of a cast? This is dangerous: could be a temp var. Take the address before doing the cast, rather than after"
+  }, {
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"cpplint",
+    "ruleName":"runtime/explicit",
+    "ruleOverview":"1.Constructors callable with one argument should be marked explicit.;\n 2.Single-parameter constructors should be marked explicit.",
+    "desc":"1.Constructors callable with one argument should be marked explicit.;\n 2.Single-parameter constructors should be marked explicit."
+  },
+    {
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"cpplint",
+    "ruleName":"runtime/printf",
+    "ruleOverview":"1.f'Potential format string bug. Do {function_name}(\"%s\", {match.group(1)}) instead.'\n 2.If you can, use. sizeof({match.group(1)}) instead of {match.group(2)} as the 2nd arg to snprintf.\n 3.Almost always, snprintf is better than {match.group(1)}",
+    "desc":"1.f'Potential format string bug. Do {function_name}(\"%s\", {match.group(1)}) instead.'\n 2.If you can, use. sizeof({match.group(1)}) instead of {match.group(2)} as the 2nd arg to snprintf.\n 3.Almost always, snprintf is better than {match.group(1)}"
+  },
+   {
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"cpplint",
+    "ruleName":"runtime/threadsafe_fn",
+    "ruleOverview":"检查是否使用了在POSIX标准中非线程安全的函数，如果使用了，给出警告。",
+    "desc":"检查是否使用了在POSIX标准中非线程安全的函数，如果使用了，给出警告。"
+   },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"cpplint",
+      "ruleName":"runtime/int",
+      "ruleOverview":"Use int16_t/int64_t/etc, rather than the C type {match.group(1)}",
+      "desc":"Use int16_t/int64_t/etc, rather than the C type {match.group(1)}"
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"cpplint",
+      "ruleName":"runtime/init",
+      "ruleOverview":"You seem to be initializing a member variable with itself.",
+      "desc":"You seem to be initializing a member variable with itself."
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"cpplint",
+      "ruleName":"runtime/invalid_increment",
+      "ruleOverview":"Changing pointer instead of value (or unused value of operator*).",
+      "desc":"Changing pointer instead of value (or unused value of operator*)."
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":1,
+      "scanTool":"cpplint",
+      "ruleName":"runtime/operator",
+      "ruleOverview":"Unary operator& is dangerous.  Do not use it",
+      "desc":"Unary operator& is dangerous.  Do not use it"
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"cpplint",
+      "ruleName":"runtime/printf_format",
+      "ruleOverview":"%q in format strings is deprecated.  Use %ll instead.",
+      "desc":"1. %q in format strings is deprecated.  Use %ll instead.\n 2. %N$ formats are unconventional.  Try rewriting to avoid them."
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":1,
+      "scanTool":"cpplint",
+      "ruleName":"runtime/string",
+      "ruleOverview":"Static/global string variables are not permitted.",
+      "desc":"1.For a static/global string constant, use a C style string instead: {match.group(1)}char{match.group(2) or \"\"} {match.group(3)}[]\".\n 2. Static/global string variables are not permitted."
+    }
+  ]},
+
+
+  {"ruleSetName":"[c/c++]功能规则包",
+    "language":"C++",
+    "describe":"C/C++ 功能规则包，基于CppLint实现的功能、代码风格检测功能",
+    "ruleList":[{
+      "ruleType":"function",
+      "problemLevel":3,
+      "scanTool":"cpplint",
+      "ruleName":"build/deprecated",
+      "ruleOverview":">? and <? (max and min) operators are non-standard and deprecated.",
+      "desc":">? and <? (max and min) operators are non-standard and deprecated."
+    },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"build/endif_comment",
+        "ruleOverview":"Uncommented text after #endif is non-standard.  Use a comment.",
+        "desc":"Uncommented text after #endif is non-standard.  Use a comment."
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"build/endif_comment",
+        "ruleOverview":"Uncommented text after #endif is non-standard.  Use a comment.",
+        "desc":"Uncommented text after #endif is non-standard.  Use a comment."
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"build/include",
+        "ruleOverview":"1. \"{include}\" already included at {filename}:{duplicate_line}\n 2. Do not include .\" + extension + \" files from other packages",
+        "desc":"1. \"{include}\" already included at {filename}:{duplicate_line}\n 2. Do not include .\" + extension + \" files from other packages"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"build/include_subdir",
+        "ruleOverview":"Include the directory when naming header files",
+        "desc":"Include the directory when naming header files"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/include_alpha",
+        "ruleOverview":"Include \"{include}\" not in alphabetical order",
+        "desc":"Include \"{include}\" not in alphabetical order"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"build/include_what_you_use",
+        "ruleOverview":"Add #include \" + header + \" for \" + template",
+        "desc":"Add #include \" + header + \" for \" + template"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/namespaces_headers",
+        "ruleOverview":"Do not use unnamed namespaces in header files",
+        "desc":"Do not use unnamed namespaces in header files.  See ,https://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Namespaces"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"legal/copyright",
+        "ruleOverview":"No copyright message found.",
+        "desc":"No copyright message found.You should have a line: \"Copyright [year] <Copyright Owner>\""
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/braces",
+        "ruleOverview":"If an else has a brace on one side, it should have it on both",
+        "desc":"If an else has a brace on one side, it should have it on both"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/casting",
+        "ruleOverview":"Using deprecated casting style.  Use static_cast<{matched_type}>(...) instead",
+        "desc":"1.Using deprecated casting style.  Use static_cast<{matched_type}>(...) instead \n2.Using C-style cast.  Use {cast_type}<{match.group(1)}>(...) instead"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/check",
+        "ruleOverview":"Consider using {_CHECK_REPLACEMENT[check_macro][operator]}",
+        "desc":"Consider using {_CHECK_REPLACEMENT[check_macro][operator]},instead of {check_macro}(a {operator} b)"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/constructors",
+        "ruleOverview":" match.group(1) + \" should be the last thing in the class\",",
+        "desc":" match.group(1) + \" should be the last thing in the class\","
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/multiline_comment",
+        "ruleOverview":"Could not find end of multi-line commen",
+        "desc":"1. Could not find end of multi-line commen \n 2.Complex multi-line /*...*/-style comment found.,Lint may give bogus warnings. Consider replacing these with //-style comments, with #if 0...#endif, or with more clearly structured multi-line comments."
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/multiline_string",
+        "ruleOverview":"Multi-line string (\"...\") found.  This lint script doesn",
+        "desc":"Multi-line string (\"...\") found.  This lint script doesn\\'t ' do well with such strings, and may give bogus warnings. Use C++11 raw strings or concatenation instead. "
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/namespace",
+        "ruleOverview":"Namespace should be terminated with \"// namespace {self.name}\"n",
+        "desc":"1. Namespace should be terminated with \"// namespace {self.name}\"n \n 2. Anonymous namespace should be terminated with \"// namespace\" \n 3.Anonymous namespace should be terminated with \"// namespace\" "
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/todo",
+        "ruleOverview":"Missing username in TODO; it should look like",
+        "desc":"Missing username in TODO; it should look like"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/utf8",
+        "ruleOverview":"Line contains invalid UTF-8 (or Unicode replacement character).",
+        "desc":"Line contains invalid UTF-8 (or Unicode replacement character)."
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/blank_line",
+        "ruleOverview":"Redundant blank line at the start of a code block should be deleted.",
+        "desc":"1. Redundant blank line at the start of a code block should be deleted.\n 2.Redundant blank line at the end of a code block should be deleted.\n3. Do not leave a blank line after \"{matched.group(1)}:"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/comments",
+        "ruleOverview":"At least two spaces is best between code and comments",
+        "desc":"1. At least two spaces is best between code and comments\n 2.Should have a space between // and comment"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/empty_conditional_body",
+        "ruleOverview":"Empty conditional bodies should use {}",
+        "desc":"Empty conditional bodies should use {}"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/empty_if_body",
+        "ruleOverview":"If statement had no body and no else clause",
+        "desc":"If statement had no body and no else clause"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/end_of_line",
+        "ruleOverview":"Line ends in whitespace.  Consider deleting these extra spaces.",
+        "desc":"Line ends in whitespace.  Consider deleting these extra spaces."
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/ending_newline",
+        "ruleOverview":"Could not find a newline character at the end of the file",
+        "desc":"Could not find a newline character at the end of the file"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/indent",
+        "ruleOverview":"Closing brace should be aligned with beginning of {parent}",
+        "desc":"1. Closing brace should be aligned with beginning of {parent} \n2.{access_match.group(2)}{slots}:should be indented +1 space inside {parent}\n 3.Weird number of spaces at line-start.  Are you using a 2-space indent?"
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/indent_namespace",
+        "ruleOverview":"Do not indent within a namespace.",
+        "desc":"Do not indent within a namespace."
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/operators",
+        "ruleOverview":"Missing spaces around =",
+        "desc":"1. Missing spaces around = \n 2.Missing spaces around {match.group(1)}\n 3. Missing spaces around < \n4. Missing spaces around >\n5.Missing spaces around <<\n 6. Missing spaces around >>\n 6.Extra space for operator {match.group(1)} "
+      },
+      {
+        "ruleType":"function",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/todo",
+        "ruleOverview":"Too many spaces before TODO",
+        "desc":"Too many spaces before TODO "
+      }
+    ]},
+
+
+  {"ruleSetName":"[c/c++]开发规范包",
+    "language":"C++",
+    "describe":"C/C++ 开发规范包，基于CppLint实现的功能、代码风格检测功能",
+    "ruleList":[{
+      "ruleType":"norm",
+      "problemLevel":3,
+      "scanTool":"cpplint",
+      "ruleName":"build/c++11",
+      "ruleOverview":"<{include.group(1)}> is an unapproved C++11 header.",
+      "desc":"<{include.group(1)}> is an unapproved C++11 header."
+    },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/c++17",
+        "ruleOverview":"<filesystem> is an unapproved C++17 header.",
+        "desc":"<filesystem> is an unapproved C++17 header."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/explicit_make_pair",
+        "ruleOverview":"1. For C++11-compatibility, omit template arguments from make_pair\n 2.use pair directly OR if appropriate, construct a pair directly",
+        "desc":"1. For C++11-compatibility, omit template arguments from make_pair\n 2.use pair directly OR if appropriate, construct a pair directly"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/forward_decl",
+        "ruleOverview":"Inner-style forward declarations are invalid.  Remove this line.",
+        "desc":"Inner-style forward declarations are invalid.  Remove this line."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"build/header_guard",
+        "ruleOverview":"1. No #ifndef header guard found, suggested CPP variable is: {cppvar}\n 2.#ifndef header guard has wrong style, please use: {cppvar}\n 3. #endif line should be \"#endif  // {cppvar}\n 4. #endif line should be \"#endif  /* {cppvar} */ \n 5.#endif line should be \"#endif  // {cppvar}",
+        "desc":"1. No #ifndef header guard found, suggested CPP variable is: {cppvar}\n 2.#ifndef header guard has wrong style, please use: {cppvar}\n 3. #endif line should be \"#endif  // {cppvar}\n 4. #endif line should be \"#endif  /* {cppvar} */ \n 5.#endif line should be \"#endif  // {cppvar}"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/include_order",
+        "ruleOverview":"{error_message}. Should be: {fileinfo.BaseName()}.h, c system, c++ system, other.",
+        "desc":"{error_message}. Should be: {fileinfo.BaseName()}.h, c system, c++ system, other."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/namespaces",
+        "ruleOverview":"Do not use namespace using-directives.  Use using-declarations instead.",
+        "desc":"Do not use namespace using-directives.  Use using-declarations instead."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/printf_format",
+        "ruleOverview":"%, [, (, and { are undefined character escapes.  Unescape them.",
+        "desc":"%, [, (, and { are undefined character escapes.  Unescape them."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"build/storage_class",
+        "ruleOverview":"Storage-class specifier (static, extern, typedef, etc) should be,at the beginning of the declaration.",
+        "desc":"Storage-class specifier (static, extern, typedef, etc) should be,at the beginning of the declaration."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/alt_tokens",
+        "ruleOverview":"Use operator {_ALT_TOKEN_REPLACEMENT[match.group(2)]} instead of {match.group(2)}",
+        "desc":"Use operator {_ALT_TOKEN_REPLACEMENT[match.group(2)]} instead of {match.group(2)}"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/fn_size",
+        "ruleOverview":"Lint failed to find start of function body",
+        "desc":"1.{self.current_function} has {self.lines_in_function} non-comment lines,(error triggered by exceeding {trigger} lines).\n 2. Lint failed to find start of function body."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/inheritance",
+        "ruleOverview":"1.\"virtual\" is redundant since function is 'already declared as \"{match.group(1)}\"\n 2. \"override\" is redundant since function is already declared as \"final\".",
+        "desc":"1.\"virtual\" is redundant since function is 'already declared as \"{match.group(1)}\"\n 2. \"override\" is redundant since function is already declared as \"final\"."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/nolint",
+        "ruleOverview":"NONLINT block never ended",
+        "desc":"1. NONLINT block already defined on line {_error_suppressions.GetOpenBlockStart()} \n2.NOLINT categories not supported in block END: {category}\n 3. Unknown NOLINT error category: {category} \n4. NONLINT block never ended"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"readability/nul",
+        "ruleOverview":"Line contains NUL byte.",
+        "desc":"Line contains NUL byte."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"runtime/member_string_references",
+        "ruleOverview":"const string& members are dangerous.",
+        "desc":"const string& members are dangerous.It is much better to use alternatives, such as pointers or simple constants."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"runtime/memset",
+        "ruleOverview":"Did you mean \"memset({match.group(1)}, 0, {match.group(2)})",
+        "desc":"Did you mean \"memset({match.group(1)}, 0, {match.group(2)})"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":2,
+        "scanTool":"cpplint",
+        "ruleName":"runtime/references",
+        "ruleOverview":"Is this a non-const reference?",
+        "desc":"Is this a non-const reference?If so, make const or use a pointer: \" + re.sub(\" *<\", \"<\", parameter)"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"runtime/vlog",
+        "ruleOverview":"VLOG() should be used with numeric verbosity level.  ",
+        "desc":"VLOG() should be used with numeric verbosity level.  Use LOG() if you want symbolic severity levels."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/braces",
+        "ruleOverview":"检查大括号的格式 ",
+        "desc":"1. Extra space before [\n 2.Missing space before {\n 3.Missing space before else\n 4.{ should almost always be at the end of the previous line"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/comma",
+        "ruleOverview":"Missing space after ,",
+        "desc":"Missing space after ,"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/empty_loop_body",
+        "ruleOverview":"Empty loop bodies should use {} or continue",
+        "desc":"Empty loop bodies should use {} or continue"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/forcolon",
+        "ruleOverview":"Missing space around colon in range-based for loop",
+        "desc":"Missing space around colon in range-based for loop"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/line_length",
+        "ruleOverview":"Lines should be <= {_line_length} characters long",
+        "desc":"Lines should be <= {_line_length} characters long"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/newline",
+        "ruleOverview":"An else should appear on the same line as the preceding }",
+        "desc":"1.An else should appear on the same line as the preceding }\n 2.Controlled statements inside brackets of {keyword.group(1)} clause,should be on a separate line\n 3.More than one command on the same line \n4. Unexpected \\\\r (^M) found; better to use only \\\\n"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/parens",
+        "ruleOverview":"Extra space before ( in function call",
+        "desc":"1.Extra space before ( in function call\n 2.Closing ) should be moved to the previous line \n3. Missing space before ( in {match.group(1)} \n 4. Should have zero or one spaces inside ( and ) in {match.group(1)}"
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":3,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/semicolon",
+        "ruleOverview":"Missing space after ;",
+        "desc":"1.Missing space after ;\n 2.Semicolon defining empty statement. Use {} instead.\n 3.Line contains only semicolon. If this should be an empty statement, use {} instead.\n 4. Extra space before last semicolon. If this should be an empty statement, use {} instead."
+      },
+      {
+        "ruleType":"norm",
+        "problemLevel":4,
+        "scanTool":"cpplint",
+        "ruleName":"whitespace/tab",
+        "ruleOverview":"Tab found; better to use spaces",
+        "desc":"Tab found; better to use spaces"
+      }
+    ]}
+]

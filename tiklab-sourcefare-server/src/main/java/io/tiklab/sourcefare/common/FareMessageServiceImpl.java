@@ -11,7 +11,7 @@ import io.tiklab.sourcefare.project.model.Project;
 import io.tiklab.sourcefare.scanner.common.ProjectUtil;
 import io.tiklab.sourcefare.scanner.common.SourceFareFinal;
 import io.tiklab.user.user.model.User;
-import io.tiklab.user.user.service.UserService;
+import io.tiklab.user.user.service.UserProcessor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +35,7 @@ public class FareMessageServiceImpl implements FareMessageService  {
     LoggingByTempService logService;
 
     @Autowired
-    UserService userService;
+    UserProcessor userProcessor;
 
 
 
@@ -71,7 +71,7 @@ public class FareMessageServiceImpl implements FareMessageService  {
 
         //用户信息
         String userId = LoginContext.getLoginId();
-        User user = userService.findOne(userId);
+        User user = userProcessor.findOne(userId);
 
         log.setUser(user);
         log.setLink(map.get("link").toString());  //跳转地址
@@ -89,7 +89,7 @@ public class FareMessageServiceImpl implements FareMessageService  {
 
         HashMap<String,Object> map = new HashMap<>();
         String userId = LoginContext.getLoginId();
-        User user = userService.findOne(userId);
+        User user = userProcessor.findOne(userId);
         String userName;
         if (ObjectUtils.isEmpty(user)){
             userName="admin";

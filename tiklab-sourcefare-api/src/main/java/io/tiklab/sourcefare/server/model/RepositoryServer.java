@@ -7,7 +7,7 @@ import io.tiklab.toolkit.beans.annotation.Mapper;
 import io.tiklab.toolkit.beans.annotation.Mapping;
 import io.tiklab.toolkit.beans.annotation.Mappings;
 import io.tiklab.toolkit.join.annotation.Join;
-import io.tiklab.toolkit.join.annotation.JoinQuery;
+import io.tiklab.toolkit.join.annotation.JoinField;
 import io.tiklab.user.user.model.User;
 
 import java.io.Serializable;
@@ -48,7 +48,7 @@ public class RepositoryServer implements Serializable {
     @Mappings({
             @Mapping(source = "user.id",target = "userId")
     })
-    @JoinQuery(key = "id")
+    @JoinField(key = "id")
     private User user;
 
 
@@ -56,12 +56,17 @@ public class RepositoryServer implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Timestamp createTime;
 
+
+    @ApiProperty(name="repName",desc="仓库名字")
+    private String repName;
+
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public RepositoryServer setId(String id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
@@ -134,5 +139,13 @@ public class RepositoryServer implements Serializable {
 
     public void setServerType(String serverType) {
         this.serverType = serverType;
+    }
+
+    public String getRepName() {
+        return repName;
+    }
+
+    public void setRepName(String repName) {
+        this.repName = repName;
     }
 }

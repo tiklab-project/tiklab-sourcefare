@@ -7,7 +7,7 @@ import io.tiklab.toolkit.beans.annotation.Mapper;
 import io.tiklab.toolkit.beans.annotation.Mapping;
 import io.tiklab.toolkit.beans.annotation.Mappings;
 import io.tiklab.toolkit.join.annotation.Join;
-import io.tiklab.toolkit.join.annotation.JoinQuery;
+import io.tiklab.toolkit.join.annotation.JoinField;
 import io.tiklab.user.user.model.User;
 
 import java.io.Serializable;
@@ -26,7 +26,7 @@ public class RecordOpen implements Serializable {
     @Mappings({
             @Mapping(source = "project.id",target = "projectId")
     })
-    @JoinQuery(key = "id")
+    @JoinField(key = "id")
     private Project project;
 
 
@@ -47,8 +47,9 @@ public class RecordOpen implements Serializable {
     @ApiProperty(name="memberNum",desc="成员数量")
     private Integer memberNum;
 
-    @ApiProperty(name="memberNum",desc="计划数量")
-    private Integer playNum;
+    @ApiProperty(name="execNum",desc="执行次数")
+    private Integer execNum;
+
 
     public String getId() {
         return id;
@@ -98,11 +99,11 @@ public class RecordOpen implements Serializable {
         this.memberNum = memberNum;
     }
 
-    public Integer getPlayNum() {
-        return playNum;
+    public Integer getExecNum() {
+        return execNum;
     }
 
-    public void setPlayNum(Integer playNum) {
-        this.playNum = playNum;
+    public void setExecNum(Integer execNum) {
+        this.execNum = execNum;
     }
 }

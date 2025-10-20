@@ -7,6 +7,7 @@ create table wair_project(
       project_desc  varchar(248),
       user_id       varchar(12),
       rules         VARCHAR(12),
+      category      varchar(12),
       color  integer,
       create_time   timestamp,
       update_time   timestamp
@@ -58,25 +59,26 @@ create table wair_scan_play(
       scan_time timestamp,
       create_time  timestamp
 );
+
 -- ---------------------------
 -- 扫描记录
 -- ----------------------------
 create table wair_scan_record(
-        id          varchar(12) PRIMARY KEY,
-        scan_play_id         varchar(12) NOT NULL,
+        id                    varchar(12) PRIMARY KEY,
+        scan_play_id          varchar(12) NOT NULL,
         scan_object           varchar (64),
-        project_id         varchar  (12) NOT NULL,
-        scan_user_id           varchar (12),
+        project_id            varchar  (12) NOT NULL,
+        scan_user_id          varchar (12),
         scan_result           varchar (12),
-        scan_way                varchar (32),
-        all_trouble         integer,
+        scan_way              varchar (32),
+        all_trouble           integer,
         severity_trouble      integer,
         error_trouble         integer,
-        notice_trouble           integer,
-        suggest_trouble         integer,
-        log                     text,
-        scan_time               varchar(12),
-        create_time  timestamp
+        notice_trouble        integer,
+        suggest_trouble       integer,
+        log                   text,
+        scan_time             varchar(12),
+        create_time           timestamp
 );
 
 -- ---------------------------
@@ -91,9 +93,9 @@ create table wair_scan_record_instance(
          problem_level      integer,
          problem_line       integer,
          rule_name          varchar(64),
-         repair_overview    varchar(524),
+         repair_overview    text,
          repair_desc        text,
-         problem_overview   varchar(524),
+         problem_overview   text,
          problem_desc       text,
          problem_state      varchar(12),
          import_user        varchar(32),
@@ -110,7 +112,7 @@ create table wair_scan_issues(
         issues_severity    varchar(12),
         scan_issues_key    varchar(32),
         file_name          varchar(248),
-        rule_name          varchar(12),
+        rule_name          varchar(248),
         lead_in_time       timestamp,
         issues_line        integer,
         issues_message     text,
@@ -160,7 +162,6 @@ create table wair_scan_scheme_rule(
 create table wair_scan_rule_set(
           id          varchar(12) PRIMARY KEY,
           rule_set_name  varchar (128) NOT NULL,
-
           describe       text,
           language     varchar(12),
           create_time  timestamp
@@ -175,7 +176,7 @@ create table wair_scan_rule(
       rule_name  varchar (128) NOT NULL,
       rule_type  varchar(12),
       scan_tool varchar(32),
-      rule_overview varchar(528),
+      rule_overview text,
       problem_level    integer,
       create_time  timestamp,
       description       text

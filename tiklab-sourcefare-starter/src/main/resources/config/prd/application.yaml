@@ -9,7 +9,6 @@ server:
   port: 8090
 
 
-
 jdbc:
   driverClassName: org.postgresql.Driver
   url: jdbc:postgresql://localhost:5435/tiklab_sourcefare?stringtype=unspecified
@@ -20,8 +19,6 @@ jdbc:
 #plugin config
 DATA_HOME: /opt/tiklab/sourcefare
 
-plugin:
-  path: ${DATA_HOME}/plugin
 
 postgresql:
   embbed:
@@ -33,21 +30,12 @@ postgresql:
     password: darth2020
     address: ${DATA_HOME}/postgresql
 
-soular:
-  embbed:
-    enable: false
-  address: http://e.tiklab.net
-
-#dfs config
-dfs:
-  server:
-    enabled: false
-    mode: server
-    port: 4005
-    datapath: ${DATA_HOME}/files
-  client:
-    url: 127.0.0.1:4005
-    bucket: ${app.name}
+# (local:本地登录  soular:统一登录)
+auth:
+  type: soular
+  soular:
+    address: http://e.tiklab.net
+  expire: 86400 # 过期时间，单位秒，默认1天
 
 #dcs config
 dcs:
@@ -62,58 +50,5 @@ dcs:
     database: dcs1
     expire: 7200
 
-#dcs config
-dss:
-  server:
-    enabled: false
-    mode: server
-    port: 6005
-    datapath: ${DATA_HOME}/index
-  client:
-    url: 127.0.0.1:6005
-    bucket: ${app.name}
-
-datapath: ${DATA_HOME}/caches
-
-
-
-message:
-  sms:
-    enabled: true
-
-base:
+external:
   url: http://e.eas.tiklab.net
-
-
-#homes
-homes:
-  address: http://homes.tiklab.cn
-
-#license
-licences:
-  path: ${DATA_HOME}/licences
-
-#file
-file:
-  path: http://file.tiklab.net
-
-
-
-repository:
-  address: ${DATA_HOME}/project
-
-
-
-visit:
-  address: http://e.sourcefare.tiklab.net
-
-backups:
-  time: 0 0 2 * * ?
-  dir: /data
-  xcode:
-    dir: ${DATA_HOME}/repository
-
-
-postin:
-  scan:
-    package: io.tiklab.sourcefare

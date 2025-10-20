@@ -1,0 +1,2081 @@
+{
+  "rules": [
+    {
+      "id": "csharp.lang.security.sqli.csharp-sqli.csharp-sqli",
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "pattern": "(string $X)\n"
+            },
+            {
+              "pattern-not": "\"...\"\n"
+            }
+          ]
+        }
+      ],
+      "pattern-propagators": [
+        {
+          "pattern": "(StringBuilder $B).$ANY(...,(string $X),...)",
+          "from": "$X",
+          "to": "$B"
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "patterns": [
+            {
+              "pattern-either": [
+                {
+                  "patterns": [
+                    {
+                      "pattern": "new $PATTERN($CMD,...)\n"
+                    },
+                    {
+                      "focus-metavariable": "$CMD"
+                    }
+                  ]
+                },
+                {
+                  "patterns": [
+                    {
+                      "pattern": "$CMD.$PATTERN = $VALUE;\n"
+                    },
+                    {
+                      "focus-metavariable": "$VALUE"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "metavariable-regex": {
+                "metavariable": "$PATTERN",
+                "regex": "^(SqlCommand|CommandText|OleDbCommand|OdbcCommand|OracleCommand)$"
+              }
+            }
+          ]
+        }
+      ],
+      "pattern-sanitizers": [
+        {
+          "pattern-either": [
+            {
+              "pattern": "$CMD.Parameters.Add(...)\n"
+            },
+            {
+              "pattern": "$CMD.Parameters.AddRange(...)\n"
+            },
+            {
+              "pattern": "$CMD.Parameters.AddWithValue(...)\n"
+            },
+            {
+              "pattern": "$CMD.Parameters[$IDX].Value = ...\n"
+            }
+          ],
+          "by-side-effect": true
+        }
+      ],
+      "message": "Detected a formatted string in a SQL statement. This could lead to SQL injection if variables in the SQL statement are not properly sanitized. Use a prepared statements instead. You can obtain a PreparedStatement using 'SqlCommand' and 'SqlParameter'.",
+      "metadata": {
+        "category": "security",
+        "technology": [
+          "csharp"
+        ],
+        "owasp": [
+          "A01:2017 - Injection",
+          "A03:2021 - Injection"
+        ],
+        "cwe": [
+          "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+        ],
+        "confidence": "MEDIUM",
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection"
+        ],
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "audit"
+        ],
+        "likelihood": "LOW",
+        "impact": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "SQL Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.sqli.csharp-sqli.csharp-sqli",
+        "shortlink": "https://sg.run/d2Xd",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 15078,
+            "rv_id": 1131023,
+            "rule_id": "x8UxeP",
+            "version_id": "NdTodB9",
+            "url": "https://semgrep.dev/playground/r/NdTodB9/csharp.lang.security.sqli.csharp-sqli.csharp-sqli",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "severity": "ERROR"
+    },
+    {
+      "id": "csharp.lang.security.regular-expression-dos.regular-expression-dos.regular-expression-dos",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-1333: Inefficient Regular Expression Complexity"
+        ],
+        "owasp": "A01:2017 - Injection",
+        "references": [
+          "https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS",
+          "https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions#regular-expression-examples"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "subcategory": [
+          "audit"
+        ],
+        "likelihood": "LOW",
+        "impact": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Denial-of-Service (DoS)"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.regular-expression-dos.regular-expression-dos.regular-expression-dos",
+        "shortlink": "https://sg.run/RPyY",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 12005,
+            "rv_id": 945225,
+            "rule_id": "4bU2gd",
+            "version_id": "rxT6rjl",
+            "url": "https://semgrep.dev/playground/r/rxT6rjl/csharp.lang.security.regular-expression-dos.regular-expression-dos.regular-expression-dos",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "When using `System.Text.RegularExpressions` to process untrusted input, pass a timeout.  A malicious user can provide input to `RegularExpressions` that abuses the backtracking behaviour of this regular expression engine. This will lead to excessive CPU usage, causing a Denial-of-Service attack",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Text.RegularExpressions;\n...\n"
+        },
+        {
+          "pattern-either": [
+            {
+              "pattern": "public $T $F($X)\n{\n  Regex $Y = new Regex($P);\n  ...\n  $Y.Match($X);\n}\n"
+            },
+            {
+              "pattern": "public $T $F($X)\n{\n  Regex $Y = new Regex($P, $O);\n  ...\n  $Y.Match($X);\n}\n"
+            },
+            {
+              "pattern": "public $T $F($X)\n{\n  ... Regex.Match($X, $P);\n}\n"
+            },
+            {
+              "pattern": "public $T $F($X)\n{\n  ... Regex.Match($X, $P, $O);\n}\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.insecure-deserialization.net-data-contract.insecure-netdatacontract-deserialization",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-502: Deserialization of Untrusted Data"
+        ],
+        "owasp": [
+          "A08:2017 - Insecure Deserialization",
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "references": [
+          "https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.netdatacontractserializer?view=netframework-4.8#security"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Insecure Deserialization "
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.insecure-deserialization.net-data-contract.insecure-netdatacontract-deserialization",
+        "shortlink": "https://sg.run/L0AX",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 11139,
+            "rv_id": 945218,
+            "rule_id": "x8UW7x",
+            "version_id": "pZTNObb",
+            "url": "https://semgrep.dev/playground/r/pZTNObb/csharp.lang.security.insecure-deserialization.net-data-contract.insecure-netdatacontract-deserialization",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "The NetDataContractSerializer type is dangerous and is not recommended for data processing. Applications should stop using NetDataContractSerializer as soon as possible, even if they believe the data they're processing to be trustworthy. NetDataContractSerializer is insecure and can't be made secure",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Runtime.Serialization;\n...\n"
+        },
+        {
+          "pattern": "new NetDataContractSerializer();\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.insecure-deserialization.binary-formatter.insecure-binaryformatter-deserialization",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-502: Deserialization of Untrusted Data"
+        ],
+        "owasp": [
+          "A08:2017 - Insecure Deserialization",
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "references": [
+          "https://docs.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "HIGH",
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "MEDIUM",
+        "impact": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Insecure Deserialization "
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.insecure-deserialization.binary-formatter.insecure-binaryformatter-deserialization",
+        "shortlink": "https://sg.run/ZeXW",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 11135,
+            "rv_id": 945211,
+            "rule_id": "bwUOjK",
+            "version_id": "K3TJbwz",
+            "url": "https://semgrep.dev/playground/r/K3TJbwz/csharp.lang.security.insecure-deserialization.binary-formatter.insecure-binaryformatter-deserialization",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "The BinaryFormatter type is dangerous and is not recommended for data processing. Applications should stop using BinaryFormatter as soon as possible, even if they believe the data they're processing to be trustworthy. BinaryFormatter is insecure and can't be made secure",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Runtime.Serialization.Formatters.Binary;\n...\n"
+        },
+        {
+          "pattern": "new BinaryFormatter();\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.insecure-deserialization.soap-formatter.insecure-soapformatter-deserialization",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-502: Deserialization of Untrusted Data"
+        ],
+        "owasp": [
+          "A08:2017 - Insecure Deserialization",
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "references": [
+          "https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.formatters.soap.soapformatter?view=netframework-4.8#remarks"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Insecure Deserialization "
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.insecure-deserialization.soap-formatter.insecure-soapformatter-deserialization",
+        "shortlink": "https://sg.run/gJnR",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 11141,
+            "rv_id": 945220,
+            "rule_id": "eqUvND",
+            "version_id": "X0TL8Ax",
+            "url": "https://semgrep.dev/playground/r/X0TL8Ax/csharp.lang.security.insecure-deserialization.soap-formatter.insecure-soapformatter-deserialization",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "The SoapFormatter type is dangerous and is not recommended for data processing. Applications should stop using SoapFormatter as soon as possible, even if they believe the data they're processing to be trustworthy. SoapFormatter is insecure and can't be made secure",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Runtime.Serialization.Formatters.Soap;\n...\n"
+        },
+        {
+          "pattern": "new SoapFormatter();\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.insecure-deserialization.fs-pickler.insecure-fspickler-deserialization",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-502: Deserialization of Untrusted Data"
+        ],
+        "owasp": [
+          "A08:2017 - Insecure Deserialization",
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "references": [
+          "https://mbraceproject.github.io/FsPickler/tutorial.html#Disabling-Subtype-Resolution"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Insecure Deserialization "
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.insecure-deserialization.fs-pickler.insecure-fspickler-deserialization",
+        "shortlink": "https://sg.run/E5e5",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 11137,
+            "rv_id": 945214,
+            "rule_id": "kxURnR",
+            "version_id": "YDTvRYQ",
+            "url": "https://semgrep.dev/playground/r/YDTvRYQ/csharp.lang.security.insecure-deserialization.fs-pickler.insecure-fspickler-deserialization",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "The FsPickler is dangerous and is not recommended for data processing. Default configuration tend to insecure deserialization vulnerability.",
+      "patterns": [
+        {
+          "pattern-inside": "using MBrace.FsPickler.Json;\n...\n"
+        },
+        {
+          "pattern": "FsPickler.CreateJsonSerializer();\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.insecure-deserialization.los-formatter.insecure-losformatter-deserialization",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-502: Deserialization of Untrusted Data"
+        ],
+        "owasp": [
+          "A08:2017 - Insecure Deserialization",
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "references": [
+          "https://docs.microsoft.com/en-us/dotnet/api/system.web.ui.losformatter?view=netframework-4.8"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Insecure Deserialization "
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.insecure-deserialization.los-formatter.insecure-losformatter-deserialization",
+        "shortlink": "https://sg.run/70pG",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 11138,
+            "rv_id": 945217,
+            "rule_id": "wdU87G",
+            "version_id": "zyTlkGW",
+            "url": "https://semgrep.dev/playground/r/zyTlkGW/csharp.lang.security.insecure-deserialization.los-formatter.insecure-losformatter-deserialization",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "The LosFormatter type is dangerous and is not recommended for data processing. Applications should stop using LosFormatter as soon as possible, even if they believe the data they're processing to be trustworthy. LosFormatter is insecure and can't be made secure",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Web.UI;\n...\n"
+        },
+        {
+          "pattern": "new LosFormatter();\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.razor-template-injection.razor-template-injection",
+      "message": "User-controllable string passed to Razor.Parse. This leads directly to code execution in the context of the process.",
+      "severity": "WARNING",
+      "metadata": {
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-94: Improper Control of Generation of Code ('Code Injection')"
+        ],
+        "cwe2022-top25": true,
+        "owasp": [
+          "A03:2021 - Injection"
+        ],
+        "references": [
+          "https://clement.notin.org/blog/2020/04/15/Server-Side-Template-Injection-(SSTI)-in-ASP.NET-Razor/"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net",
+          "razor",
+          "asp"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Code Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.razor-template-injection.razor-template-injection",
+        "shortlink": "https://sg.run/oyj0",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18216,
+            "rv_id": 945194,
+            "rule_id": "EwUr68",
+            "version_id": "7ZTrQx0",
+            "url": "https://semgrep.dev/playground/r/7ZTrQx0/csharp.dotnet.security.razor-template-injection.razor-template-injection",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "focus-metavariable": "$ARG"
+            },
+            {
+              "pattern-inside": "public ActionResult $METHOD(..., string $ARG,...){...}\n"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "pattern": "Razor.Parse(...)\n"
+        }
+      ],
+      "pattern-sanitizers": [
+        {
+          "not_conflicting": true,
+          "pattern": "$F(...)"
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.filesystem.unsafe-path-combine.unsafe-path-combine",
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "pattern": "$A"
+            },
+            {
+              "pattern-inside": "Path.Combine(...,$A,...)\n"
+            },
+            {
+              "pattern-inside": "public $TYPE $M(...,$A,...){...}\n"
+            },
+            {
+              "pattern-not-inside": "\u003C... Path.GetFileName($A) != $A ...\u003E\n"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "patterns": [
+            {
+              "focus-metavariable": "$X"
+            },
+            {
+              "pattern": "File.$METHOD($X,...)\n"
+            },
+            {
+              "metavariable-regex": {
+                "metavariable": "$METHOD",
+                "regex": "(?i)^(read|write)"
+              }
+            }
+          ]
+        }
+      ],
+      "pattern-sanitizers": [
+        {
+          "pattern": "Path.GetFileName(...)\n"
+        },
+        {
+          "patterns": [
+            {
+              "pattern-inside": "$X = Path.GetFileName(...);\n...\n"
+            },
+            {
+              "pattern": "$X"
+            }
+          ]
+        },
+        {
+          "patterns": [
+            {
+              "pattern": "$X"
+            },
+            {
+              "pattern-inside": "if(\u003C... Path.GetFileName($X) != $X ...\u003E){\n  ...\n  throw new $EXCEPTION(...);\n}\n...\n"
+            }
+          ]
+        }
+      ],
+      "message": "String argument $A is used to read or write data from a file via Path.Combine without direct sanitization via Path.GetFileName. If the path is user-supplied data this can lead to path traversal.",
+      "languages": [
+        "csharp"
+      ],
+      "severity": "WARNING",
+      "metadata": {
+        "category": "security",
+        "confidence": "MEDIUM",
+        "references": [
+          "https://www.praetorian.com/blog/pathcombine-security-issues-in-aspnet-applications/",
+          "https://docs.microsoft.com/en-us/dotnet/api/system.io.path.combine?view=net-6.0#remarks"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "cwe": [
+          "CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+        ],
+        "owasp": [
+          "A05:2017 - Broken Access Control",
+          "A01:2021 - Broken Access Control"
+        ],
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Path Traversal"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.filesystem.unsafe-path-combine.unsafe-path-combine",
+        "shortlink": "https://sg.run/1RvG",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18222,
+            "rv_id": 945208,
+            "rule_id": "3qU3bE",
+            "version_id": "DkTNp2d",
+            "url": "https://semgrep.dev/playground/r/DkTNp2d/csharp.lang.security.filesystem.unsafe-path-combine.unsafe-path-combine",
+            "origin": "community"
+          }
+        }
+      }
+    },
+    {
+      "id": "csharp.lang.security.http.http-listener-wildcard-bindings.http-listener-wildcard-bindings",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-706: Use of Incorrectly-Resolved Name or Reference"
+        ],
+        "owasp": [
+          "A01:2021 - Broken Access Control"
+        ],
+        "references": [
+          "https://docs.microsoft.com/en-us/dotnet/api/system.net.httplistener?view=net-6.0"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "LOW",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Improper Authorization"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.http.http-listener-wildcard-bindings.http-listener-wildcard-bindings",
+        "shortlink": "https://sg.run/9LJr",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18223,
+            "rv_id": 945209,
+            "rule_id": "4bUQ81",
+            "version_id": "WrTEoYW",
+            "url": "https://semgrep.dev/playground/r/WrTEoYW/csharp.lang.security.http.http-listener-wildcard-bindings.http-listener-wildcard-bindings",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "The top level wildcard bindings $PREFIX leaves your application open to security vulnerabilities and give attackers more control over where traffic is routed. If you must use wildcards, consider using subdomain wildcard binding. For example, you can use \"*.asdf.gov\" if you own all of \"asdf.gov\".",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Net;\n...\n"
+        },
+        {
+          "pattern": "$LISTENER.Prefixes.Add(\"$PREFIX\")"
+        },
+        {
+          "metavariable-regex": {
+            "metavariable": "$PREFIX",
+            "regex": "(http|https)://(\\*|\\+)(.[a-zA-Z]{2,})?:[0-9]+"
+          }
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.regular-expression-dos.regular-expression-dos-infinite-timeout.regular-expression-dos-infinite-timeout",
+      "severity": "WARNING",
+      "languages": [
+        "C#"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-1333: Inefficient Regular Expression Complexity"
+        ],
+        "owasp": "A01:2017 - Injection",
+        "references": [
+          "https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS",
+          "https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.infinitematchtimeout",
+          "https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.-ctor?view=net-6.0"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "subcategory": [
+          "audit"
+        ],
+        "likelihood": "LOW",
+        "impact": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Denial-of-Service (DoS)"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.regular-expression-dos.regular-expression-dos-infinite-timeout.regular-expression-dos-infinite-timeout",
+        "shortlink": "https://sg.run/NgRy",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18227,
+            "rv_id": 945224,
+            "rule_id": "GdUDBP",
+            "version_id": "yeT0nDq",
+            "url": "https://semgrep.dev/playground/r/yeT0nDq/csharp.lang.security.regular-expression-dos.regular-expression-dos-infinite-timeout.regular-expression-dos-infinite-timeout",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "Specifying the regex timeout leaves the system vulnerable to a regex-based Denial of Service (DoS) attack. Consider setting the timeout to a short amount of time like 2 or 3 seconds. If you are sure you need an infinite timeout, double check that your context meets the conditions outlined in the \"Notes to Callers\" section at the bottom of this page: https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.-ctor?view=net-6.0",
+      "patterns": [
+        {
+          "pattern-inside": "using System.Text.RegularExpressions;\n...\n"
+        },
+        {
+          "pattern-either": [
+            {
+              "pattern": "new Regex(..., TimeSpan.InfiniteMatchTimeout)"
+            },
+            {
+              "patterns": [
+                {
+                  "pattern": "new Regex(..., TimeSpan.FromSeconds($TIME))"
+                },
+                {
+                  "metavariable-comparison": {
+                    "metavariable": "$TIME",
+                    "comparison": "$TIME \u003E 5"
+                  }
+                }
+              ]
+            },
+            {
+              "pattern": "new Regex(..., TimeSpan.FromMinutes(...))"
+            },
+            {
+              "pattern": "new Regex(..., TimeSpan.FromHours(...))"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.xxe.xmldocument-unsafe-parser-override.xmldocument-unsafe-parser-override",
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "focus-metavariable": "$ARG"
+            },
+            {
+              "pattern-inside": "public $T $M(...,string $ARG,...){...}\n"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "patterns": [
+            {
+              "pattern": "$XMLDOCUMENT.$METHOD(...)\n"
+            },
+            {
+              "pattern-inside": "XmlDocument $XMLDOCUMENT = new XmlDocument(...);\n...\n$XMLDOCUMENT.XmlResolver = new XmlUrlResolver(...);\n...  \n"
+            }
+          ]
+        }
+      ],
+      "message": "XmlReaderSettings found with DtdProcessing.Parse on an XmlReader handling a string argument from a public method. Enabling Document Type Definition (DTD) parsing may cause XML External Entity (XXE) injection if supplied with user-controllable data.",
+      "languages": [
+        "csharp"
+      ],
+      "severity": "WARNING",
+      "metadata": {
+        "category": "security",
+        "references": [
+          "https://www.jardinesoftware.net/2016/05/26/xxe-and-net/",
+          "https://docs.microsoft.com/en-us/dotnet/api/system.xml.xmldocument.xmlresolver?view=net-6.0#remarks"
+        ],
+        "technology": [
+          ".net",
+          "xml"
+        ],
+        "cwe": [
+          "CWE-611: Improper Restriction of XML External Entity Reference"
+        ],
+        "owasp": [
+          "A04:2017 - XML External Entities (XXE)",
+          "A05:2021 - Security Misconfiguration"
+        ],
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "impact": "MEDIUM",
+        "likelihood": "LOW",
+        "confidence": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "XML Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.xxe.xmldocument-unsafe-parser-override.xmldocument-unsafe-parser-override",
+        "shortlink": "https://sg.run/k98P",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18228,
+            "rv_id": 945232,
+            "rule_id": "ReUK9k",
+            "version_id": "e1T98ZP",
+            "url": "https://semgrep.dev/playground/r/e1T98ZP/csharp.lang.security.xxe.xmldocument-unsafe-parser-override.xmldocument-unsafe-parser-override",
+            "origin": "community"
+          }
+        }
+      }
+    },
+    {
+      "id": "csharp.lang.security.xxe.xmlreadersettings-unsafe-parser-override.xmlreadersettings-unsafe-parser-override",
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "focus-metavariable": "$ARG"
+            },
+            {
+              "pattern-inside": "public $T $M(...,string $ARG,...){...}\n"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "patterns": [
+            {
+              "pattern": "XmlReader $READER = XmlReader.Create(...,$RS,...);\n"
+            },
+            {
+              "pattern-inside": "XmlReaderSettings $RS = new XmlReaderSettings();\n...\n$RS.DtdProcessing = DtdProcessing.Parse;\n...        \n"
+            }
+          ]
+        }
+      ],
+      "message": "XmlReaderSettings found with DtdProcessing.Parse on an XmlReader handling a string argument from a public method. Enabling Document Type Definition (DTD) parsing may cause XML External Entity (XXE) injection if supplied with user-controllable data.",
+      "languages": [
+        "csharp"
+      ],
+      "severity": "WARNING",
+      "metadata": {
+        "category": "security",
+        "references": [
+          "https://www.jardinesoftware.net/2016/05/26/xxe-and-net/",
+          "https://docs.microsoft.com/en-us/dotnet/api/system.xml.xmldocument.xmlresolver?view=net-6.0#remarks"
+        ],
+        "technology": [
+          ".net",
+          "xml"
+        ],
+        "cwe": [
+          "CWE-611: Improper Restriction of XML External Entity Reference"
+        ],
+        "owasp": [
+          "A04:2017 - XML External Entities (XXE)",
+          "A05:2021 - Security Misconfiguration"
+        ],
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "impact": "MEDIUM",
+        "likelihood": "LOW",
+        "confidence": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "XML Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.xxe.xmlreadersettings-unsafe-parser-override.xmlreadersettings-unsafe-parser-override",
+        "shortlink": "https://sg.run/wXjA",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18229,
+            "rv_id": 945233,
+            "rule_id": "AbU3pX",
+            "version_id": "vdTGnvx",
+            "url": "https://semgrep.dev/playground/r/vdTGnvx/csharp.lang.security.xxe.xmlreadersettings-unsafe-parser-override.xmlreadersettings-unsafe-parser-override",
+            "origin": "community"
+          }
+        }
+      }
+    },
+    {
+      "id": "csharp.lang.security.xxe.xmltextreader-unsafe-defaults.xmltextreader-unsafe-defaults",
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "focus-metavariable": "$ARG"
+            },
+            {
+              "pattern-inside": "public $T $M(...,string $ARG,...){...}\n"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "patterns": [
+            {
+              "pattern": "$READER.$METHOD(...)\n"
+            },
+            {
+              "pattern-not-inside": "$READER.DtdProcessing = DtdProcessing.Prohibit;\n...\n"
+            },
+            {
+              "pattern-inside": "XmlTextReader $READER = new XmlTextReader(...);\n...\n"
+            }
+          ]
+        }
+      ],
+      "message": "XmlReaderSettings found with DtdProcessing.Parse on an XmlReader handling a string argument from a public method. Enabling Document Type Definition (DTD) parsing may cause XML External Entity (XXE) injection if supplied with user-controllable data.",
+      "languages": [
+        "csharp"
+      ],
+      "severity": "WARNING",
+      "metadata": {
+        "category": "security",
+        "references": [
+          "https://www.jardinesoftware.net/2016/05/26/xxe-and-net/",
+          "https://docs.microsoft.com/en-us/dotnet/api/system.xml.xmldocument.xmlresolver?view=net-6.0#remarks"
+        ],
+        "technology": [
+          ".net",
+          "xml"
+        ],
+        "cwe": [
+          "CWE-611: Improper Restriction of XML External Entity Reference"
+        ],
+        "owasp": [
+          "A04:2017 - XML External Entities (XXE)",
+          "A05:2021 - Security Misconfiguration"
+        ],
+        "cwe2022-top25": true,
+        "cwe2021-top25": true,
+        "subcategory": [
+          "vuln"
+        ],
+        "impact": "MEDIUM",
+        "likelihood": "LOW",
+        "confidence": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "XML Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.xxe.xmltextreader-unsafe-defaults.xmltextreader-unsafe-defaults",
+        "shortlink": "https://sg.run/xXjL",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18230,
+            "rv_id": 945234,
+            "rule_id": "BYUevk",
+            "version_id": "d6TPj65",
+            "url": "https://semgrep.dev/playground/r/d6TPj65/csharp.lang.security.xxe.xmltextreader-unsafe-defaults.xmltextreader-unsafe-defaults",
+            "origin": "community"
+          }
+        }
+      }
+    },
+    {
+      "id": "csharp.lang.security.stacktrace-disclosure.stacktrace-disclosure",
+      "patterns": [
+        {
+          "pattern": "$APP.UseDeveloperExceptionPage(...);"
+        },
+        {
+          "pattern-not-inside": "if ($ENV.IsDevelopment(...)) {\n  ...\n}\n"
+        },
+        {
+          "pattern-not-inside": "if ($ENV.EnvironmentName == \"Development\") {\n  ...\n}\n"
+        }
+      ],
+      "message": "Stacktrace information is displayed in a non-Development environment. Accidentally disclosing sensitive stack trace information in a production environment aids an attacker in reconnaissance and information gathering.",
+      "metadata": {
+        "category": "security",
+        "technology": [
+          "csharp"
+        ],
+        "owasp": [
+          "A06:2017 - Security Misconfiguration",
+          "A04:2021 - Insecure Design"
+        ],
+        "cwe": [
+          "CWE-209: Generation of Error Message Containing Sensitive Information"
+        ],
+        "references": [
+          "https://cwe.mitre.org/data/definitions/209.html",
+          "https://owasp.org/Top10/A04_2021-Insecure_Design/"
+        ],
+        "subcategory": [
+          "audit"
+        ],
+        "likelihood": "LOW",
+        "impact": "LOW",
+        "confidence": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Mishandled Sensitive Information"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.stacktrace-disclosure.stacktrace-disclosure",
+        "shortlink": "https://sg.run/XvkA",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 26720,
+            "rv_id": 1028691,
+            "rule_id": "lBU6Dv",
+            "version_id": "DkTn9kk",
+            "url": "https://semgrep.dev/playground/r/DkTn9kk/csharp.lang.security.stacktrace-disclosure.stacktrace-disclosure",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "severity": "WARNING"
+    },
+    {
+      "id": "csharp.lang.security.ad.jwt-tokenvalidationparameters-no-expiry-validation.jwt-tokenvalidationparameters-no-expiry-validation",
+      "patterns": [
+        {
+          "pattern-either": [
+            {
+              "patterns": [
+                {
+                  "pattern": "$LIFETIME = $FALSE"
+                },
+                {
+                  "pattern-inside": "new TokenValidationParameters {...}"
+                }
+              ]
+            },
+            {
+              "patterns": [
+                {
+                  "pattern": "(TokenValidationParameters $OPTS). ... .$LIFETIME = $FALSE\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "metavariable-regex": {
+            "metavariable": "$LIFETIME",
+            "regex": "(RequireExpirationTime|ValidateLifetime)"
+          }
+        },
+        {
+          "metavariable-regex": {
+            "metavariable": "$FALSE",
+            "regex": "(false)"
+          }
+        },
+        {
+          "focus-metavariable": "$FALSE"
+        }
+      ],
+      "fix": "true\n",
+      "message": "The TokenValidationParameters.$LIFETIME is set to $FALSE, this means the JWT tokens lifetime is not validated. This can lead to an JWT token being used after it has expired, which has security implications. It is recommended to validate the JWT lifetime to ensure only valid tokens are used.",
+      "metadata": {
+        "category": "security",
+        "technology": [
+          "csharp"
+        ],
+        "owasp": [
+          "A02:2017 - Broken Authentication",
+          "A07:2021 - Identification and Authentication Failures"
+        ],
+        "cwe": [
+          "CWE-613: Insufficient Session Expiration"
+        ],
+        "references": [
+          "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/",
+          "https://cwe.mitre.org/data/definitions/613.html",
+          "https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.tokenvalidationparameters?view=azure-dotnet"
+        ],
+        "subcategory": [
+          "audit"
+        ],
+        "likelihood": "HIGH",
+        "impact": "MEDIUM",
+        "confidence": "HIGH",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Improper Authorization"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.ad.jwt-tokenvalidationparameters-no-expiry-validation.jwt-tokenvalidationparameters-no-expiry-validation",
+        "shortlink": "https://sg.run/KA0d",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 28955,
+            "rv_id": 945204,
+            "rule_id": "bwU5kK",
+            "version_id": "GxTP7DG",
+            "url": "https://semgrep.dev/playground/r/GxTP7DG/csharp.lang.security.ad.jwt-tokenvalidationparameters-no-expiry-validation.jwt-tokenvalidationparameters-no-expiry-validation",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "severity": "WARNING"
+    },
+    {
+      "id": "csharp.dotnet.security.audit.missing-or-broken-authorization.missing-or-broken-authorization",
+      "message": "Anonymous access shouldn't be allowed unless explicit by design. Access control checks are missing and potentially can be bypassed. This finding violates the principle of least privilege or deny by default, where access should only be permitted for a specific set of roles or conforms to a custom policy or users.",
+      "severity": "INFO",
+      "metadata": {
+        "likelihood": "LOW",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-862: Missing Authorization"
+        ],
+        "cwe2021-top25": true,
+        "cwe2022-top25": true,
+        "cwe2023-top25": true,
+        "owasp": [
+          "A01:2021 - Broken Access Control"
+        ],
+        "references": [
+          "https://owasp.org/Top10/A01_2021-Broken_Access_Control",
+          "https://cwe.mitre.org/data/definitions/862.html",
+          "https://docs.microsoft.com/en-us/aspnet/core/security/authorization/simple?view=aspnetcore-7.0"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net",
+          "mvc"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Improper Authorization"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.audit.missing-or-broken-authorization.missing-or-broken-authorization",
+        "shortlink": "https://sg.run/Z8GA",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 26335,
+            "rv_id": 945187,
+            "rule_id": "eqU32Y",
+            "version_id": "O9TX3JA",
+            "url": "https://semgrep.dev/playground/r/O9TX3JA/csharp.dotnet.security.audit.missing-or-broken-authorization.missing-or-broken-authorization",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "patterns": [
+        {
+          "pattern": "public class $CLASS : Controller {\n  ...\n}\n"
+        },
+        {
+          "pattern-inside": "using Microsoft.AspNetCore.Mvc;\n...\n"
+        },
+        {
+          "pattern-not": "[AllowAnonymous]\npublic class $CLASS : Controller {\n  ...\n}\n"
+        },
+        {
+          "pattern-not": "[Authorize]\npublic class $CLASS : Controller {\n  ...\n}\n"
+        },
+        {
+          "pattern-not": "[Authorize(Roles = ...)]\npublic class $CLASS : Controller {\n  ...\n}\n"
+        },
+        {
+          "pattern-not": "[Authorize(Policy = ...)]\npublic class $CLASS : Controller {\n  ...\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.audit.open-directory-listing.open-directory-listing",
+      "message": "An open directory listing is potentially exposed, potentially revealing sensitive information to attackers.",
+      "severity": "INFO",
+      "metadata": {
+        "likelihood": "LOW",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-548: Exposure of Information Through Directory Listing"
+        ],
+        "owasp": [
+          "A06:2017 - Security Misconfiguration",
+          "A01:2021 - Broken Access Control"
+        ],
+        "references": [
+          "https://cwe.mitre.org/data/definitions/548.html",
+          "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+          "https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files?view=aspnetcore-7.0#directory-browsing"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net",
+          "mvc"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Mishandled Sensitive Information"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.audit.open-directory-listing.open-directory-listing",
+        "shortlink": "https://sg.run/n0y1",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 26336,
+            "rv_id": 945188,
+            "rule_id": "v8U8Ab",
+            "version_id": "e1T98DP",
+            "url": "https://semgrep.dev/playground/r/e1T98DP/csharp.dotnet.security.audit.open-directory-listing.open-directory-listing",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "patterns": [
+        {
+          "pattern-either": [
+            {
+              "pattern": "(IApplicationBuilder $APP).UseDirectoryBrowser(...);"
+            },
+            {
+              "pattern": "$BUILDER.Services.AddDirectoryBrowser(...);"
+            }
+          ]
+        },
+        {
+          "pattern-inside": "public void Configure(...) {\n  ...\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.audit.mass-assignment.mass-assignment",
+      "message": "Mass assignment or Autobinding vulnerability in code allows an attacker to execute over-posting attacks, which could create a new parameter in the binding request and manipulate the underlying object in the application.",
+      "severity": "WARNING",
+      "metadata": {
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-915: Improperly Controlled Modification of Dynamically-Determined Object Attributes"
+        ],
+        "owasp": [
+          "A08:2021 - Software and Data Integrity Failures"
+        ],
+        "references": [
+          "https://cwe.mitre.org/data/definitions/915.html",
+          "https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa6-mass-assignment.md"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Mass Assignment"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.audit.mass-assignment.mass-assignment",
+        "shortlink": "https://sg.run/7B3e",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 26838,
+            "rv_id": 945185,
+            "rule_id": "x8Up5B",
+            "version_id": "w8TKJA4",
+            "url": "https://semgrep.dev/playground/r/w8TKJA4/csharp.dotnet.security.audit.mass-assignment.mass-assignment",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "pattern-either": [
+                {
+                  "pattern": "public IActionResult $METHOD(..., $TYPE $ARG, ...){\n  ...\n}\n"
+                },
+                {
+                  "pattern": "public ActionResult $METHOD(..., $TYPE $ARG, ...){\n  ...\n}\n"
+                }
+              ]
+            },
+            {
+              "pattern-inside": "using Microsoft.AspNetCore.Mvc;\n...\n"
+            },
+            {
+              "pattern-not": "public IActionResult $METHOD(..., [Bind(...)] $TYPE $ARG, ...){\n  ...\n}\n"
+            },
+            {
+              "pattern-not": "public ActionResult $METHOD(..., [Bind(...)] $TYPE $ARG, ...){\n  ...\n}\n"
+            },
+            {
+              "focus-metavariable": "$ARG"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "pattern": "View(...)"
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.audit.ldap-injection.ldap-injection",
+      "message": "LDAP queries are constructed dynamically on user-controlled input. This vulnerability in code could lead to an arbitrary LDAP query execution.",
+      "severity": "ERROR",
+      "metadata": {
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-90: Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')"
+        ],
+        "owasp": [
+          "A01:2017 - Injection",
+          "A03:2021 - Injection"
+        ],
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/",
+          "https://cwe.mitre.org/data/definitions/90",
+          "https://cheatsheetseries.owasp.org/cheatsheets/LDAP_Injection_Prevention_Cheat_Sheet.html#safe-c-sharp-net-tba-example"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "LDAP Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.audit.ldap-injection.ldap-injection",
+        "shortlink": "https://sg.run/GJ9z",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 27692,
+            "rv_id": 975563,
+            "rule_id": "2ZUv3R",
+            "version_id": "A8TJLAA",
+            "url": "https://semgrep.dev/playground/r/A8TJLAA/csharp.dotnet.security.audit.ldap-injection.ldap-injection",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "mode": "taint",
+      "options": {
+        "taint_unify_mvars": true
+      },
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "focus-metavariable": "$INPUT"
+            },
+            {
+              "pattern-inside": "$T $M(...,$INPUT,...) {...}"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "patterns": [
+            {
+              "pattern-either": [
+                {
+                  "pattern": "$S.Filter = ... + $INPUT + ..."
+                },
+                {
+                  "pattern": "$S.Filter = String.Format(...,$INPUT)"
+                },
+                {
+                  "pattern": "$S.Filter = String.Concat(...,$INPUT)"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pattern-sanitizers": [
+        {
+          "pattern-either": [
+            {
+              "pattern": "Regex.Replace($INPUT, ...)"
+            },
+            {
+              "pattern": "$ENCODER.LdapFilterEncode($INPUT)"
+            },
+            {
+              "pattern": "$ENCODER.LdapDistinguishedNameEncode($INPUT)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.audit.xpath-injection.xpath-injection",
+      "message": "XPath queries are constructed dynamically on user-controlled input. This vulnerability in code could lead to an XPath Injection exploitation.",
+      "severity": "ERROR",
+      "metadata": {
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-643: Improper Neutralization of Data within XPath Expressions ('XPath Injection')"
+        ],
+        "owasp": [
+          "A03:2021 - Injection"
+        ],
+        "references": [
+          "https://owasp.org/Top10/A03_2021-Injection/",
+          "https://cwe.mitre.org/data/definitions/643.html"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "XPath Injection"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.audit.xpath-injection.xpath-injection",
+        "shortlink": "https://sg.run/4KP7",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 27400,
+            "rv_id": 945190,
+            "rule_id": "x8Uj2k",
+            "version_id": "d6TPjK5",
+            "url": "https://semgrep.dev/playground/r/d6TPjK5/csharp.dotnet.security.audit.xpath-injection.xpath-injection",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "pattern-either": [
+            {
+              "pattern": "$T $M($INPUT,...) {...}"
+            },
+            {
+              "pattern": "$T $M(...) {\n  ...\n  string $INPUT;\n}\n"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "pattern-either": [
+            {
+              "pattern": "XPathExpression $EXPR = $NAV.Compile(\"...\" + $INPUT + \"...\");"
+            },
+            {
+              "pattern": "var $EXPR = $NAV.Compile(\"...\" + $INPUT + \"...\");"
+            },
+            {
+              "pattern": "XPathNodeIterator $NODE = $NAV.Select(\"...\" + $INPUT + \"...\");"
+            },
+            {
+              "pattern": "var $NODE = $NAV.Select(\"...\" + $INPUT + \"...\");"
+            },
+            {
+              "pattern": "Object $OBJ = $NAV.Evaluate(\"...\" + $INPUT + \"...\");"
+            },
+            {
+              "pattern": "var $OBJ = $NAV.Evaluate(\"...\" + $INPUT + \"...\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.cryptography.unsigned-security-token.unsigned-security-token",
+      "patterns": [
+        {
+          "pattern": "RequireSignedTokens = false"
+        },
+        {
+          "pattern-inside": "new TokenValidationParameters {\n  ...\n}\n"
+        }
+      ],
+      "fix": "RequireSignedTokens = true",
+      "message": "Accepting unsigned security tokens as valid security tokens allows an attacker to remove its signature and potentially forge an identity. As a fix, set RequireSignedTokens to be true.",
+      "metadata": {
+        "category": "security",
+        "technology": [
+          "csharp"
+        ],
+        "owasp": [
+          "A02:2021 - Cryptographic Failures"
+        ],
+        "cwe": [
+          "CWE-347: Improper Verification of Cryptographic Signature"
+        ],
+        "references": [
+          "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+          "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+          "https://cwe.mitre.org/data/definitions/347"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Cryptographic Issues"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.cryptography.unsigned-security-token.unsigned-security-token",
+        "shortlink": "https://sg.run/pqzN",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 26718,
+            "rv_id": 945207,
+            "rule_id": "KxUGLw",
+            "version_id": "BjT1Ne2",
+            "url": "https://semgrep.dev/playground/r/BjT1Ne2/csharp.lang.security.cryptography.unsigned-security-token.unsigned-security-token",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "severity": "ERROR"
+    },
+    {
+      "id": "csharp.dotnet.security.use_deprecated_cipher_algorithm.use_deprecated_cipher_algorithm",
+      "message": "Usage of deprecated cipher algorithm detected. Use Aes or ChaCha20Poly1305 instead.",
+      "severity": "ERROR",
+      "metadata": {
+        "likelihood": "HIGH",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+        ],
+        "owasp": [
+          "A02:2021 - Cryptographic Failures"
+        ],
+        "references": [
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.des?view=net-6.0#remarks",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.rc2?view=net-6.0#remarks",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.aes?view=net-6.0",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.chacha20poly1305?view=net-6.0"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Cryptographic Issues"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.use_deprecated_cipher_algorithm.use_deprecated_cipher_algorithm",
+        "shortlink": "https://sg.run/k8Qo",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 36772,
+            "rv_id": 945195,
+            "rule_id": "WAUJr0",
+            "version_id": "LjTXyEj",
+            "url": "https://semgrep.dev/playground/r/LjTXyEj/csharp.dotnet.security.use_deprecated_cipher_algorithm.use_deprecated_cipher_algorithm",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "patterns": [
+        {
+          "pattern": "$KEYTYPE.Create(...);"
+        },
+        {
+          "metavariable-pattern": {
+            "metavariable": "$KEYTYPE",
+            "pattern-either": [
+              {
+                "pattern": "DES"
+              },
+              {
+                "pattern": "RC2"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.use_ecb_mode.use_ecb_mode",
+      "message": "Usage of the insecure ECB mode detected. You should use an authenticated encryption mode instead, which is implemented by the classes AesGcm or ChaCha20Poly1305.",
+      "severity": "WARNING",
+      "metadata": {
+        "likelihood": "HIGH",
+        "impact": "MEDIUM",
+        "confidence": "HIGH",
+        "category": "security",
+        "cwe": [
+          "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+        ],
+        "owasp": [
+          "A02:2021 - Cryptographic Failures"
+        ],
+        "references": [
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.chacha20poly1305?view=net-6.0",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.aesgcm?view=net-6.0",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.ciphermode?view=net-6.0",
+          "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#cipher-modes"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Cryptographic Issues"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.use_ecb_mode.use_ecb_mode",
+        "shortlink": "https://sg.run/wj9n",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 36773,
+            "rv_id": 945196,
+            "rule_id": "0oUqWP",
+            "version_id": "8KTKjGw",
+            "url": "https://semgrep.dev/playground/r/8KTKjGw/csharp.dotnet.security.use_ecb_mode.use_ecb_mode",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "patterns": [
+        {
+          "pattern-either": [
+            {
+              "pattern": "($KEYTYPE $KEY).EncryptEcb(...);"
+            },
+            {
+              "pattern": "($KEYTYPE $KEY).DecryptEcb(...);"
+            },
+            {
+              "pattern": "($KEYTYPE $KEY).Mode = CipherMode.ECB;"
+            }
+          ]
+        },
+        {
+          "metavariable-pattern": {
+            "metavariable": "$KEYTYPE",
+            "pattern-either": [
+              {
+                "pattern": "SymmetricAlgorithm"
+              },
+              {
+                "pattern": "Aes"
+              },
+              {
+                "pattern": "Rijndael"
+              },
+              {
+                "pattern": "DES"
+              },
+              {
+                "pattern": "TripleDES"
+              },
+              {
+                "pattern": "RC2"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration",
+      "message": "You are using an insecure random number generator (RNG) to create a cryptographic key. System.Random must never be used for cryptographic purposes. Use System.Security.Cryptography.RandomNumberGenerator instead.",
+      "severity": "ERROR",
+      "metadata": {
+        "likelihood": "HIGH",
+        "impact": "MEDIUM",
+        "confidence": "HIGH",
+        "category": "security",
+        "cwe": [
+          "CWE-338: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)"
+        ],
+        "owasp": [
+          "A02:2021 - Cryptographic Failures"
+        ],
+        "references": [
+          "https://learn.microsoft.com/en-us/dotnet/api/system.random?view=net-6.0#remarks",
+          "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.randomnumbergenerator?view=net-6.0",
+          "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.aesgcm?view=net-6.0#constructors",
+          "https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.symmetricalgorithm.key?view=net-6.0#system-security-cryptography-symmetricalgorithm-key"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Cryptographic Issues"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration",
+        "shortlink": "https://sg.run/xjrA",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 36774,
+            "rv_id": 945197,
+            "rule_id": "KxU3Nq",
+            "version_id": "gETe1yQ",
+            "url": "https://semgrep.dev/playground/r/gETe1yQ/csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "mode": "taint",
+      "pattern-sources": [
+        {
+          "patterns": [
+            {
+              "pattern-inside": "(System.Random $RNG).NextBytes($KEY); ..."
+            },
+            {
+              "pattern": "$KEY"
+            }
+          ]
+        }
+      ],
+      "pattern-sinks": [
+        {
+          "pattern-either": [
+            {
+              "patterns": [
+                {
+                  "pattern": "($KEYTYPE $CIPHER).Key = $SINK;"
+                },
+                {
+                  "focus-metavariable": "$SINK"
+                },
+                {
+                  "metavariable-pattern": {
+                    "metavariable": "$KEYTYPE",
+                    "pattern-either": [
+                      {
+                        "pattern": "SymmetricAlgorithm"
+                      },
+                      {
+                        "pattern": "Aes"
+                      },
+                      {
+                        "pattern": "Rijndael"
+                      },
+                      {
+                        "pattern": "DES"
+                      },
+                      {
+                        "pattern": "TripleDES"
+                      },
+                      {
+                        "pattern": "RC2"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "pattern": "new AesGcm(...)"
+            },
+            {
+              "pattern": "new AesCcm(...)"
+            },
+            {
+              "pattern": "new ChaCha20Poly1305(...)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "csharp.dotnet.security.use_weak_rsa_encryption_padding.use_weak_rsa_encryption_padding",
+      "message": "You are using the outdated PKCS#1 v1.5 encryption padding for your RSA key. Use the OAEP padding instead.",
+      "severity": "WARNING",
+      "metadata": {
+        "likelihood": "HIGH",
+        "impact": "MEDIUM",
+        "confidence": "MEDIUM",
+        "category": "security",
+        "cwe": [
+          "CWE-780: Use of RSA Algorithm without OAEP"
+        ],
+        "owasp": [
+          "A02:2021 - Cryptographic Failures"
+        ],
+        "references": [
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.rsapkcs1keyexchangeformatter",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.rsaoaepkeyexchangeformatter",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.rsapkcs1keyexchangedeformatter",
+          "https://learn.microsoft.com/en-gb/dotnet/api/system.security.cryptography.rsaoaepkeyexchangedeformatter"
+        ],
+        "subcategory": [
+          "vuln"
+        ],
+        "technology": [
+          ".net"
+        ],
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Cryptographic Issues"
+        ],
+        "source": "https://semgrep.dev/r/csharp.dotnet.security.use_weak_rsa_encryption_padding.use_weak_rsa_encryption_padding",
+        "shortlink": "https://sg.run/GoJ1",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 35492,
+            "rv_id": 945198,
+            "rule_id": "QrU2G5",
+            "version_id": "QkTZzkr",
+            "url": "https://semgrep.dev/playground/r/QkTZzkr/csharp.dotnet.security.use_weak_rsa_encryption_padding.use_weak_rsa_encryption_padding",
+            "origin": "community"
+          }
+        }
+      },
+      "languages": [
+        "csharp"
+      ],
+      "pattern-either": [
+        {
+          "pattern": "(RSAPKCS1KeyExchangeFormatter $FORMATER).CreateKeyExchange(...);"
+        },
+        {
+          "pattern": "(RSAPKCS1KeyExchangeDeformatter $DEFORMATER).DecryptKeyExchange(...);"
+        }
+      ]
+    },
+    {
+      "id": "csharp.lang.security.cryptography.x509-subject-name-validation.X509-subject-name-validation",
+      "severity": "WARNING",
+      "languages": [
+        "csharp"
+      ],
+      "metadata": {
+        "cwe": [
+          "CWE-295: Improper Certificate Validation"
+        ],
+        "owasp": [
+          "A03:2017 - Sensitive Data Exposure",
+          "A07:2021 - Identification and Authentication Failures"
+        ],
+        "references": [
+          "https://docs.microsoft.com/en-us/dotnet/api/system.identitymodel.tokens.issuernameregistry?view=netframework-4.8"
+        ],
+        "category": "security",
+        "technology": [
+          ".net"
+        ],
+        "confidence": "MEDIUM",
+        "subcategory": [
+          "vuln"
+        ],
+        "likelihood": "LOW",
+        "impact": "LOW",
+        "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+        "vulnerability_class": [
+          "Improper Authentication"
+        ],
+        "source": "https://semgrep.dev/r/csharp.lang.security.cryptography.x509-subject-name-validation.X509-subject-name-validation",
+        "shortlink": "https://sg.run/XZ6B",
+        "semgrep.dev": {
+          "rule": {
+            "r_id": 18220,
+            "rv_id": 945205,
+            "rule_id": "gxUy01",
+            "version_id": "RGTAgKb",
+            "url": "https://semgrep.dev/playground/r/RGTAgKb/csharp.lang.security.cryptography.x509-subject-name-validation.X509-subject-name-validation",
+            "origin": "community"
+          }
+        }
+      },
+      "message": "Validating certificates based on subject name is bad practice. Use the X509Certificate2.Verify() method instead.",
+      "patterns": [
+        {
+          "pattern-inside": "using System.IdentityModel.Tokens;\n...\n"
+        },
+        {
+          "pattern-either": [
+            {
+              "patterns": [
+                {
+                  "pattern-either": [
+                    {
+                      "pattern-inside": "X509SecurityToken $TOK = $RHS;\n...\n"
+                    },
+                    {
+                      "pattern-inside": "$T $M(..., X509SecurityToken $TOK, ...) {\n    ...\n}\n"
+                    }
+                  ]
+                },
+                {
+                  "metavariable-pattern": {
+                    "metavariable": "$RHS",
+                    "pattern-either": [
+                      {
+                        "pattern": "$T as X509SecurityToken"
+                      },
+                      {
+                        "pattern": "new X509SecurityToken(...)"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "patterns": [
+                {
+                  "pattern-either": [
+                    {
+                      "pattern-inside": "X509Certificate2 $CERT = new X509Certificate2(...);\n...\n"
+                    },
+                    {
+                      "pattern-inside": "$T $M(..., X509Certificate2 $CERT, ...) {\n    ...\n}\n"
+                    },
+                    {
+                      "pattern-inside": "foreach (X509Certificate2 $CERT in $COLLECTION) {\n    ...\n}\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "patterns": [
+            {
+              "pattern-either": [
+                {
+                  "pattern": "String.Equals($NAME, \"...\")"
+                },
+                {
+                  "pattern": "String.Equals(\"...\", $NAME)"
+                },
+                {
+                  "pattern": "$NAME.Equals(\"...\")"
+                },
+                {
+                  "pattern": "$NAME == \"...\""
+                },
+                {
+                  "pattern": "$NAME != \"...\""
+                },
+                {
+                  "pattern": "\"...\" == $NAME\n"
+                },
+                {
+                  "pattern": "\"...\" != $NAME\n"
+                }
+              ]
+            },
+            {
+              "metavariable-pattern": {
+                "metavariable": "$NAME",
+                "pattern-either": [
+                  {
+                    "pattern": "$TOK.Certificate.SubjectName.Name"
+                  },
+                  {
+                    "pattern": "$CERT.SubjectName.Name"
+                  },
+                  {
+                    "pattern": "$CERT.GetNameInfo(...)"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "missed": 114
+}

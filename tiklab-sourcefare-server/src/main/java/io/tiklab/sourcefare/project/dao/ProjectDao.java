@@ -1,5 +1,6 @@
 package io.tiklab.sourcefare.project.dao;
 
+import io.tiklab.core.order.OrderBuilders;
 import io.tiklab.core.page.Pagination;
 import io.tiklab.dal.jpa.JpaTemplate;
 import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
@@ -7,10 +8,12 @@ import io.tiklab.dal.jpa.criterial.condition.QueryCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.QueryBuilders;
 import io.tiklab.sourcefare.project.entity.ProjectEntity;
 import io.tiklab.sourcefare.project.model.ProjectQuery;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -66,7 +69,10 @@ public class ProjectDao {
     * findAllProject
     */
     public List<ProjectEntity> findAllProject() {
-        return jpaTemplate.findAll(ProjectEntity.class);
+        QueryCondition queryCondition = QueryBuilders.createQuery(ProjectEntity.class)
+                .notIn("category",new String[]{"demox"})
+                .get();
+        return jpaTemplate.findList(queryCondition, ProjectEntity.class);
     }
 
     /**
@@ -78,13 +84,25 @@ public class ProjectDao {
         return jpaTemplate.findList(ProjectEntity.class,idList);
     }
 
+    public List<ProjectEntity> findDemoProjectList() {
+        QueryCondition queryCondition = QueryBuilders.createQuery(ProjectEntity.class)
+                .in("category",new String[]{"demox","demo"})
+
+                .get();
+        return jpaTemplate.findList(queryCondition, ProjectEntity.class);
+    }
+
     /**
      * 条件查询
      * @param projectQuery projectQuery
      */
     public List<ProjectEntity> findProjectList(ProjectQuery projectQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ProjectEntity.class)
-                .eq("userId", projectQuery.getUserId())
+                .like("name",projectQuery.getName())
+                .eq("scanWay",projectQuery.getScanWay())
+                .notIn("category",new String[]{"demox"})
+                .eq("scanSchemeId",projectQuery.getScanSchemeId())
+                .orders(projectQuery.getOrderParams())
                 .get();
         return jpaTemplate.findList(queryCondition, ProjectEntity.class);
     }
@@ -95,9 +113,32 @@ public class ProjectDao {
     public Pagination<ProjectEntity> findProjectPage(ProjectQuery projectQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ProjectEntity.class)
                 .eq("userId", projectQuery.getUserId())
+                .like("name",projectQuery.getName())
+                .notIn("category",new String[]{"demox"})
+                .eq("scanSchemeId",projectQuery.getScanSchemeId())
+                .orders(projectQuery.getOrderParams())
                 .pagination(projectQuery.getPageParam())
                 .get();
         return jpaTemplate.findPage(queryCondition, ProjectEntity.class);
+    }
+
+    /**
+     * 通过ids查询
+     * @param projectQuery projectQuery
+     */
+    public Pagination<ProjectEntity> findProjectPage(ProjectQuery projectQuery, String[] ids) {
+        if (ObjectUtils.isEmpty(ids)){
+            Pagination<ProjectEntity> objectPagination = new Pagination<>();
+            return objectPagination;
+        }
+
+        QueryBuilders pagination = QueryBuilders.createQuery(ProjectEntity.class)
+                .in("id", ids);
+
+        QueryCondition queryCondition = pagination.pagination(projectQuery.getPageParam())
+                .orders(projectQuery.getOrderParams())
+                .get();
+        return jpaTemplate.findPage(queryCondition,ProjectEntity.class);
     }
 
 

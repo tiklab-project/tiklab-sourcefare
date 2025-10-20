@@ -1,46 +1,60 @@
 package io.tiklab.sourcefare.project.controller;
 
-
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tiklab.sourcefare.common.SourceFareUtil;
-import io.tiklab.sourcefare.scanner.scan.ScanExecute;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import io.tiklab.sourcefare.scan.model.ScanRule;
+import io.tiklab.sourcefare.scanner.common.ProjectUtil;
+import io.tiklab.toolkit.context.AppContext;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class test {
 
+    public static void main(String[] args) throws Exception {
+        String spotbugsFilePath= "/Users/limingliang/work/work-project/tiklab-sourcefare/tiklab-sourcefare-starter/file/spotbugs.json";
+        File file = new File(spotbugsFilePath);
+        String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+        // JSONArray resourcesNode = JSON.parseArray(content);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(content);
+        List<Map> ruleSetList = objectMapper.convertValue(jsonNode, List.class);
 
-	public static void main(String[] args) {
-		/*String url = "https://zh-hans.eslint.org/docs/latest/rules"; // 替换为你要爬取的网页 URL
+        List<Map> arrayList = new ArrayList<>();
+        for (Map ruleSet:ruleSetList){
 
-		try {
-			// 连接到网页并获取 HTML 文档
-			Document document = Jsoup.connect(url).get();
+            List<ScanRule> rules = new ArrayList<>();
+            List<Map> ruleList = objectMapper.convertValue(ruleSet.get("ruleList"), List.class);
+            for (Map rule:ruleList){
 
-			// 示例：提取所有段落文本
-			Elements paragraphs = document.select("p");
-			for (Element paragraph : paragraphs) {
-				System.out.println(paragraph.text());
-			}
+                Map<String, String> hashMap = new HashMap<>();
+                String realName = rule.get("ruleName").toString();
+                String severity = rule.get("problemLevel").toString();
 
-			// 示例：提取所有链接
-			Elements links = document.select("a[href]");
-			for (Element link : links) {
-				System.out.println("Link: " + link.attr("href") + " Text: " + link.text());
-			}
-		}catch (Exception e){
-			System.err.println("爬取网页时出错: " + e.getMessage());
-		}*/
+                if (("0").equals(severity)){
+                    hashMap.put("realName",realName);
+                    hashMap.put("severity",severity);
+                    arrayList.add(hashMap);
+                }
+            }
+        }
+        System.out.println("");
+    }
 
-		String a="https://zh-hans.eslint.org/docs/latest/rules";
-		String jsonObject = SourceFareUtil.restTemplateGet(a);
-		System.out.println("");
-	}
 }

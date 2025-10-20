@@ -16,11 +16,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.tiklab</groupId>
-			<artifactId>tiklab-postgresql-starter</artifactId>
-			<version>${tiklab-postgresql.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.tiklab</groupId>
 			<artifactId>tiklab-toolkit-spring-boot-starter</artifactId>
 			<version>${tiklab-toolkit.version}</version>
 		</dependency>
@@ -47,6 +42,11 @@
 		</dependency>
 
 
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-postin-client</artifactId>
+			<version>${tiklab-postin.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>io.tiklab</groupId>
 			<artifactId>tiklab-licence-spring-boot-starter</artifactId>
@@ -114,11 +114,7 @@
 			<version>1.7.25</version>
 		</dependency>
 
-		<dependency>
-			<groupId>io.tiklab</groupId>
-			<artifactId>tiklab-install-server</artifactId>
-			<version>1.0.2</version>
-		</dependency>
+
 		<dependency>
 			<groupId>io.tiklab</groupId>
 			<artifactId>tiklab-install-client</artifactId>
@@ -129,6 +125,19 @@
 			<artifactId>tiklab-rpc-spring-boot-starter</artifactId>
 			<version>${tiklab-rpc.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-install-spring-boot-starter</artifactId>
+			<version>${tiklab-install.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.tiklab</groupId>
+			<artifactId>tiklab-postgresql-spring-boot-starter</artifactId>
+			<version>${tiklab-postgresql.version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
@@ -154,10 +163,60 @@
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
+
 				<dependency>
 					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-spotbugs</artifactId>
 					<version>${tiklab-spotbugs.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pmd</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cppcheck-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pylint-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-gocyclo-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
@@ -195,10 +254,60 @@
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>
+
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-spotbugs</artifactId>
 											<version>${tiklab-spotbugs.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pmd</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pylint-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cppcheck-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-semgrep-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-gocyclo-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>
@@ -229,10 +338,60 @@
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
+
 				<dependency>
 					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-spotbugs</artifactId>
 					<version>${tiklab-spotbugs.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pmd</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-lizard-windows</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cppcheck-windows</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pylint-windows</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-gocyclo-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
@@ -270,10 +429,61 @@
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>
+
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-spotbugs</artifactId>
 											<version>${tiklab-spotbugs.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pmd</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-lizard-windows</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pylint-windows</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cppcheck-windows</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-semgrep-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-gocyclo-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>
@@ -304,6 +514,63 @@
 					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-postgresql-linux</artifactId>
 					<version>${tiklab-postgresql.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-spotbugs</artifactId>
+					<version>${tiklab-spotbugs.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pmd</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cppcheck-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pylint-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-gocyclo-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
@@ -341,6 +608,70 @@
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>
+
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-spotbugs</artifactId>
+											<version>${tiklab-spotbugs.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pmd</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pylint-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cppcheck-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-semgrep-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-gocyclo-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-gocyclo-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
 									</artifactItems>
 								</configuration>
 							</execution>
@@ -349,6 +680,7 @@
 				</plugins>
 			</build>
 		</profile>
+
 		<!--mac-->
 		<profile>
 			<id>system-mac</id>
@@ -367,10 +699,54 @@
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
+
+
 				<dependency>
 					<groupId>io.tiklab</groupId>
-					<artifactId>tiklab-spotbugs</artifactId>
-					<version>${tiklab-spotbugs.version}</version>
+					<artifactId>tiklab-sourcefare-pmd</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-cppcheck-mac</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-pylint-mac</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-gocyclo-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
 					<scope>provided</scope>
 				</dependency>
@@ -412,6 +788,56 @@
 											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-spotbugs</artifactId>
 											<version>${tiklab-spotbugs.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pmd</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-pylint-mac</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-cppcheck-mac</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-semgrep-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId> tiklab-sourcefare-gocyclo-mac</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>

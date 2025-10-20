@@ -26,9 +26,6 @@ public class ScanScheme implements Serializable {
     @ApiProperty(name="scanWay",desc="扫描方式 sonar、rule")
     private String scanWay;
 
-    @ApiProperty(name="deployEnvId",desc="扫描环境Id")
-    private String deployEnvId;
-
 
     @ApiProperty(name="category",desc="1 、默认 ；2、自定义")
     private Integer category=2;
@@ -98,11 +95,4 @@ public class ScanScheme implements Serializable {
         this.category = category;
     }
 
-    public String getDeployEnvId() {
-        return deployEnvId;
-    }
-
-    public void setDeployEnvId(String deployEnvId) {
-        this.deployEnvId = deployEnvId;
-    }
 }

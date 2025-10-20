@@ -1,0 +1,6 @@
+[2025-09-12 17:37:10] [sourceFare] start the code complexity scan
+[2025-09-12 17:37:10] [sourceFare] lizard path:/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/lizard/bin
+[2025-09-12 17:37:10] [sourceFare] location of lizard scan results:/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/file/9ab2cfd6612e-lizard.xml
+[2025-09-12 17:37:10] [sourceFare] lizard executive order:lizard /Users/limingliang/other/scan/project/tiklab-hadess --xml > /Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/file/9ab2cfd6612e-lizard.xml
+[2025-09-12 17:37:11] [sourceFare] complexity scan was successful. Parse the scan results
+[2025-09-12 17:37:11] [sourceFare] parsing the lizard result success

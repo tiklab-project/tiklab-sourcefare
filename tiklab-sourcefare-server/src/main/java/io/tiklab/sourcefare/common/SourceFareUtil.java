@@ -1,13 +1,29 @@
 package io.tiklab.sourcefare.common;
 
 import com.alibaba.fastjson.JSONObject;
+import io.tiklab.core.exception.ApplicationException;
+import io.tiklab.sourcefare.scan.model.DeployEnv;
+import io.tiklab.sourcefare.scanner.common.ProjectUtil;
+import io.tiklab.sourcefare.scanner.common.SourceFareFinal;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import static io.tiklab.sourcefare.common.SourceWairServerFinal.*;
 
 public class SourceFareUtil {
 
@@ -43,7 +59,6 @@ public class SourceFareUtil {
         long dateTime = date.getTime();
         long l=time-dateTime;
 
-
         long day=l/(24*60*60*1000);
         long hour=(l/(60*60*1000)-day*24);
         long minute=((l/(60*1000))-day*24*60-hour*60);
@@ -54,6 +69,20 @@ public class SourceFareUtil {
             }
             return second+"秒";
         }
+
+        if (("project").equals(type)){
+            if (day!=0){
+                return day+" 天"+hour+" 小时";
+            }
+            if (hour != 0){
+                return hour+" 小时"+minute+" 分钟";
+            }
+            if (minute != 0){
+                return minute+" 分钟";
+            }
+            return second+" 秒";
+        }
+
         if (day != 0){
             return day+"天";
         }
@@ -143,6 +172,8 @@ public class SourceFareUtil {
         }
     }
 
+
+
     /**
      *执行maven编译
      * @param mavenPath maven地址
@@ -160,6 +191,39 @@ public class SourceFareUtil {
         );
         processBuilder.directory(new File(repositoryPath));
         return processBuilder.start();
+    }
+
+    /**
+     * 执行cmd命令
+     * @param path 执行文件夹
+     * @param order 执行命令
+     * @return 执行信息
+     * @throws IOException 调取命令行失败
+     */
+    public static Process executeCmd(String order,String path) throws Exception {
+        Runtime runtime=Runtime.getRuntime();
+        Process process;
+        if (ProjectUtil.findSystemType()==1){
+            if (StringUtils.isBlank(path)){
+                process = runtime.exec(" cmd.exe /c " + " " + order);
+            }else {
+                process = runtime.exec(" cmd.exe /c " + " " + order,null,new File(path));
+            }
+        }else {
+            if (StringUtils.isBlank(path)){
+                String[]  cmd = new String[] { "/bin/sh", "-c", " source /etc/profile;"+ order };
+                process = runtime.exec(cmd);
+            }else {
+                String[]  cmd = new String[] { "/bin/sh", "-c", "cd " + path + ";"+" source /etc/profile;"+ order };
+                process = runtime.exec(cmd,null,new File(path));
+            }
+        }
+        //执行命令等待时间
+        if (process.waitFor(SourceFareFinal.CMD_TIMEOUT, TimeUnit.MILLISECONDS)) {
+            return  process;
+        } else {
+            throw new TimeoutException();
+        }
     }
 
     /**
@@ -224,4 +288,237 @@ public class SourceFareUtil {
         String responseBody = result.getBody();
         return responseBody;
     }
+
+    /**
+     * 解压zip文件夹
+     * @param zipFilePath 解压路径
+     * @param destDirectory 压缩包文件路径
+     */
+
+   /* public static void decompressionZip(String zipFilePath,String destDirectory) throws IOException {
+
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+        }
+
+        try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(
+                new BufferedInputStream(new FileInputStream(zipFilePath)), "UTF-8")) { // 指定编码解决中文问题
+
+            ZipArchiveEntry entry;
+            while ((entry = zipIn.getNextZipEntry()) != null) {
+                String entryName = entry.getName();
+                String filePath = destDirectory + File.separator + entryName;
+
+                if (entry.isDirectory()) {
+                    // 创建目录
+                    new File(filePath).mkdirs();
+                } else {
+                    // 确保父目录存在
+                    File parent = new File(filePath).getParentFile();
+                    if (parent != null && !parent.exists()) {
+                        parent.mkdirs();
+                    }
+
+                    // 提取文件
+                    try (OutputStream out = Files.newOutputStream(Paths.get(filePath))) {
+                        IOUtils.copy(zipIn, out);
+                    }
+                }
+            }
+        }
+    }*/
+
+    /**
+     * 解压zip文件夹
+     * @param outputFolderPath 解压路径
+     * @param inputFilePath 压缩包文件路径
+     */
+
+    public static void decompressionZip(String inputFilePath,String outputFolderPath) throws IOException {
+
+        File targetFolder = new File(outputFolderPath);
+
+        // 创建目标文件夹（如果不存在）
+        if (!targetFolder.exists()) {
+            targetFolder.mkdirs();
+        }
+
+        byte[] buffer = new byte[1024];
+        // 获取ZIP文件名（不含扩展名）
+        String zipName = StringUtils.substringAfterLast(inputFilePath, "/");
+        String fileName = StringUtils.substringBeforeLast(zipName, ".zip");
+
+
+
+        // 创建zip文件输入流
+        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(inputFilePath));
+
+        // 获取zip文件中的每个entry
+        ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+        while (zipEntry != null) {
+            String entryName = zipEntry.getName();
+            // 跳过与ZIP文件同名的顶级目录
+            if (entryName.startsWith(fileName + "/") || entryName.startsWith(fileName + "\\")) {
+                entryName = entryName.substring(fileName.length() + 1);
+            }
+            // 构建目标文件路径
+            File extractedFile = new File(targetFolder, entryName);
+
+            // 如果entry是一个文件，则解压缩
+            if (!zipEntry.isDirectory()) {
+                // 创建目标文件的父目录（如果不存在）
+                if (!extractedFile.getParentFile().exists()) {
+                    extractedFile.getParentFile().mkdirs();
+                }
+
+                // 创建输出流，将entry解压到目标文件
+                FileOutputStream outputStream = new FileOutputStream(extractedFile);
+                int length;
+                while ((length = zipInputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.close();
+            }
+
+            // 关闭当前entry，继续获取下一个entry
+            zipInputStream.closeEntry();
+            zipEntry = zipInputStream.getNextEntry();
+        }
+
+        // 关闭zip文件输入流
+        zipInputStream.close();
+    }
+
+
+
+    /**
+     * 效验地址是否存在配置文件
+     * @param deployEnv deployEnv
+    // * @return 匹配状态  1.不是个目录或不存在这个文件夹  2. 空目录找不到可执行文件 0. 匹配成功
+     */
+    public static String validFile(DeployEnv deployEnv) throws ApplicationException {
+        String fileAddress = deployEnv.getEnvAddress();
+        String type = deployEnv.getEnvType();
+        Integer installWay = deployEnv.getInstallWay();
+        String address;
+        if (installWay!=0){
+            if (StringUtils.isEmpty(fileAddress)){
+                throw new ApplicationException("地址配置异常,"+fileAddress+"没有文件!");
+            }
+
+            File file = new File(fileAddress);
+
+            //不存在这个目录
+            if (!file.exists()){
+                throw new ApplicationException("地址配置异常，"+fileAddress+"路径在当前主机不存在。");
+            }
+            //不是个目录
+            if (!file.isDirectory()){
+                throw new ApplicationException("地址配置异常："+fileAddress+"不是个目录。");
+            }
+            //不存在可执行文件
+            File[] files = file.listFiles();
+            if (files == null || files.length == 0){
+                throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到可执行文件。");
+            }
+             address = findScmAddress(file,type);
+        }else {
+            String envVersion = ProjectUtil.getEnvPath(type);
+            if (StringUtils.isNotBlank(envVersion)&&envVersion.contains("not found")){
+                address=null;
+            }else {
+                address=envVersion;
+            }
+        }
+
+
+        if (StringUtils.isEmpty(address)){
+            switch (type) {
+                case TASK_TOOL_TYPE_JDK -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到JDK可执行文件。");
+                }
+                case TASK_TOOL_TYPE_GIT -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到Git的可执行文件。");
+                }
+                case TASK_TOOL_TYPE_SVN -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到Svn的可执行文件。");
+                }
+                case TASK_TOOL_TYPE_MAVEN -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到Maven的可执行文件。");
+                }
+                case TASK_TOOL_TYPE_NODE -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到Node的可执行文件。");
+                }
+                case TASK_TOOL_TYPE_NPM -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到npm的可执行文件。");
+                }
+                case TASK_TOOL_TYPE_GO -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到go的可执行文件。");
+                }
+                case TASK_TOOL_TYPE_PYTHON -> {
+                    throw new ApplicationException("地址配置异常，在"+fileAddress+"找不到python的可执行文件。");
+                }
+            }
+        }
+        return address;
+    }
+
+
+    /**
+     * 获取不同环境的可执行程序地址
+     * @param file 目录
+     * @param type 类型
+     * @return 可执行程序地址
+     */
+    private static String findScmAddress(File file, String type){
+        String address = null;
+        for (File listFile : Objects.requireNonNull(file.listFiles())) {
+
+            if (listFile.isDirectory() && !listFile.getName().startsWith(".")){
+                // 递归找到值后立即返回，避免继续遍历
+                if (!StringUtils.isEmpty(address)) {
+                    return address;
+                }
+                address = findScmAddress(listFile, type);
+            }
+
+            String name = listFile.getName();
+            switch (type) {
+                case TASK_TOOL_TYPE_JDK -> {
+                    if (name.equals("java") || name.equals("java.exe")) {
+                        address = listFile.getParent();
+                    }
+                }
+                case TASK_TOOL_TYPE_MAVEN -> {
+                    if (name.equals("mvn")|| name.equals("maven.exe")) {
+                        address = listFile.getParent();
+                    }
+                }
+                case TASK_TOOL_TYPE_NODE -> {
+                    if (name.equals("node")|| name.equals("node.exe")) {
+                        address = listFile.getParent();
+                    }
+                }
+                case TASK_TOOL_TYPE_NPM -> {
+                    if (name.equals("npm")|| name.equals("npm.exe")) {
+                        address = listFile.getParent();
+                    }
+                }
+                case TASK_TOOL_TYPE_GO -> {
+                    if (name.equals("go")|| name.equals("go.exe")) {
+                        address = listFile.getParent();
+                    }
+                }
+                case TASK_TOOL_TYPE_PYTHON -> {
+                    if (name.equals("pip3")|| name.equals("pip3.exe")||name.equals("pip")|| name.equals("pip.exe")) {
+                        address = listFile.getParent();
+                    }
+                }
+            }
+        }
+        return address;
+    }
+
 }

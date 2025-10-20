@@ -4,11 +4,13 @@ public class SourceWairServerFinal {
 
 
     // 查询gitPuk的仓库地址
-    public static final String FIND_REPOSITORY_GIT_PUK = "/api/rpy/findRepositoryByUser";
+    public static final String FIND_REPOSITORY_GIT_PUK = "/api/rpy/findUserRepositoryList";
 
 
     // 查询gitPuk的仓库分支
     public static final String FIND_REPOSITORY_BRANCH_GIT_PUK = "/api/branch/findAllBranch";
+
+    public static final String ACCESS_TOKEN = "dGlrbGFi";
 
     // 代码扫描应用类型
     public static final String SCAN_SONAR = "sonar";
@@ -62,5 +64,27 @@ public class SourceWairServerFinal {
     public static final String LOG_RPY_UPDATE = "/project/${projectId}/setting/info";
 
 
+    /**
+     * 系统任务类型
+     */
+    public static final String TASK_TOOL_TYPE_JDK = "jdk";
+    public static final String TASK_TOOL_TYPE_MAVEN = "maven";
+    public static final String TASK_TOOL_TYPE_GIT = "git";
+    public static final String TASK_TOOL_TYPE_SVN = "svn";
+    public static final String TASK_TOOL_TYPE_NODE = "node";
+    public static final String TASK_TOOL_TYPE_NPM = "npm";
+    public static final String TASK_TOOL_TYPE_GO = "go";
 
+    public static final String TASK_TOOL_TYPE_PYTHON="python";
+
+
+    public static final String PROJECT_DELETE = "project_delete";
+    public static final String PROJECT_UPDATE = "project_update";
+
+
+    public static final String STATIC = "static";
+
+    public static final String COMPILE = "compile";
+
+    public static final String COLLECT = "collect";
 }

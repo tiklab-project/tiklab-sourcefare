@@ -29,6 +29,9 @@ public class DeployEnv implements Serializable {
     @ApiProperty(name="envAddress",desc="环境应用地址")
     private String envAddress;
 
+    @ApiProperty(name="installWay",desc="安装方式 0.全局、 1.本地、2.安装包、3.在线安装 ")
+    private Integer installWay;
+
     @ApiProperty(name="category",desc="1 、默认 ；2、自定义")
     private Integer category=2;
 
@@ -84,56 +87,13 @@ public class DeployEnv implements Serializable {
     public void setCategory(Integer category) {
         this.category = category;
     }
+
+    public Integer getInstallWay() {
+        return installWay;
+    }
+
+    public void setInstallWay(Integer installWay) {
+        this.installWay = installWay;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

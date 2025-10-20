@@ -33,7 +33,7 @@ public class ScanRule implements Serializable {
     @ApiProperty(name="ruleOverview",desc="规则概述")
     private String ruleOverview;
 
-    @ApiProperty(name="problemLevel",desc="规则等级 严重：1、警告：2、建议：3")
+    @ApiProperty(name="problemLevel",desc="规则等级 严重：1，错误：2，警告：3，建议：4")
     private Integer problemLevel;
 
     @ApiProperty(name="description",desc="规则描述")

@@ -1,0 +1,754 @@
+#!/bin/bash
+
+ORDER_TYPE=${1}
+# 默认值
+DEFAULT_INSTALL_PATH="/opt"
+APPLY_CODE="sourcefare"
+
+# 解析参数
+while getopts "i:c:v" opt; do
+  case "$opt" in
+    i) DEFAULT_INSTALL_PATH="$OPTARG" ;;
+    c) APPLY_CODE="$OPTARG" ;;
+    v) ORDER_TYPE="version" ;;
+    *) echo "Unsupported parameters"; exit 1 ;;
+  esac
+done
+
+APPLY_DOWNLOAD_URL="https://install.tiklab.net"
+
+get_linux_distro() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        ID=$(echo "$ID" | tr '[:upper:]' '[:lower:]')
+        case "$ID" in
+            ubuntu|debian)
+                echo "ubuntu"
+                return 0
+                ;;
+            centos|rhel)
+                echo "centos"
+                return 0
+                ;;
+            *)
+                echo "unknown"
+                return 1
+                ;;
+        esac
+    elif [ -f /etc/centos-release ]; then
+        echo "centos"
+        return 0
+    elif [ -f /etc/lsb-release ]; then
+        . /etc/lsb-release
+        if [ "$(echo "$DISTRIB_ID" | tr '[:upper:]' '[:lower:]')" = "ubuntu" ]; then
+            echo "ubuntu"
+            return 0
+        fi
+        echo "unknown"
+        return 1
+    else
+        echo "unknown"
+        return 1
+    fi
+}
+
+SYSTEM_TYPE=$(get_linux_distro | tr -d '[:space:]')
+
+valid_system_command(){
+    if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+        if ! command -v dpkg >/dev/null 2>&1; then
+            echo "dpkg not fount, installation failed!"
+            exit 1
+        fi
+    elif [ "$SYSTEM_TYPE" = "centos" ]; then
+        # 先检查 rpm 是否存在
+        if ! command -v rpm >/dev/null 2>&1; then
+            echo "rpm not fount, installation failed!"
+            exit 1
+        fi
+    else
+        echo "The current version does not support or recognize Linux distributions"
+        exit 1
+    fi
+}
+
+check_tiklab_version() {
+    if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+        installed_version=$(dpkg -l | awk '/tiklab-'"${APPLY_CODE}"'/ {print $3}')
+        if [ -n "$installed_version" ]; then
+            echo "$installed_version"
+            return 0  # 已安装
+        else
+            return 1  # 未安装
+        fi
+    elif [ "$SYSTEM_TYPE" = "centos" ]; then
+        if rpm -q "tiklab-${APPLY_CODE}" >/dev/null 2>&1; then
+            installed_version=$(rpm -q --qf "%{VERSION}\n" "tiklab-${APPLY_CODE}")
+            echo "$installed_version"
+            return 0
+        else
+            return 1
+        fi
+    else
+        return 3  # 不支持的系统
+    fi
+}
+
+download_remote_file() {
+    echo "download remote installation package......"
+    url="${1}"
+    output="${2}"
+    if command -v curl >/dev/null 2>&1; then
+        curl -L -o "$output" "$url"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$output" "$url"
+    else
+        echo "Error: Curl or wget required, please install one first" >&2
+        exit 1
+    fi
+}
+
+download_file(){
+  install_dir=${1}
+  downUrl=${2}
+  echo "downloading file ${downUrl}......"
+  package_name=${install_dir}/tiklab-${APPLY_CODE}
+  if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+      download_remote_file "${downUrl}" "${package_name}.deb"
+  elif [ "$SYSTEM_TYPE" = "centos" ]; then
+      download_remote_file "${downUrl}" "${package_name}.rpm"
+  else
+      echo "The current version does not support or recognize Linux distributions"
+      exit 1
+  fi
+}
+
+download_install_file(){
+    install_dir=${1}
+    echo "download completed, begin installation......"
+    echo "Install tiklab-${APPLY_CODE}......"
+    echo "default installation directory: ${install_dir}"
+    package_name=${install_dir}/tiklab-${APPLY_CODE}
+    if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+        dpkg -i  "${package_name}.deb"
+        rm -rf "${package_name}.deb"
+    elif [ "$SYSTEM_TYPE" = "centos" ]; then
+        rpm -ivh "${package_name}.rpm"
+        rm -rf "${package_name}.rpm"
+    else
+        echo "The current version does not support or recognize Linux distributions"
+        exit 1
+    fi
+}
+
+# 请求接口并返回 data 字段
+find_app_latest_version() {
+  local system="$1"
+
+  # 调用接口
+  response=$(curl -s "${APPLY_DOWNLOAD_URL}/app/findAppNewVersion/${APPLY_CODE}/${system}")
+
+  # 提取 code
+  code=$(echo "$response" | sed -n 's/.*"code":[ ]*\([0-9]*\).*/\1/p')
+
+  if [ "$code" != "0" ]; then
+    msg=$(echo "$response" | sed -n 's/.*"msg":"\([^"]*\)".*/\1/p')
+    echo "Failed to obtain the latest version: code=$code, msg=$msg" >&2
+    return 1
+  fi
+
+  # 提取 data 字段（字符串）
+  data=$(echo "$response" | sed -n 's/.*"data":"\([^"]*\)".*/\1/p')
+
+  echo "$data"
+}
+
+valid_install(){
+  echo "check if it installed...."
+  installed_version=$(check_tiklab_version)
+  status=$?
+  if [ "$status" -eq 0 ]; then
+      echo "Currently installed tiklab-${APPLY_CODE}, Version: $installed_version"
+      exit 0
+  elif [ "$status" -eq 1 ]; then
+      echo "Currently not installed tiklab-${APPLY_CODE}"
+  else
+      echo "The current version does not support or recognize Linux distributions"
+      exit 1
+  fi
+}
+
+valid_install_return(){
+  echo "check if it installed...."
+  installed_version=$(check_tiklab_version)
+  status=$?
+  if [ "$status" -eq 0 ]; then
+      echo "currently installed tiklab-${APPLY_CODE}, Version: $installed_version"
+  elif [ "$status" -eq 1 ]; then
+      echo "currently not installed tiklab-${APPLY_CODE}"
+      exit 0
+  else
+      echo "The current version does not support or recognize Linux distributions"
+      exit 1
+  fi
+}
+
+get_local_ip() {
+    # 获取所有本机 IP（排除 127.0.0.1）
+    ips=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -v "^127\.")
+
+    # 优先匹配 192.168.*
+    ip=$(echo "$ips" | grep "^192\.168\." | head -n 1)
+    if [ -n "$ip" ]; then
+        echo "$ip"
+        return 0
+    fi
+
+    # 其次匹配 172.*
+    ip=$(echo "$ips" | grep "^172\." | head -n 1)
+    if [ -n "$ip" ]; then
+        echo "$ip"
+        return 0
+    fi
+
+    # 如果都没有，就返回第一个非 127 的地址
+    echo "$ips" | head -n 1
+}
+
+start_apply(){
+    # shellcheck disable=SC2164
+    cd ${1}
+    echo "start tiklab-${APPLY_CODE}"
+    if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+        bash startup.sh
+        if [ $? -eq 0 ]; then
+            echo "start success"
+        else
+            echo "start error"
+        fi
+    elif [ "$SYSTEM_TYPE" = "centos" ]; then
+        bash startup.sh
+        if [ $? -eq 0 ]; then
+            echo "start success"
+        else
+            echo "start error"
+        fi
+    else
+        echo "The current version does not support or recognize Linux distributions"
+        exit 1
+    fi
+}
+
+stop_apply(){
+    # shellcheck disable=SC2164
+    cd "${1}"
+    echo "stop tiklab-${APPLY_CODE}"
+    if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+        bash shutdown.sh
+    elif [ "$SYSTEM_TYPE" = "centos" ]; then
+        bash shutdown.sh
+    else
+        echo "The current version does not support or recognize Linux distributions"
+        exit 1
+    fi
+}
+
+uninstall_apply(){
+  pkg="tiklab-${APPLY_CODE}"
+  if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+      if dpkg -l | grep -q "^ii\s\+$pkg\s"; then
+          echo "🟡 卸载 $pkg (dpkg)"
+          sudo dpkg -r "$pkg"
+      else
+          echo "⚪ $pkg 未安装，无需卸载"
+      fi
+
+  elif [ "$SYSTEM_TYPE" = "centos" ]; then
+      if rpm -q "$pkg" >/dev/null 2>&1; then
+          echo "🟡 卸载 $pkg (rpm)"
+          sudo rpm -e "$pkg"
+      else
+          echo "⚪ $pkg 未安装，无需卸载"
+      fi
+  else
+      echo "❌ Unsupported or unrecognized Linux distribution: $SYSTEM_TYPE"
+      exit 1
+  fi
+}
+
+backup_dir() {
+  local src_dir="$1"       # 要压缩的目录
+  local archive_name="$2"  # 压缩文件名，例如 arbess_backup.tar.gz
+  local dest_dir="$3"      # 压缩文件最终存放的目录
+
+  # 参数校验
+  if [ -z "$src_dir" ] || [ -z "$archive_name" ] || [ -z "$dest_dir" ]; then
+    echo "Usage: backup_dir <source_dir> <archive_name> <destination_dir>"
+    return 1
+  fi
+
+  if [ ! -d "$src_dir" ]; then
+    echo "❌ Source directory does not exist: $src_dir"
+    return 1
+  fi
+
+  # 检查目标目录是否存在，如果不存在就创建
+  if [ ! -d "$dest_dir" ]; then
+    mkdir -p "$dest_dir"
+    if [ $? -ne 0 ]; then
+      echo "❌ Failed to create destination directory: $dest_dir"
+      return 1
+    fi
+  fi
+
+  # 给压缩文件加时间戳，避免覆盖旧备份
+  timestamp=$(date +%Y%m%d%H%M%S)
+  archive_name="${archive_name%.tar.gz}_$timestamp.tar.gz"
+  archive_path="${dest_dir}/${archive_name}"
+
+  # 压缩（直接输出到目标目录）
+  tar -czf "$archive_path" -C "$(dirname "$src_dir")" "$(basename "$src_dir")"
+  if [ $? -ne 0 ]; then
+    echo "❌ Compression failed"
+    return 1
+  fi
+
+  echo "✅ Compression successful. backup file address: $archive_path"
+  return 0
+}
+
+find_install_dir() {
+    local pkg_name="tiklab-${APPLY_CODE}"
+
+    if [ -z "$pkg_name" ]; then
+        echo "Usage: find_install_dir <package_name>"
+        exit 1
+    fi
+
+    local files
+
+    if [ "$SYSTEM_TYPE" = "ubuntu" ]; then
+        files=$(dpkg -L "$pkg_name" 2>/dev/null)
+        if [ -z "$files" ]; then
+            echo "Package '$pkg_name' is not installed on Ubuntu"
+            exit 1
+        fi
+
+    elif [ "$SYSTEM_TYPE" = "centos" ]; then
+        files=$(rpm -ql "$pkg_name" 2>/dev/null)
+        if [ -z "$files" ]; then
+            echo "Package '$pkg_name' is not installed on CentOS"
+            exit 1
+        fi
+
+    else
+        echo "Unsupported or unrecognized Linux distribution: $SYSTEM_TYPE"
+        exit 1
+    fi
+
+    local install_dir=""
+    # 遍历文件列表，找到包含 version 文件的目录
+    for f in $files; do
+        if [[ "$(basename "$f")" == "version" ]]; then
+            install_dir="$(dirname "$f")"
+            break
+        fi
+    done
+
+    if [ -z "$install_dir" ]; then
+        echo "Unable to locate installation directory for package '$pkg_name'"
+        exit 1
+    fi
+
+    # 检查关键子目录和文件是否存在
+    local required_dirs=("bin" "conf" "lib")
+    local required_file="version"
+
+    for dir in "${required_dirs[@]}"; do
+        if [ ! -d "$install_dir/$dir" ]; then
+            echo "Installation directory '$install_dir' is missing required subdirectory: $dir"
+            exit 1
+        fi
+    done
+
+    if [ ! -f "$install_dir/$required_file" ]; then
+        echo "Installation directory '$install_dir' is missing required file: $required_file"
+        exit 1
+    fi
+
+    # 返回安装根目录
+    echo "$install_dir"
+}
+
+find_install_version(){
+  local file="$1"
+      if [ ! -f "$file" ]; then
+          echo "file:$file"
+          echo "Unable to retrieve the currently installed version: $file" >&2
+          exit 1
+      fi
+
+      # 使用 grep + sed 提取 version
+      grep -oP '"version"\s*:\s*"\K[^"]+' "$file"
+}
+
+find_server_port() {
+  local file="$1"
+  grep -A1 "^server:" "$file" | grep "port" | awk '{print $2}'
+}
+
+find_pgsql_port() {
+  local file="$1"
+  awk '
+    /^\s*postgresql:/ { in_pg=1; next }
+    in_pg && /^\s*db:/ { in_db=1; next }
+    in_pg && in_db && /^\s*port:/ {
+      print $2
+      exit
+    }' "$file"
+}
+
+find_pgsql_embbed_enable() {
+  local file="$1"
+  awk '
+    /^\s*postgresql:/ { in_pg=1; next }
+    in_pg && /^\s*embbed:/ { in_emb=1; next }
+    in_pg && in_emb && /^\s*enable:/ {
+      print $2
+      exit
+    }' "$file"
+}
+
+find_app_new_version_list() {
+  local productCode="$1"
+  local system="$2"
+  local version="$3"
+  local url="${APPLY_DOWNLOAD_URL}/app/findAppNewVersionList/${productCode}/${system}/${version}"
+
+  response=$(curl -s "$url")
+  code=$(echo "$response" | grep -oP '"code"\s*:\s*\K\d+')
+  if [ "$code" != "0" ]; then
+    echo "Error: $(echo "$response" | grep -oP '"msg"\s*:\s*"\K[^"]+')" >&2
+    return 1
+  fi
+
+  # 获取 data 部分
+  data=$(echo "$response" | grep -oP '"data"\s*:\s*\K\[.*\]')
+  if [[ -z "$data" || "$data" == "[]" ]]; then
+    # 返回空，调用方判断
+    echo ""
+    return 0
+  fi
+
+  # 转换成数组格式（去掉 [ ] 和双引号，换行分隔）
+  echo "$data" | sed -e 's/^\[//' -e 's/\]$//' -e 's/"//g' | tr ',' '\n'
+}
+
+select_version() {
+  local versions=("$@")
+  local choice
+  while true; do
+    >&2 echo "Available versions:"
+    for i in "${!versions[@]}"; do
+      >&2 printf "%d. %s\n" $((i+1)) "${versions[$i]}"
+    done
+
+    read -p "Select a version by number: " choice
+    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#versions[@]}" ]; then
+      echo "${versions[$((choice-1))]}"   # 只返回真正的版本
+      break
+    else
+      >&2 echo "❌ Invalid selection, please try again."
+    fi
+  done
+}
+
+find_app_specify_download_url() {
+  local product_code="$1"
+  local system="$2"
+  local version="$3"
+  local url="${APPLY_DOWNLOAD_URL}/app/findAppSpecifyVersion/${product_code}/${system}/${version}"
+
+  # 使用 curl 请求接口
+  response=$(curl -s "$url")
+
+  # 获取 code
+  code=$(echo "$response" | grep -oP '"code"\s*:\s*\K\d+')
+  if [ "$code" != "0" ]; then
+    msg=$(echo "$response" | grep -oP '"msg"\s*:\s*"\K[^"]+')
+    echo "❌ Error: $msg"
+    return 1
+  fi
+
+  # 获取 data
+  data=$(echo "$response" | grep -oP '"data"\s*:\s*"\K[^"]+')
+
+  # 判断是否为空
+  if [ -z "$data" ]; then
+    echo "⚠️ No version found"
+    return 1
+  fi
+
+  # 输出下载地址
+  echo "$data"
+}
+
+check_port() {
+  local port=$1
+  if ss -lnt | awk '{print $4}' | grep -q ":$port$"; then
+#    echo "端口 $port 已被占用"
+    return 0
+  else
+#    echo "端口 $port 未被占用"
+    return 1
+  fi
+}
+
+status_apply() {
+  conf_address="${1}/conf/application.yaml"
+
+  server_port=$(find_server_port "${conf_address}")
+  pg_port=$(find_pgsql_port "${conf_address}")
+  pg_embbed_enable=$(find_pgsql_embbed_enable "${conf_address}")
+
+  # 检查 server
+  if check_port "$server_port" >/dev/null 2>&1; then
+    echo "✅ tiklab-${APPLY_CODE} server port ${server_port} start success!"
+  else
+    echo "ℹ️ tiklab-${APPLY_CODE} server port ${server_port} is not running!"
+  fi
+
+  # 仅当 embbed.enable = true 时，检查 PostgreSQL
+  if [ "$pg_embbed_enable" = "true" ]; then
+    if check_port "$pg_port" >/dev/null 2>&1; then
+      echo "✅ tiklab-${APPLY_CODE} psql port ${pg_port} start success!"
+    else
+      echo "ℹ️ tiklab-${APPLY_CODE} psql port ${pg_port} is not running!"
+    fi
+  else
+    echo "ℹ️ tiklab-${APPLY_CODE} PostgreSQL embbed is disabled, skip check."
+  fi
+}
+
+start(){
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+  valid_install_return
+  pkg_dir=$(find_install_dir)
+  start_apply "$pkg_dir/bin"
+}
+
+stop(){
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+
+  valid_install_return
+
+  pkg_dir=$(find_install_dir)
+  stop_apply "$pkg_dir/bin"
+}
+
+install(){
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+
+  valid_install
+
+  downUrl=$(find_app_latest_version "${SYSTEM_TYPE}")
+
+  download_file "${DEFAULT_INSTALL_PATH}" "${downUrl}"
+
+  download_install_file "${DEFAULT_INSTALL_PATH}"
+
+  start_apply "${DEFAULT_INSTALL_PATH}/tiklab-${APPLY_CODE}/bin"
+}
+
+update(){
+  echo "system operation type:$SYSTEM_TYPE"
+
+  valid_system_command
+  
+  valid_install_return
+  
+  pkg_dir=$(find_install_dir)
+
+  echo "find the installable version......"
+  version=$(find_install_version "$pkg_dir/version")
+
+  new_version_data=$(find_app_new_version_list "${APPLY_CODE}" "${SYSTEM_TYPE}" "${version}")
+
+  if [[ -z "$new_version_data" ]]; then
+    echo "✅ Already the latest version"
+    exit 0
+  fi
+
+  # shellcheck disable=SC2207
+  mapfile -t versions <<< "$new_version_data"
+
+  selected_version=$(select_version "${versions[@]}")
+  echo "selected version: $selected_version"
+
+  # 确认交互
+  read -p "Do you want to update to ${selected_version}? (y/N): " confirm
+  confirm=${confirm:-N}   # 如果直接回车，默认 N
+
+  if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    echo "call stop command......"
+    stop
+    echo "stop command call completed!"
+    echo "start updating"
+
+    echo "start updating to ${selected_version} ..."
+    echo "find remove package file......"
+    downUrl=$(find_app_specify_download_url "${APPLY_CODE}" "${SYSTEM_TYPE}" "${selected_version}")
+
+    download_file "${DEFAULT_INSTALL_PATH}" "${downUrl}"
+
+    compress_to_dir=${DEFAULT_INSTALL_PATH}/tiklab-backups/${APPLY_CODE}
+    echo "backup old installation programs: $pkg_dir"
+    echo "backup to: $compress_to_dir"
+    backup_dir "$pkg_dir" "tiklab-${APPLY_CODE}_backup.tar.gz" "${compress_to_dir}"
+    if [ $? -eq 0 ]; then
+        echo "✅ backup success"
+    else
+        echo "❌ backup failed"
+        exit 1
+    fi
+
+    echo "uninstall old installation programs: tiklab-${APPLY_CODE}"
+    uninstall_apply
+
+    echo "begin install......"
+    download_install_file "${DEFAULT_INSTALL_PATH}"
+
+    echo "install success, begin start......"
+    start_apply "${DEFAULT_INSTALL_PATH}/tiklab-${APPLY_CODE}/bin"
+    echo "update success"
+  else
+    echo "update cancelled."
+    exit 0
+  fi
+}
+
+version(){
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+  valid_install_return
+  pkg_dir=$(find_install_dir)
+  echo "find package install dir: $pkg_dir"
+  version=$(find_install_version "$pkg_dir/version")
+  echo "tiklab-${APPLY_CODE} installed version is: $version"
+  exit 0
+}
+
+url(){
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+  valid_install_return
+  pkg_dir=$(find_install_dir)
+  server_port=$(find_server_port "${pkg_dir}/conf/application.yaml")
+  echo "=================================== tiklab-${APPLY_CODE} access address ========================================"
+  echo "http://$(get_local_ip):${server_port}"
+  echo "================================================================================================================"
+}
+
+status(){
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+  valid_install_return
+  pkg_dir=$(find_install_dir)
+  status_apply "${pkg_dir}"
+}
+
+show_help() {
+    echo "Usage: ${APPLY_CODE} <command>"
+    echo
+    echo "Available commands:"
+    echo "  start   - 启动服务"
+    echo "  stop    - 停止服务"
+    echo "  status  - 服务状态"
+    echo "  install - 安装程序"
+    echo "  update  - 升级程序"
+    echo "  version - 查询"
+    echo
+    echo "示例:"
+    echo "  ${APPLY_CODE} start"
+    echo "  ${APPLY_CODE} stop"
+    echo "  ${APPLY_CODE} status"
+}
+
+uninstall() {
+
+  echo "system operation type:$SYSTEM_TYPE"
+  valid_system_command
+  valid_install_return
+
+  echo "About to uninstall tiklab-${APPLY_CODE}"
+  read -p "Are you sure you want to uninstall? [y/N]: " answer
+  case "$answer" in
+    [yY]|[yY][eE][sS])   # y, Y, yes, YES, Yes
+      uninstall_apply
+      ;;
+    [nN]|[nN][oO]|"")    # n, N, no, NO, No, or empty (default)
+      echo "Uninstallation canceled"
+      ;;
+    *)
+      echo "Invalid input, uninstallation canceled"
+      ;;
+  esac
+}
+
+exec_command(){
+  if [ -z "${ORDER_TYPE}" ]; then
+      show_help
+      exit 1
+  fi
+
+  case "${ORDER_TYPE}" in
+      start)
+          echo "exec start..."
+          start
+          ;;
+      stop)
+          echo "exec stop..."
+          stop
+          ;;
+      install)
+          echo "exec install..."
+          install
+          ;;
+      update)
+          echo "exec update..."
+          update
+          ;;
+      version)
+          echo "exec find version..."
+          version
+          ;;
+      status)
+            echo "exec find status..."
+            status
+            ;;
+      url)
+            echo "exec find url..."
+            url
+            ;;
+      rm)
+          echo "exec rm..."
+          uninstall
+          ;;
+      help)
+        echo "query usage help..."
+        show_help
+        ;;
+      *)
+          echo "error command: ${ORDER_TYPE}"
+          echo
+          show_help
+          exit 1
+          ;;
+  esac
+
+}
+
+exec_command

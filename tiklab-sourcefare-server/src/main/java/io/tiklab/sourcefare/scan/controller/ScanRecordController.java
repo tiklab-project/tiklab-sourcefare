@@ -25,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/scanRecord")
-@Api(name = "ScanRecordController",desc = "扫描记录")
+//@Api(name = "ScanRecordController",desc = "扫描记录")
 public class ScanRecordController {
 
     private static Logger logger = LoggerFactory.getLogger(ScanRecordController.class);
@@ -70,6 +70,8 @@ public class ScanRecordController {
         return Result.ok(scanRecord);
     }
 
+
+
     @RequestMapping(path="/findAllScanRecord",method = RequestMethod.POST)
     @ApiMethod(name = "findAllScanRecord",desc = "查询所有扫描记录")
     public Result<List<ScanRecord>> findAllScanRecord(){
@@ -94,6 +96,15 @@ public class ScanRecordController {
         Pagination<ScanRecord> pagination = scanRecordService.findScanRecordPage(scanRecordQuery);
 
         return Result.ok(pagination);
+    }
+
+    @RequestMapping(path = "/findNewScanRecord",method = RequestMethod.POST)
+    @ApiMethod(name = "findNewScanRecord",desc = "查询最新记录")
+    @ApiParam(name = "projectId",desc = "projectId",required = true)
+    public Result <ScanRecord> findNewScanRecord(@NotNull String projectId){
+        ScanRecord scanRecord=scanRecordService.findNewScanRecord(projectId);
+
+        return Result.ok(scanRecord);
     }
 
 

@@ -102,7 +102,7 @@ public class RepositoryServerServiceImpl implements RepositoryServerService {
 
         List<RepositoryServer> openRecordList = BeanMapper.mapList(RepositoryServerPage.getDataList(), RepositoryServer.class);
 
-        joinTemplate.joinQuery(openRecordList);
+        joinTemplate.joinQuery(openRecordList,new String[]{"user"});
 
         return PaginationBuilder.build(RepositoryServerPage,openRecordList);
     }

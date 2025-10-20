@@ -21,8 +21,6 @@ public class ScanSchemeEntity {
     @Column(name = "scan_way",notNull = true)
     private String scanWay;
 
-    @Column(name = "deploy_env_id")
-    private String deployEnvId;
 
     //种类 1 、默认 ；2、自定义
     @Column(name = "category")
@@ -90,11 +88,4 @@ public class ScanSchemeEntity {
         this.category = category;
     }
 
-    public String getDeployEnvId() {
-        return deployEnvId;
-    }
-
-    public void setDeployEnvId(String deployEnvId) {
-        this.deployEnvId = deployEnvId;
-    }
 }

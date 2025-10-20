@@ -42,7 +42,7 @@
         <tiklab-spotbugs.version>1.0.2</tiklab-spotbugs.version>
         <tiklab-install.version>1.0.2</tiklab-install.version>
         <tiklab-postin-doclet-version>1.0.2</tiklab-postin-doclet-version>
-
+        <tiklab-sourcefare-tool.version>1.0.0</tiklab-sourcefare-tool.version>
     <!--    <tiklab-upgrade.version>1.0.2</tiklab-upgrade.version>-->
         <tiklab-postin.version>1.0.2</tiklab-postin.version>
         <tiklab-jdk.version>1.0.2</tiklab-jdk.version>

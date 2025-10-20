@@ -7,7 +7,7 @@ import io.tiklab.toolkit.beans.annotation.Mapper;
 import io.tiklab.toolkit.beans.annotation.Mapping;
 import io.tiklab.toolkit.beans.annotation.Mappings;
 import io.tiklab.toolkit.join.annotation.Join;
-import io.tiklab.toolkit.join.annotation.JoinQuery;
+import io.tiklab.toolkit.join.annotation.JoinField;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -36,10 +36,10 @@ public class ScanSchemeRule implements Serializable {
     @Mappings({
             @Mapping(source = "scanRule.id",target = "ruleId")
     })
-    @JoinQuery(key = "id")
+    @JoinField(key = "id")
     private ScanRule scanRule;
 
-    @ApiProperty(name="problemLevel",desc="问题等级 严重:1、警告：2、建议:3")
+    @ApiProperty(name="problemLevel",desc="规则等级 严重：1，错误：2，警告：3，建议：4")
     private Integer problemLevel;
 
     @ApiProperty(name="isDisable",desc="是否禁用 0：使用 1禁用")

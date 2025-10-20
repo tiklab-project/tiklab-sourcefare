@@ -46,34 +46,17 @@ dcs:
     database: dcs1
     expire: 7200
 
-soular:
-  embbed:
-    enable: false
-  address: http://eas-ce.demo.tiklab.net
+
+# (local:本地登录  soular:统一登录)
+auth:
+  type: local
+  soular:
+    address: ""
 
 
-sourcewair:
-  ssh:
-    port: 10000
-    key: tiklab-sourcewair-starter/file/id_rsa
-  file: tiklab-sourcewair-starter/file
 
-base:
+external:
   url: http://eas-ce.demo.tiklab.net
 
-repository:
-  address: ${DATA_HOME}/repository
-
-#license
-licences:
-  path: ${DATA_HOME}/licences
-
-backups:
-  time: 0 0 2 * * ?
-  dir: /data
-  xcode:
-    dir: ${DATA_HOME}/repository
 
 
-spotbugs:
-  address: /embbed/spotbugs-4.8.1/bin

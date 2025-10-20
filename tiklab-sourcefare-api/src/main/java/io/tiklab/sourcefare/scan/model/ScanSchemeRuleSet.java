@@ -7,10 +7,11 @@ import io.tiklab.toolkit.beans.annotation.Mapper;
 import io.tiklab.toolkit.beans.annotation.Mapping;
 import io.tiklab.toolkit.beans.annotation.Mappings;
 import io.tiklab.toolkit.join.annotation.Join;
-import io.tiklab.toolkit.join.annotation.JoinQuery;
+import io.tiklab.toolkit.join.annotation.JoinField;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 @ApiModel
 @Join
@@ -32,7 +33,7 @@ public class ScanSchemeRuleSet implements Serializable {
     @Mappings({
             @Mapping(source = "scanRuleSet.id",target = "ruleSetId")
     })
-    @JoinQuery(key = "id")
+    @JoinField(key = "id")
     private ScanRuleSet scanRuleSet;
 
     @ApiProperty(name="createTime",desc="创建时间")
@@ -44,6 +45,9 @@ public class ScanSchemeRuleSet implements Serializable {
 
     @ApiProperty(name="ruleNum",desc="规则数量")
     private Integer ruleNum;
+
+    @ApiProperty(name="ruleList",desc="ruleList")
+    private List<ScanRule> ruleList;
 
 
     public String getId() {
@@ -92,5 +96,13 @@ public class ScanSchemeRuleSet implements Serializable {
 
     public void setRuleNum(Integer ruleNum) {
         this.ruleNum = ruleNum;
+    }
+
+    public List<ScanRule> getRuleList() {
+        return ruleList;
+    }
+
+    public void setRuleList(List<ScanRule> ruleList) {
+        this.ruleList = ruleList;
     }
 }

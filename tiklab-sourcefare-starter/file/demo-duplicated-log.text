@@ -1,0 +1,7 @@
+[2025-09-12 17:37:09] [sourceFare] start the code duplicated scan
+[2025-09-12 17:37:09] [sourceFare] pmd path:/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/pmd-bin/bin
+[2025-09-12 17:37:09] [sourceFare] location of pmd scan results:/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/file/9ab2cfd6612e-pmd-dup.xml
+[2025-09-12 17:37:09] [sourceFare] executive order:./pmd cpd --dir /Users/limingliang/other/scan/project/tiklab-hadess --minimum-tokens 100 --language java --format xml  > /Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/file/9ab2cfd6612e-pmd-dup.xml
+[2025-09-12 17:37:10] [sourceFare] pmd exec success
+[2025-09-12 17:37:10] [sourceFare] parsing the pmd result
+[2025-09-12 17:37:10] [sourceFare] parsing the pmd result success

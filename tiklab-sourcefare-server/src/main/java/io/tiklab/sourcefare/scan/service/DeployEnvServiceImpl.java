@@ -1,16 +1,21 @@
 package io.tiklab.sourcefare.scan.service;
 
+import io.tiklab.core.exception.ApplicationException;
 import io.tiklab.core.page.Pagination;
 import io.tiklab.core.page.PaginationBuilder;
 import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.DeleteBuilders;
 import io.tiklab.rpc.annotation.Exporter;
+import io.tiklab.sourcefare.common.SourceFareUtil;
+import io.tiklab.sourcefare.common.SourceWairServerFinal;
 import io.tiklab.sourcefare.scan.dao.DeployEnvDao;
 import io.tiklab.sourcefare.scan.entity.DeployEnvEntity;
 import io.tiklab.sourcefare.scan.model.DeployEnv;
 import io.tiklab.sourcefare.scan.model.DeployEnvQuery;
+import io.tiklab.sourcefare.scanner.common.ProjectUtil;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +23,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.List;
+
+import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.SCAN_TYPE_PYTHON;
+import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.SCAN_TYPE_PYTHON3;
 
 /**
 * DeployEnvServiceImpl-部署环境的记录接口实现
@@ -39,6 +47,11 @@ public class DeployEnvServiceImpl implements DeployEnvService {
 
         DeployEnvEntity deployEnvEntity = BeanMapper.map(deployEnv, DeployEnvEntity.class);
         deployEnvEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+
+        if (deployEnv.getInstallWay()!=0){
+            SourceFareUtil.validFile(deployEnv);
+        }
+
         String deployEnvId= deployEnvDao.createDeployEnv(deployEnvEntity);
 
         return deployEnvId;
@@ -48,6 +61,7 @@ public class DeployEnvServiceImpl implements DeployEnvService {
     public void updateDeployEnv(@NotNull @Valid DeployEnv deployEnv) {
         DeployEnvEntity deployEnvEntity = BeanMapper.map(deployEnv, DeployEnvEntity.class);
 
+        SourceFareUtil.validFile(deployEnv);
         deployEnvDao.updateDeployEnv(deployEnvEntity);
     }
 
@@ -123,8 +137,20 @@ public class DeployEnvServiceImpl implements DeployEnvService {
         return PaginationBuilder.build(pagination,deployEnvList);
     }
 
+    @Override
+    public String detectionEnv(String type) {
+        String envVersion = ProjectUtil.getEnvPath(type);
+        if (StringUtils.isBlank(envVersion)){
+            throw new ApplicationException("全局路径不存在");
+        }
 
-
-
-
+        if (type.equals(SCAN_TYPE_PYTHON)&&(envVersion.contains("not found")||envVersion.contains("no python"))){
+            envVersion= ProjectUtil.getEnvPath(SCAN_TYPE_PYTHON3);
+        }
+        if (envVersion.contains("not found")){
+            throw new ApplicationException(envVersion);
+        }
+        envVersion=StringUtils.substringBeforeLast(envVersion,"/");
+        return envVersion;
+    }
 }

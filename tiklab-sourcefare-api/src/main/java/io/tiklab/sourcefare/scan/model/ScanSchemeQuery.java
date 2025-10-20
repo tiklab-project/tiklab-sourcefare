@@ -17,6 +17,12 @@ public class ScanSchemeQuery {
     @ApiProperty(name ="pageParam",desc = "分页参数")
     private Page pageParam = new Page();
 
+    private Integer category;
+
+    private String language;
+
+    //扫描类型      静态扫描：static、编译扫描：compile、组合扫描：collect
+    private String scanType;
 
     public List<Order> getOrderParams() {
         return orderParams;
@@ -34,4 +40,30 @@ public class ScanSchemeQuery {
         this.pageParam = pageParam;
     }
 
+
+    public Integer getCategory() {
+        return category;
+    }
+
+    public ScanSchemeQuery setCategory(Integer category) {
+        this.category = category;
+        return this;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public ScanSchemeQuery setLanguage(String language) {
+        this.language = language;
+        return this;
+    }
+
+    public String getScanType() {
+        return scanType;
+    }
+
+    public void setScanType(String scanType) {
+        this.scanType = scanType;
+    }
 }

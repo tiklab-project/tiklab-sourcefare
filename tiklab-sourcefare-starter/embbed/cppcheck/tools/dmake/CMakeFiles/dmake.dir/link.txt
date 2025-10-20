@@ -1,0 +1,1 @@
+/usr/bin/c++ -O2 -s -O3 -DNDEBUG CMakeFiles/dmake.dir/dmake.cpp.o CMakeFiles/dmake.dir/__/__/cli/filelister.cpp.o CMakeFiles/dmake.dir/__/__/lib/build/mc_pathmatch.cpp.o CMakeFiles/dmake.dir/__/__/lib/build/mc_path.cpp.o CMakeFiles/dmake.dir/__/__/lib/build/mc_utils.cpp.o ../../externals/simplecpp/CMakeFiles/simplecpp_objs.dir/simplecpp.cpp.o -o ../../bin/dmake 

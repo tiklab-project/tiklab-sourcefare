@@ -91,6 +91,8 @@ public class ScanShemeDao {
      */
     public List<ScanSchemeEntity> findScanSchemeList(ScanSchemeQuery scanSchemeQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ScanSchemeEntity.class)
+                .eq("category",scanSchemeQuery.getCategory())
+                .eq("language",scanSchemeQuery.getLanguage())
                 .orders(scanSchemeQuery.getOrderParams())
                 .get();
         return jpaTemplate.findList(queryCondition, ScanSchemeEntity.class);
@@ -103,6 +105,8 @@ public class ScanShemeDao {
      */
     public Pagination<ScanSchemeEntity> findScanSchemePage(ScanSchemeQuery scanSchemeQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ScanSchemeEntity.class)
+                .eq("category",scanSchemeQuery.getCategory())
+                .eq("language",scanSchemeQuery.getLanguage())
                 .orders(scanSchemeQuery.getOrderParams())
                 .pagination(scanSchemeQuery.getPageParam())
                 .get();

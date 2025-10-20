@@ -79,5 +79,10 @@ public interface ScanSchemeService {
     * @return
     */
     Pagination<ScanScheme> findScanSchemePage(ScanSchemeQuery scanPlaySchemeQuery);
-
+    /**
+     * 通过语言查询扫描方案
+     * @param scanSchemeQuery
+     * @return
+     */
+    List<ScanScheme> findScanSchemeByLanguage(ScanSchemeQuery scanSchemeQuery);
 }

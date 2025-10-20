@@ -27,6 +27,13 @@ public interface ScanSchemeRuleSetService {
     String createScanSchemeRuleSet(@NotNull @Valid ScanSchemeRuleSet scanSchemeRuleSet);
 
     /**
+     * 创建
+     * @param scanSchemeRuleSet
+     * @return
+     */
+    String createSchemeRuleSet(@NotNull @Valid ScanSchemeRuleSet scanSchemeRuleSet);
+
+    /**
     * 更新
     * @param scanSchemeRuleSet
     */

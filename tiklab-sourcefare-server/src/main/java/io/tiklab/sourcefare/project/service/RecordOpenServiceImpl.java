@@ -9,9 +9,8 @@ import io.tiklab.sourcefare.project.dao.RecordOpenDao;
 import io.tiklab.sourcefare.project.entity.RecordOpenEntity;
 import io.tiklab.sourcefare.project.model.RecordOpen;
 import io.tiklab.sourcefare.project.model.RecordOpenQuery;
-import io.tiklab.sourcefare.scan.model.ScanPlay;
-import io.tiklab.sourcefare.scan.model.ScanPlayQuery;
-import io.tiklab.sourcefare.scan.service.ScanPlayService;
+import io.tiklab.sourcefare.scan.model.ScanRecord;
+import io.tiklab.sourcefare.scan.service.ScanRecordService;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
 import io.tiklab.user.dmUser.model.DmUser;
@@ -46,8 +45,7 @@ public class RecordOpenServiceImpl implements RecordOpenService {
     JoinTemplate joinTemplate;
 
     @Autowired
-    ScanPlayService scanPlayService;
-
+    ScanRecordService scanRecordService;
 
 
 
@@ -88,7 +86,7 @@ public class RecordOpenServiceImpl implements RecordOpenService {
     @Override
     public void deleteRecordOpenByRecord(String repositoryId) {
         DeleteCondition deleteCondition = DeleteBuilders.createDelete(RecordOpenEntity.class)
-                .eq("repositoryId", repositoryId)
+                .eq("projectId", repositoryId)
                 .get();
         recordOpenDao.deleteRecordOpen(deleteCondition);
     }
@@ -134,7 +132,7 @@ public class RecordOpenServiceImpl implements RecordOpenService {
         List<RecordOpenEntity> openRecordEntityList = recordOpenDao.findRecordOpenList(RecordOpenQuery);
 
         List<RecordOpen> openRecordList = BeanMapper.mapList(openRecordEntityList, RecordOpen.class);
-        joinTemplate.joinQuery(openRecordList);
+        joinTemplate.joinQuery(openRecordList,new String[]{"project"});
 
         List<RecordOpen> publicRep = openRecordList.stream().filter(a -> ("public").equals(a.getProject().getRules())).collect(Collectors.toList());
 
@@ -165,11 +163,13 @@ public class RecordOpenServiceImpl implements RecordOpenService {
             List<DmUser> dmUserList = dmUserService.findDmUserList(dmUserQuery);
             recordOpen.setMemberNum(dmUserList.size());
 
-            List<ScanPlay> scanPlayList = scanPlayService.findScanPlayList(new ScanPlayQuery().setProjectId(recordOpen.getProject().getId()));
-            int scanPlayNum = CollectionUtils.isNotEmpty(scanPlayList) ? scanPlayList.size() : 0;
-            recordOpen.setPlayNum(scanPlayNum);
+            List<ScanRecord> recordList = scanRecordService.findScanRecordListByProjectId(recordOpen.getProject().getId());
+            int num = CollectionUtils.isNotEmpty(recordList) ? recordList.size() : 0;
+            recordOpen.setExecNum(num);
+
         }
         return recordOpenList;
+
     }
 
     @Override
@@ -181,9 +181,4 @@ public class RecordOpenServiceImpl implements RecordOpenService {
 
         return PaginationBuilder.build(pagination,openRecordList);
     }
-
-
-
-
-
 }

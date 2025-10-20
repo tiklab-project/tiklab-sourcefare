@@ -63,11 +63,20 @@ public interface ProjectService {
     Pagination<Project> findProjectPage(ProjectQuery projectQuery);
 
     /**
+     * 查询是否存在演示项目
+     */
+     List<Project> findDemoProjectList();
+
+    /**
      * 查询项目
      * @param projectQuery projectQuery
      */
     List<Project> findProjectList(ProjectQuery projectQuery);
 
+    /**
+     * 查询项目不通类型的数量
+     */
+    Object findProjectNum(@NotNull String userId);
 }
 
 

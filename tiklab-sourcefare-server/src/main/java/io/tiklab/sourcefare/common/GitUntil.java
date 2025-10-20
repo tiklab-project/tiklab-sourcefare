@@ -3,7 +3,10 @@ package io.tiklab.sourcefare.common;
 
 import io.tiklab.sourcefare.server.model.RepositoryServer;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.HttpTransport;
+import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 
@@ -41,6 +44,15 @@ public class GitUntil {
                 .setDirectory(folder)
                 .setBranch(branch)
                 .setCredentialsProvider(credentialsProvider)
+                .setTransportConfigCallback(new TransportConfigCallback() {
+                    @Override
+                    public void configure(Transport transport) {
+                        if (transport instanceof HttpTransport) {
+                            HttpTransport httpTransport = (HttpTransport) transport;
+                            httpTransport.setTimeout(10); // 设置连接超时为 10 秒
+                        }
+                    }
+                })
                 .call();
         git.close();
 
@@ -65,8 +77,4 @@ public class GitUntil {
                 .call();
         git.close();
     }
-
-
-
-
 }

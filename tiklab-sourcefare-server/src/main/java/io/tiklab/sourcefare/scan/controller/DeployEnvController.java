@@ -8,6 +8,7 @@ import io.tiklab.postin.annotation.ApiParam;
 import io.tiklab.sourcefare.scan.model.DeployEnv;
 import io.tiklab.sourcefare.scan.model.DeployEnvQuery;
 import io.tiklab.sourcefare.scan.service.DeployEnvService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/deployEnv")
-@Api(name = "DeployEnvController",desc = "环境管理")
+//@Api(name = "DeployEnvController",desc = "环境管理")
 public class DeployEnvController {
 
     private static Logger logger = LoggerFactory.getLogger(DeployEnvController.class);
@@ -95,5 +96,13 @@ public class DeployEnvController {
         return Result.ok(pagination);
     }
 
+    @RequestMapping(path = "/detectionEnv",method = RequestMethod.POST)
+    @ApiMethod(name = "detectionEnv",desc = "检测全局环境")
+    @ApiParam(name = "deployEnvQuery",desc = "deployEnvQuery",required = true)
+    public Result<String> detectionEnv(@NotNull String type){
+        String data = deployEnvService.detectionEnv(type);
+
+        return Result.ok(data);
+    }
 
 }

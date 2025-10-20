@@ -6,10 +6,11 @@ import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.DeleteBuilders;
 import io.tiklab.sourcefare.scan.entity.ScanRecordEntity;
 import io.tiklab.sourcefare.scan.dao.ScanRecordDao;
+import io.tiklab.sourcefare.scan.model.RecordInstance;
+import io.tiklab.sourcefare.scan.model.RecordInstanceQuery;
 import io.tiklab.sourcefare.scan.model.ScanRecord;
 import io.tiklab.sourcefare.scan.model.ScanRecordQuery;
 import io.tiklab.rpc.annotation.Exporter;
-import io.tiklab.sourcefare.scan.model.ScanSchemeRuleQuery;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,8 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +37,22 @@ public class ScanRecordServiceImpl implements ScanRecordService {
     JoinTemplate joinTemplate;
 
     @Autowired
-    ScanRecordInstanceService scanRecordInstanceService;
+    RecordInstanceService scanRecordInstanceService;
+
+    @Autowired
+    RecordInstanceCondService recordInstanceCondService;
+
+    @Autowired
+    ScanRecordLogService recordLogService;
+
+    @Autowired
+    ProjectCoverService projectCoverService;
+
+    @Autowired
+    RecordComplexityService complexityService;
+
+    @Autowired
+    RecordDuplicatedService duplicatedService;
 
     @Override
     public String createScanRecord(@NotNull @Valid ScanRecord openRecord) {
@@ -58,9 +73,27 @@ public class ScanRecordServiceImpl implements ScanRecordService {
 
     @Override
     public void deleteScanRecord(@NotNull String id) {
+
+
         scanRecordDao.deleteScanRecord(id);
         //删除扫描记录实例
         scanRecordInstanceService.deleteScanRecordInstanceByCondition("scanRecordId",id);
+
+        //扫描记录实例的动态
+        recordInstanceCondService.deleteRecordInstanceCondByCondition("scanRecordId",id);
+
+        //删除扫描日志
+        recordLogService.deleteScanRecordLogByCondition("scanRecordId",id);
+
+        //删除扫描覆盖率
+        projectCoverService.deleteProjectCoverByCondition("scanRecordId",id);
+
+        //删除扫描重复率
+        duplicatedService.deleteRecordDuplicatedByCondition("recordId",id);
+
+        //删除扫描复杂度
+        complexityService.deleteRecordComplexityByCondition("recordId",id);
+
     }
 
     @Override
@@ -121,9 +154,17 @@ public class ScanRecordServiceImpl implements ScanRecordService {
     }
 
     @Override
-    public ScanRecord findScanRecordByPlayId(String scanPlayId) {
+    public List<ScanRecord> findScanRecordListByProjectId(String projectId) {
+        ScanRecordQuery scanRecordQuery = new ScanRecordQuery().setProjectId(projectId);
+        List<ScanRecordEntity> openRecordEntityList = scanRecordDao.findScanRecordList(scanRecordQuery);
+        List<ScanRecord> openRecordList = BeanMapper.mapList(openRecordEntityList, ScanRecord.class);
+        return openRecordList;
+    }
+
+    @Override
+    public ScanRecord findNewScanRecord(String projectId) {
         ScanRecordQuery scanRecordQuery = new ScanRecordQuery();
-        scanRecordQuery.setScanPlayId(scanPlayId);
+        scanRecordQuery.setProjectId(projectId);
         List<ScanRecordEntity> openRecordEntityList = scanRecordDao.findScanRecordList(scanRecordQuery);
         List<ScanRecord> openRecordList = BeanMapper.mapList(openRecordEntityList, ScanRecord.class);
         if (CollectionUtils.isEmpty(openRecordList)){
@@ -140,8 +181,11 @@ public class ScanRecordServiceImpl implements ScanRecordService {
         Pagination<ScanRecordEntity>  pagination = scanRecordDao.findScanRecordPage(ScanRecordQuery);
 
         List<ScanRecord> openRecordList = BeanMapper.mapList(pagination.getDataList(), ScanRecord.class);
-        joinTemplate.joinQuery(openRecordList);
+        joinTemplate.joinQuery(openRecordList,new String[]{"scanUser"});
+
         openRecordList = openRecordList.stream().sorted(Comparator.comparing(ScanRecord::getCreateTime).reversed()).collect(Collectors.toList());
         return PaginationBuilder.build(pagination,openRecordList);
     }
+
+
 }

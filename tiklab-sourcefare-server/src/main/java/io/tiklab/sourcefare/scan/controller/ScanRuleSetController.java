@@ -25,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/scanRuleSet")
-@Api(name = "ScanRuleSetController",desc = "扫描规则集")
+//@Api(name = "ScanRuleSetController",desc = "扫描规则集")
 public class ScanRuleSetController {
 
     private static Logger logger = LoggerFactory.getLogger(ScanRuleSetController.class);

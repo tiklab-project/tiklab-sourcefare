@@ -12,7 +12,7 @@ import java.util.List;
 public class ScanRuleQuery {
 
     @ApiProperty(name ="orderParams",desc = "排序参数")
-    private List<Order> orderParams = OrderBuilders.instance().asc("id").get();
+    private List<Order> orderParams = OrderBuilders.instance().asc("problemLevel").get();
 
     @ApiProperty(name ="pageParam",desc = "分页参数")
     private Page pageParam = new Page();

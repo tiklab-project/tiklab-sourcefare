@@ -77,4 +77,9 @@ public interface DeployEnvService {
     Pagination<DeployEnv> findDeployEnvPage(DeployEnvQuery deployEnvQuery);
 
 
+    /**
+     * 检测全局环境
+     * @param type
+     */
+    String detectionEnv(String type);
 }

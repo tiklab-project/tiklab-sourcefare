@@ -5,6 +5,7 @@ import io.tiklab.dal.jpa.JpaTemplate;
 import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.condition.QueryCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.QueryBuilders;
+import io.tiklab.sourcefare.project.entity.ProjectEntity;
 import io.tiklab.sourcefare.scan.entity.ScanRecordEntity;
 import io.tiklab.sourcefare.scan.model.ScanRecordQuery;
 import org.slf4j.Logger;
@@ -92,7 +93,6 @@ public class ScanRecordDao {
     public List<ScanRecordEntity> findScanRecordList(ScanRecordQuery scanRecordQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ScanRecordEntity.class)
                 .eq("projectId",scanRecordQuery.getProjectId())
-                .eq("scanPlayId",scanRecordQuery.getScanPlayId())
                 .orders(scanRecordQuery.getOrderParams())
                 .get();
         return jpaTemplate.findList(queryCondition, ScanRecordEntity.class);
@@ -106,8 +106,8 @@ public class ScanRecordDao {
     public Pagination<ScanRecordEntity> findScanRecordPage(ScanRecordQuery scanRecordQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ScanRecordEntity.class)
                 .eq("projectId",scanRecordQuery.getProjectId())
-                .eq("scanPlayId",scanRecordQuery.getScanPlayId())
-                .orders(scanRecordQuery.getOrderParams())
+                .eq("scanWay",scanRecordQuery.getPlayWay())
+                .eq("scanResult",scanRecordQuery.getScanResult())
                 .pagination(scanRecordQuery.getPageParam())
                 .get();
         return jpaTemplate.findPage(queryCondition, ScanRecordEntity.class);

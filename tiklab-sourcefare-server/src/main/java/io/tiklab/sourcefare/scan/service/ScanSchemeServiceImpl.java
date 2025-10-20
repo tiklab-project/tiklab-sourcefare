@@ -1,5 +1,6 @@
 package io.tiklab.sourcefare.scan.service;
 
+import dm.jdbc.util.StringUtil;
 import io.tiklab.core.page.Pagination;
 import io.tiklab.core.page.PaginationBuilder;
 import io.tiklab.rpc.annotation.Exporter;
@@ -9,6 +10,8 @@ import io.tiklab.sourcefare.scan.model.ScanScheme;
 import io.tiklab.sourcefare.scan.model.ScanSchemeQuery;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,8 @@ import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.tiklab.sourcefare.common.SourceWairServerFinal.*;
 
 /**
 * ScanSchemeServiceImpl-扫描方案
@@ -124,5 +129,26 @@ public class ScanSchemeServiceImpl implements ScanSchemeService {
 
        openRecordList = openRecordList.stream().sorted(Comparator.comparing(ScanScheme::getCreateTime).reversed()).collect(Collectors.toList());
         return PaginationBuilder.build(pagination,openRecordList);
+    }
+
+    @Override
+    public List<ScanScheme> findScanSchemeByLanguage(ScanSchemeQuery scanSchemeQuery) {
+        List<ScanScheme> allScanScheme = findAllScanScheme();
+        if (CollectionUtils.isNotEmpty(allScanScheme)){
+            String lowerCase = scanSchemeQuery.getLanguage().toLowerCase();
+
+            List<ScanScheme> scanSchemes = allScanScheme.stream().filter(a -> a.getLanguage().toLowerCase().equals(lowerCase)).collect(Collectors.toList());
+
+            if (StringUtils.isNotBlank(scanSchemeQuery.getScanType())){
+                if ((STATIC).equals(scanSchemeQuery.getScanType())){
+                     scanSchemes = scanSchemes.stream().filter(a -> a.getSchemeName().contains("静态")).collect(Collectors.toList());
+                }
+                if ((COMPILE).equals(scanSchemeQuery.getScanType())){
+                    scanSchemes = scanSchemes.stream().filter(a -> !a.getSchemeName().contains("静态")).collect(Collectors.toList());
+                }
+            }
+            return scanSchemes;
+        }
+        return null;
     }
 }

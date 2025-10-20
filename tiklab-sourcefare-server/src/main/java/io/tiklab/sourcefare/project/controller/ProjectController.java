@@ -81,6 +81,7 @@ public class ProjectController {
         return Result.ok(artifactList);
     }
 
+
     @RequestMapping(path = "/findProjectList",method = RequestMethod.POST)
     @ApiMethod(name = "findProjectList",desc = "通过条件查询")
     @ApiParam(name = "projectQuery",desc = "projectQuery",required = true)
@@ -99,6 +100,11 @@ public class ProjectController {
         return Result.ok(projectPage);
     }
 
+    @RequestMapping(path="/findProjectNum",method = RequestMethod.POST)
+    @ApiMethod(name = "findAllProject",desc = "查询项目不通类型的数量")
+    public Result<Object> findProjectNum(@NotNull String userId){
+        Object artifactList = projectService.findProjectNum(userId);
 
-
+        return Result.ok(artifactList);
+    }
 }

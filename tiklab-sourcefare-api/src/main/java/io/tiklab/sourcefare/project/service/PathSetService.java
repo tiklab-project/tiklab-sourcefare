@@ -4,5 +4,7 @@ public interface PathSetService {
 
       String spotbugsAddress();
 
+      //仓库地址
      String codePath();
+
 }

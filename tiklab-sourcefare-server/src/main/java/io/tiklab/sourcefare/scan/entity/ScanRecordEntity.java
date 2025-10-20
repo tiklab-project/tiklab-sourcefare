@@ -15,11 +15,6 @@ public class ScanRecordEntity {
     @Column(name = "id")
     private String id;
 
-    @Column(name = "scan_play_id" ,notNull = true)
-    private String scanPlayId;
-
-    @Column(name = "scan_object" )
-    private String scanObject;
 
     @Column(name = "project_id",notNull = true)
     private String projectId;
@@ -33,8 +28,7 @@ public class ScanRecordEntity {
     @Column(name = "scan_way")
     private String scanWay;
 
-    @Column(name = "log")
-    private String execLog;
+
 
     @Column(name = "scan_time")
     private String scanTime;
@@ -67,13 +61,6 @@ public class ScanRecordEntity {
         this.id = id;
     }
 
-    public String getScanPlayId() {
-        return scanPlayId;
-    }
-
-    public void setScanPlayId(String scanPlayId) {
-        this.scanPlayId = scanPlayId;
-    }
 
     public String getProjectId() {
         return projectId;
@@ -139,13 +126,7 @@ public class ScanRecordEntity {
         this.scanWay = scanWay;
     }
 
-    public String getScanObject() {
-        return scanObject;
-    }
 
-    public void setScanObject(String scanObject) {
-        this.scanObject = scanObject;
-    }
 
     public Integer getErrorTrouble() {
         return errorTrouble;
@@ -163,13 +144,6 @@ public class ScanRecordEntity {
         this.allTrouble = allTrouble;
     }
 
-    public String getExecLog() {
-        return execLog;
-    }
-
-    public void setExecLog(String execLog) {
-        this.execLog = execLog;
-    }
 
     public String getScanTime() {
         return scanTime;

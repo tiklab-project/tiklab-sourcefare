@@ -20,10 +20,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class ServerGitPukServiceImpl implements ServerGitPukService {
@@ -40,14 +37,18 @@ public class ServerGitPukServiceImpl implements ServerGitPukService {
             //查询仓库地址
             String findPath = serverAddress + SourceWairServerFinal.FIND_REPOSITORY_GIT_PUK;
 
-            // 创建请求头对象
-            HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, new HashMap<>());
+            Map<String, String> hashMap = new HashMap<>();
+            hashMap.put("accessToken",SourceWairServerFinal.ACCESS_TOKEN);
 
-            // 请求参数
+            // 创建请求头对象
+            HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, hashMap);
+
+            // 请求体参数
             MultiValueMap<String, Object> valueMap = new LinkedMultiValueMap<>();
             valueMap.add("account",repositoryServer.getAccount());
             valueMap.add("password",repositoryServer.getPassWord());
-            valueMap.add("dirId","1");
+            valueMap.add("repName",repositoryServer.getRepName());
+
 
             // 创建 HttpEntity 包含请求体和请求头
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(valueMap, headers);
@@ -91,8 +92,12 @@ public class ServerGitPukServiceImpl implements ServerGitPukService {
             //查询仓库地址
             String findPath = serverAddress + SourceWairServerFinal.FIND_REPOSITORY_BRANCH_GIT_PUK;
 
+
+            Map<String, String> hashMap = new HashMap<>();
+            hashMap.put("accessToken",SourceWairServerFinal.ACCESS_TOKEN);
+
             // 创建请求头对象
-            HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, new HashMap<>());
+            HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, hashMap);
 
             // 请求参数
             MultiValueMap<String, Object> valueMap = new LinkedMultiValueMap<>();

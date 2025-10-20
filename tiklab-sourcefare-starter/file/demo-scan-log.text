@@ -1,0 +1,698 @@
+[2025-09-12 17:36:58] [sourceFare] Start the code issue scan
+[2025-09-12 17:36:58] [sourceFare] spotbugsPath path：/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/spotbugs-4.8.1/bin/spotbugs
+[2025-09-12 17:36:58] [sourceFare] The storage path of the scan result file:/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/file/9ab2cfd6612e.xml
+[2025-09-12 17:36:58] [sourceFare] executive order：/Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/spotbugs-4.8.1/bin/spotbugs -low -textui -exclude /Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/spotbugs-exclude.xml -effort:max -xml:withMessages  -output /Users/limingliang/work/work-project/tiklab-sourcefare-scanner/embbed/file/9ab2cfd6612e.xml /Users/limingliang/other/scan/project/tiklab-hadess
+[2025-09-12 17:37:09] The following classes needed for analysis were missing:
+[2025-09-12 17:37:09]   io.tiklab.core.BaseModel
+[2025-09-12 17:37:09]   org.quartz.Job
+[2025-09-12 17:37:09]   org.springframework.scheduling.quartz.SpringBeanJobFactory
+[2025-09-12 17:37:09]   org.springframework.context.ApplicationContextAware
+[2025-09-12 17:37:09]   javax.servlet.http.HttpServlet
+[2025-09-12 17:37:09]   io.tiklab.install.runner.TiklabApplicationRunner
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.service.CommitServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.RepositoryServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.MemoryManService
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.RepositoryGroupServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.RemoteInfoService
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.RepositoryPubDataService
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.RecordOpenService
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.service.RecordCommitService
+[2025-09-12 17:37:09]   io.tiklab.xcode.branch.service.BranchServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.file.service.FileServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.setting.service.BackupsServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.setting.service.AuthServer
+[2025-09-12 17:37:09]   org.apache.sshd.server.command.CommandFactory
+[2025-09-12 17:37:09]   org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator
+[2025-09-12 17:37:09]   io.tiklab.xcode.authority.ValidUsrPwdServer
+[2025-09-12 17:37:09]   org.apache.sshd.server.command.Command
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.resolver.RepositoryResolver
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.resolver.ReceivePackFactory
+[2025-09-12 17:37:09]   org.eclipse.jgit.http.server.GitServlet
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.resolver.UploadPackFactory
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.service.CodeScanService
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.service.DeployEnvService
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.service.DeployServerService
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.service.CodeScanInstanceService
+[2025-09-12 17:37:09]   io.tiklab.dal.jpa.criterial.condition.QueryCondition
+[2025-09-12 17:37:09]   io.tiklab.dal.jpa.criterial.condition.DeleteCondition
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RecordCommitQuery
+[2025-09-12 17:37:09]   io.tiklab.dal.jpa.JpaTemplate
+[2025-09-12 17:37:09]   io.tiklab.dal.jpa.criterial.conditionbuilder.QueryBuilders
+[2025-09-12 17:37:09]   org.slf4j.LoggerFactory
+[2025-09-12 17:37:09]   io.tiklab.core.page.Page
+[2025-09-12 17:37:09]   org.springframework.util.ObjectUtils
+[2025-09-12 17:37:09]   org.springframework.jdbc.core.JdbcOperations
+[2025-09-12 17:37:09]   org.springframework.jdbc.core.RowMapper
+[2025-09-12 17:37:09]   io.tiklab.core.page.Pagination
+[2025-09-12 17:37:09]   org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+[2025-09-12 17:37:09]   org.apache.commons.lang.StringUtils
+[2025-09-12 17:37:09]   org.springframework.jdbc.core.BeanPropertyRowMapper
+[2025-09-12 17:37:09]   javax.servlet.http.HttpServletRequest
+[2025-09-12 17:37:09]   javax.servlet.http.HttpServletResponse
+[2025-09-12 17:37:09]   org.slf4j.Logger
+[2025-09-12 17:37:09]   io.tiklab.eam.passport.user.model.UserPassport
+[2025-09-12 17:37:09]   io.tiklab.eam.passport.user.service.UserPassportService
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.model.Commit
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.model.CommitFile
+[2025-09-12 17:37:09]   io.tiklab.core.Result
+[2025-09-12 17:37:09]   javax.servlet.ServletOutputStream
+[2025-09-12 17:37:09]   com.fasterxml.jackson.databind.ObjectMapper
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.CodeScan
+[2025-09-12 17:37:09]   org.apache.commons.lang3.StringUtils
+[2025-09-12 17:37:09]   io.tiklab.toolkit.beans.BeanMapper
+[2025-09-12 17:37:09]   io.tiklab.dal.jpa.criterial.conditionbuilder.DeleteBuilders
+[2025-09-12 17:37:09]   io.tiklab.toolkit.join.JoinTemplate
+[2025-09-12 17:37:09]   org.apache.commons.collections.CollectionUtils
+[2025-09-12 17:37:09]   io.tiklab.core.page.PaginationBuilder
+[2025-09-12 17:37:09]   com.alibaba.fastjson.JSON
+[2025-09-12 17:37:09]   io.tiklab.core.exception.SystemException
+[2025-09-12 17:37:09]   com.alibaba.fastjson.JSONObject
+[2025-09-12 17:37:09]   org.springframework.web.client.RestTemplate
+[2025-09-12 17:37:09]   org.springframework.http.ResponseEntity
+[2025-09-12 17:37:09]   io.tiklab.core.order.OrderBuilders
+[2025-09-12 17:37:09]   io.tiklab.privilege.dmRole.model.DmRoleQuery
+[2025-09-12 17:37:09]   io.tiklab.toolkit.context.AppContext
+[2025-09-12 17:37:09]   org.apache.commons.io.FileUtils
+[2025-09-12 17:37:09]   io.tiklab.privilege.role.service.RoleService
+[2025-09-12 17:37:09]   io.tiklab.privilege.role.model.Role
+[2025-09-12 17:37:09]   io.tiklab.privilege.dmRole.service.DmRoleService
+[2025-09-12 17:37:09]   io.tiklab.privilege.dmRole.model.DmRole
+[2025-09-12 17:37:09]   org.quartz.spi.TriggerFiredBundle
+[2025-09-12 17:37:09]   org.springframework.context.ApplicationContext
+[2025-09-12 17:37:09]   org.springframework.beans.factory.config.AutowireCapableBeanFactory
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.DeployEnv
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.DeployEnvQuery
+[2025-09-12 17:37:09]   io.tiklab.beans.BeanMapper
+[2025-09-12 17:37:09]   io.tiklab.join.JoinTemplate
+[2025-09-12 17:37:09]   org.quartz.JobExecutionContext
+[2025-09-12 17:37:09]   org.quartz.Trigger
+[2025-09-12 17:37:09]   org.quartz.TriggerKey
+[2025-09-12 17:37:09]   org.quartz.JobDataMap
+[2025-09-12 17:37:09]   io.tiklab.xcode.branch.model.BranchMessage
+[2025-09-12 17:37:09]   io.tiklab.xcode.branch.model.Branch
+[2025-09-12 17:37:09]   io.tiklab.core.exception.ApplicationException
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.DeployServer
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.DeployServerQuery
+[2025-09-12 17:37:09]   org.apache.sshd.server.session.ServerSession
+[2025-09-12 17:37:09]   io.tiklab.xcode.setting.model.Auth
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.CodeScanInstance
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.CodeScanInstanceQuery
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RepositoryGroup
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RepositoryGroupQuery
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.Git
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.Repository
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RepositoryQuery
+[2025-09-12 17:37:09]   io.tiklab.xcode.file.model.FileTreeMessage
+[2025-09-12 17:37:09]   io.tiklab.user.user.model.User
+[2025-09-12 17:37:09]   io.tiklab.eam.common.context.LoginContext
+[2025-09-12 17:37:09]   org.springframework.boot.SpringApplication
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.Repository
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.UploadPack
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RecordCommit
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.FileMode
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.TreeFormatter
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.CommitBuilder
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.URIish
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.CredentialsProvider
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RemoteInfo
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.InitCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.ObjectDatabase
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.ObjectInserter
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.PersonIdent
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.RefUpdate
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.ObjectId
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.CloneCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.PullCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.RemoteAddCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.PushCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.RmCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.RemoteSetUrlCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+[2025-09-12 17:37:09]   io.tiklab.xcode.setting.model.Backups
+[2025-09-12 17:37:09]   io.tiklab.core.context.AppHomeContext
+[2025-09-12 17:37:09]   org.springframework.http.HttpMethod
+[2025-09-12 17:37:09]   org.springframework.util.MultiValueMap
+[2025-09-12 17:37:09]   org.springframework.http.HttpEntity
+[2025-09-12 17:37:09]   com.github.dockerjava.core.DockerClientBuilder
+[2025-09-12 17:37:09]   com.fasterxml.jackson.databind.JsonNode
+[2025-09-12 17:37:09]   com.github.dockerjava.api.DockerClient
+[2025-09-12 17:37:09]   org.springframework.http.HttpStatus
+[2025-09-12 17:37:09]   org.springframework.http.HttpHeaders
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RemoteInfoQuery
+[2025-09-12 17:37:09]   io.tiklab.message.message.model.SendMessageNotice
+[2025-09-12 17:37:09]   io.tiklab.security.logging.logging.model.Logging
+[2025-09-12 17:37:09]   io.tiklab.message.message.service.SendMessageNoticeService
+[2025-09-12 17:37:09]   io.tiklab.security.logging.logging.model.LoggingType
+[2025-09-12 17:37:09]   io.tiklab.user.user.service.UserService
+[2025-09-12 17:37:09]   io.tiklab.security.logging.logging.service.LoggingByTempService
+[2025-09-12 17:37:09]   org.springframework.web.multipart.MultipartFile
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.ReceivePack
+[2025-09-12 17:37:09]   org.springframework.util.CollectionUtils
+[2025-09-12 17:37:09]   org.springframework.http.client.ClientHttpRequestFactory
+[2025-09-12 17:37:09]   org.springframework.http.client.SimpleClientHttpRequestFactory
+[2025-09-12 17:37:09]   io.tiklab.openapi.config.AllowConfig
+[2025-09-12 17:37:09]   io.tiklab.openapi.config.OpenApiConfig
+[2025-09-12 17:37:09]   io.tiklab.openapi.config.AllowConfigBuilder
+[2025-09-12 17:37:09]   org.apache.sshd.server.ExitCallback
+[2025-09-12 17:37:09]   org.apache.sshd.server.channel.ChannelSession
+[2025-09-12 17:37:09]   org.apache.sshd.server.Environment
+[2025-09-12 17:37:09]   io.tiklab.user.dmUser.model.DmUserQuery
+[2025-09-12 17:37:09]   io.tiklab.user.dmUser.model.DmUser
+[2025-09-12 17:37:09]   io.tiklab.user.dmUser.service.DmUserService
+[2025-09-12 17:37:09]   org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+[2025-09-12 17:37:09]   org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RecordOpen
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RecordOpenQuery
+[2025-09-12 17:37:09]   io.tiklab.xcode.detection.model.CodeScanQuery
+[2025-09-12 17:37:09]   io.tiklab.licence.licence.model.Version
+[2025-09-12 17:37:09]   org.apache.commons.io.IOUtils
+[2025-09-12 17:37:09]   io.tiklab.xcode.file.model.FileQuery
+[2025-09-12 17:37:09]   io.tiklab.dal.jdbc.JdbcTemplate
+[2025-09-12 17:37:09]   org.apache.commons.fileupload.FileItemFactory
+[2025-09-12 17:37:09]   org.springframework.web.client.RequestCallback
+[2025-09-12 17:37:09]   org.springframework.web.client.ResponseExtractor
+[2025-09-12 17:37:09]   org.jsoup.select.Elements
+[2025-09-12 17:37:09]   org.jsoup.nodes.Node
+[2025-09-12 17:37:09]   org.springframework.http.client.ClientHttpResponse
+[2025-09-12 17:37:09]   org.apache.commons.fileupload.FileItem
+[2025-09-12 17:37:09]   org.apache.commons.fileupload.servlet.ServletFileUpload
+[2025-09-12 17:37:09]   org.apache.commons.fileupload.disk.DiskFileItemFactory
+[2025-09-12 17:37:09]   org.jsoup.Jsoup
+[2025-09-12 17:37:09]   org.jsoup.nodes.Document
+[2025-09-12 17:37:09]   org.jsoup.nodes.Element
+[2025-09-12 17:37:09]   com.fasterxml.jackson.databind.node.ArrayNode
+[2025-09-12 17:37:09]   com.fasterxml.jackson.databind.node.ObjectNode
+[2025-09-12 17:37:09]   io.tiklab.user.user.model.UserQuery
+[2025-09-12 17:37:09]   io.tiklab.eam.common.model.EamTicket
+[2025-09-12 17:37:09]   javax.xml.bind.DatatypeConverter
+[2025-09-12 17:37:09]   org.yaml.snakeyaml.introspector.BeanAccess
+[2025-09-12 17:37:09]   org.yaml.snakeyaml.DumperOptions$FlowStyle
+[2025-09-12 17:37:09]   org.yaml.snakeyaml.DumperOptions
+[2025-09-12 17:37:09]   org.yaml.snakeyaml.Yaml
+[2025-09-12 17:37:09]   org.quartz.SchedulerException
+[2025-09-12 17:37:09]   io.tiklab.postin.client.openapi.ParamConfig
+[2025-09-12 17:37:09]   org.springframework.boot.web.servlet.MultipartConfigFactory
+[2025-09-12 17:37:09]   org.springframework.util.unit.DataSize
+[2025-09-12 17:37:09]   io.tiklab.postin.client.openapi.PostInClientConfig
+[2025-09-12 17:37:09]   io.tiklab.postin.client.openapi.ParamConfigBuilder
+[2025-09-12 17:37:09]   io.tiklab.security.backups.config.BackupsConfig
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.AnyObjectId
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.model.CommitMessage
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.model.FileDiffEntry
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.model.CommitFileDiffList
+[2025-09-12 17:37:09]   io.tiklab.xcode.file.model.FileMessage
+[2025-09-12 17:37:09]   io.tiklab.xcode.commit.model.CommitFileDiff
+[2025-09-12 17:37:09]   org.eclipse.jgit.revwalk.RevWalk
+[2025-09-12 17:37:09]   com.alibaba.fastjson.JSONArray
+[2025-09-12 17:37:09]   io.tiklab.privilege.role.model.PatchUser
+[2025-09-12 17:37:09]   io.tiklab.privilege.role.service.RoleUserService
+[2025-09-12 17:37:09]   io.tiklab.privilege.role.model.RoleUser
+[2025-09-12 17:37:09]   org.eclipse.jgit.diff.RawTextComparator
+[2025-09-12 17:37:09]   org.eclipse.jgit.treewalk.AbstractTreeIterator
+[2025-09-12 17:37:09]   org.eclipse.jgit.revwalk.RevCommit
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.Ref
+[2025-09-12 17:37:09]   org.eclipse.jgit.treewalk.TreeWalk
+[2025-09-12 17:37:09]   org.eclipse.jgit.treewalk.CanonicalTreeParser
+[2025-09-12 17:37:09]   org.eclipse.jgit.diff.DiffFormatter
+[2025-09-12 17:37:09]   org.eclipse.jgit.diff.DiffEntry
+[2025-09-12 17:37:09]   org.eclipse.jgit.diff.DiffEntry$ChangeType
+[2025-09-12 17:37:09]   org.eclipse.jgit.treewalk.filter.PathFilter
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.LogCommand
+[2025-09-12 17:37:09]   io.tiklab.gateway.config.IgnoreConfig
+[2025-09-12 17:37:09]   io.tiklab.gateway.config.GatewayConfig
+[2025-09-12 17:37:09]   io.tiklab.gateway.config.IgnoreConfigBuilder
+[2025-09-12 17:37:09]   io.tiklab.user.orga.service.OrgaService
+[2025-09-12 17:37:09]   io.tiklab.user.usergroup.service.UserGroupService
+[2025-09-12 17:37:09]   io.tiklab.user.directory.service.UserDirService
+[2025-09-12 17:37:09]   io.tiklab.message.message.service.MessageNoticeService
+[2025-09-12 17:37:09]   io.tiklab.message.setting.service.MessageSendTypeService
+[2025-09-12 17:37:09]   io.tiklab.security.backups.service.BackupsDbService
+[2025-09-12 17:37:09]   io.tiklab.licence.licence.service.VersionService
+[2025-09-12 17:37:09]   io.tiklab.licence.appauth.service.ApplyAuthService
+[2025-09-12 17:37:09]   org.apache.commons.compress.archivers.tar.TarArchiveEntry
+[2025-09-12 17:37:09]   org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+[2025-09-12 17:37:09]   org.eclipse.jgit.revwalk.RevTree
+[2025-09-12 17:37:09]   io.tiklab.xcode.file.model.FileTree
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.ObjectLoader
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.ObjectReader
+[2025-09-12 17:37:09]   org.springframework.http.client.ClientHttpRequest
+[2025-09-12 17:37:09]   com.fasterxml.jackson.core.JsonProcessingException
+[2025-09-12 17:37:09]   org.quartz.JobKey
+[2025-09-12 17:37:09]   org.quartz.ScheduleBuilder
+[2025-09-12 17:37:09]   org.quartz.JobDetail
+[2025-09-12 17:37:09]   org.quartz.Scheduler
+[2025-09-12 17:37:09]   org.quartz.SchedulerFactory
+[2025-09-12 17:37:09]   org.quartz.JobBuilder
+[2025-09-12 17:37:09]   org.quartz.TriggerBuilder
+[2025-09-12 17:37:09]   org.quartz.CronScheduleBuilder
+[2025-09-12 17:37:09]   org.quartz.CronTrigger
+[2025-09-12 17:37:09]   org.quartz.impl.StdSchedulerFactory
+[2025-09-12 17:37:09]   org.apache.sshd.server.SshServer
+[2025-09-12 17:37:09]   org.apache.sshd.common.keyprovider.FileKeyPairProvider
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.CreateBranchCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.DeleteBranchCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.RenameBranchCommand
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.RefDatabase
+[2025-09-12 17:37:09]   io.tiklab.dsm.model.DsmConfig
+[2025-09-12 17:37:09]   io.tiklab.dsm.support.DsmVersionBuilder
+[2025-09-12 17:37:09]   io.tiklab.xcode.repository.model.RepositoryCloneAddress
+[2025-09-12 17:37:09]   javax.servlet.ServletRequest
+[2025-09-12 17:37:09]   javax.servlet.ServletResponse
+[2025-09-12 17:37:09]   javax.servlet.ServletConfig
+[2025-09-12 17:37:09]   io.tiklab.security.backups.util.BackupsFinal
+[2025-09-12 17:37:09]   javax.servlet.ServletException
+[2025-09-12 17:37:09]   org.eclipse.jgit.treewalk.filter.TreeFilter
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.errors.GitAPIException
+[2025-09-12 17:37:09]   io.tiklab.core.order.Order
+[2025-09-12 17:37:09]   org.springframework.beans.BeansException
+[2025-09-12 17:37:09]   org.apache.sshd.server.auth.AsyncAuthException
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.resolver.ServiceNotEnabledException
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException
+[2025-09-12 17:37:09]   org.eclipse.jgit.errors.RepositoryNotFoundException
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.ServiceMayNotContinueException
+[2025-09-12 17:37:09]   org.springframework.context.ConfigurableApplicationContext
+[2025-09-12 17:37:09]   org.apache.sshd.common.keyprovider.KeyPairProvider
+[2025-09-12 17:37:09]   org.apache.sshd.server.auth.password.PasswordAuthenticator
+[2025-09-12 17:37:09]   org.apache.sshd.server.auth.password.PasswordChangeRequiredException
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.RefUpdate$Result
+[2025-09-12 17:37:09]   org.eclipse.jgit.lib.Constants
+[2025-09-12 17:37:09]   org.eclipse.jgit.api.PullResult
+[2025-09-12 17:37:09]   org.eclipse.jgit.transport.RemoteConfig
+[2025-09-12 17:37:09]   org.eclipse.jgit.dircache.DirCache
+[2025-09-12 17:37:09]   org.apache.commons.compress.archivers.ArchiveEntry
+[2025-09-12 17:37:09]   org.quartz.JobExecutionException
+[2025-09-12 17:37:09] [sourceFare] scan success Let's start parsing the results
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/FileUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/RepositoryUtil.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/UuidGenerator.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/UuidGenerator.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/UuidGenerator.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/common/UuidGenerator.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryFileEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryFileEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryMavenEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryMavenEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryVersionEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryVersionEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryVersionEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryVersionEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryVersionEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/LibraryVersionEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/PullInfoEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/entity/PullInfoEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/Library.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryComposerQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryComposerQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryComposerQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryComposerQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFile.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFileQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFileQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFileQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryFileQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryMavenQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryMavenQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryPypiQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryPypiQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryPypiQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryPypiQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersion.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersionQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersionQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersionQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/LibraryVersionQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfo.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfo.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfo.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfo.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfo.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfo.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfoQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/model/PullInfoQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryFileServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryFileServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryFileServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryFileServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryFileServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryVersionServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryVersionServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryVersionServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryVersionServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/library/service/LibraryVersionServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/dao/PushLibraryDao.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushCenWarehouseImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushGroupEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushGroupEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushLibraryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/entity/PushLibraryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushGroupQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushGroupQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushLibrary.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushLibrary.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushLibrary.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushLibrary.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushLibraryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushLibraryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushOperation.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushOperation.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushOperationQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/model/PushOperationQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/pushcentral/service/PushOperationServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/NetworkProxyEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/NetworkProxyEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RemoteProxyEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RemoteProxyEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryClusterCfgEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryClusterCfgEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryClusterCfgEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryClusterCfgEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryGroupEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryGroupEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryGroupEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryGroupEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryMavenEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryMavenEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryRemoteProxyEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/RepositoryRemoteProxyEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/StorageEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/StorageEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/StorageEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/entity/StorageEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/NetworkProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/NetworkProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/NetworkProxyQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/NetworkProxyQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RemoteProxyQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RemoteProxyQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Repository.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfg.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfg.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfg.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfg.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfg.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfg.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfgQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryClusterCfgQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroup.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroupQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroupQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroupQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryGroupQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMaven.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMavenQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMavenQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMavenQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryMavenQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxyQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/RepositoryRemoteProxyQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Storage.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Storage.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Storage.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/Storage.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/StorageQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/model/StorageQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/InitializeSampleServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/InitializeSampleServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/NetworkProxyServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/RepositoryServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/RepositoryServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/RepositoryServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/repository/service/RepositoryServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/entity/TimeTaskEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/entity/TimeTaskEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/entity/TimeTaskEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/entity/TimeTaskEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/entity/TimeTaskInstanceEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/entity/TimeTaskInstanceEntity.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTask.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTask.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTask.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTask.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstance.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstance.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstance.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstance.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstance.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstance.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstanceQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskInstanceQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/model/TimeTaskQuery.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/JobFactory.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/JobManager.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/RunJob.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/RunJob.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/RunJob.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/RunJob.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/RunJob.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/timedtask/util/RunJob.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/UploadTool.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/UploadTool.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/DockerResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/DockerResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/DockerResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/DockerResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/HelmResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/HelmResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/HelmResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/common/response/HelmResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/DockerUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/FileHandleController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/GenericUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/GenericUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/GoUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/GoUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/GoUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/LibraryUploadController.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/test.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/controller/test.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/LibraryHelmServer.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/LibraryHelmServer.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/LibraryUploadData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/LibraryUploadData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/LibraryUploadResult.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/LibraryUploadResult.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/NpmPubData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/NpmPubData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/NpmPubData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/NpmPubData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/NpmPubData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/NpmPubData.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/error/DockerErrorResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/error/DockerErrorResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/error/DockerErrorResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/model/error/DockerErrorResponse.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/ComposerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/DockerUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/GoUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/GoUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/GoUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HandUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/HelmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/MavenUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NpmUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/NugetUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/PypiUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/PypiUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/PypiUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] parse the file:io/tiklab/hadess/upload/service/PypiUploadServiceImpl.java
+[2025-09-12 17:37:09] [sourceFare] the scan results were successfully parsed

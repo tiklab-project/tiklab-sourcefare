@@ -1,0 +1,101 @@
+[2025-09-12 17:36:50] [sourceFare] start compiling the code...
+[2025-09-12 17:36:50] [sourceFare] Maven version：Apache Maven 3.8.5 (3599d3414f046de2324203b78ddcf9b5e4388aa0)
+[2025-09-12 17:36:50] [sourceFare] Jdk version：java version "17.0.7" 2023-04-18 LTS
+[2025-09-12 17:36:50] [sourceFare] executive order：mvn clean compile
+[2025-09-12 17:36:51] [INFO] Scanning for projects...
+[2025-09-12 17:36:51] [WARNING]
+[2025-09-12 17:36:51] [WARNING] Some problems were encountered while building the effective model for io.tiklab:tiklab-hadess-api:jar:1.0.2
+[2025-09-12 17:36:51] [WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: io.tiklab:tiklab-postin-annotation:jar -> duplicate declaration of version ${tiklab-postin.version} @ line 48, column 21
+[2025-09-12 17:36:51] [WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: javax.servlet:javax.servlet-api:jar -> duplicate declaration of version (?) @ line 58, column 21
+[2025-09-12 17:36:51] [WARNING]
+[2025-09-12 17:36:51] [WARNING] Some problems were encountered while building the effective model for io.tiklab:tiklab-hadess-starter:jar:1.0.2
+[2025-09-12 17:36:51] [WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: io.tiklab:tiklab-security-spring-boot-starter:jar -> duplicate declaration of version ${tiklab-security.version} @ line 114, column 21
+[2025-09-12 17:36:51] [WARNING]
+[2025-09-12 17:36:51] [WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[2025-09-12 17:36:51] [WARNING]
+[2025-09-12 17:36:51] [WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[2025-09-12 17:36:51] [WARNING]
+[2025-09-12 17:36:51] [INFO] ------------------------------------------------------------------------
+[2025-09-12 17:36:51] [INFO] Reactor Build Order:
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] tiklab-hadess                                                      [pom]
+[2025-09-12 17:36:51] [INFO] tiklab-hadess-api                                                  [jar]
+[2025-09-12 17:36:51] [INFO] tiklab-hadess-server                                               [jar]
+[2025-09-12 17:36:51] [INFO] tiklab-hadess-starter                                              [jar]
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] ----------------------< io.tiklab:tiklab-hadess >-----------------------
+[2025-09-12 17:36:51] [INFO] Building tiklab-hadess 1.0.2                                       [1/4]
+[2025-09-12 17:36:51] [INFO] --------------------------------[ pom ]---------------------------------
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ tiklab-hadess ---
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] --------------------< io.tiklab:tiklab-hadess-api >---------------------
+[2025-09-12 17:36:51] [INFO] Building tiklab-hadess-api 1.0.2                                   [2/4]
+[2025-09-12 17:36:51] [INFO] --------------------------------[ jar ]---------------------------------
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ tiklab-hadess-api ---
+[2025-09-12 17:36:51] [INFO] Deleting /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-api/target
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ tiklab-hadess-api ---
+[2025-09-12 17:36:51] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[2025-09-12 17:36:51] [INFO] skip non existing resourceDirectory /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-api/src/main/resources
+[2025-09-12 17:36:51] [INFO]
+[2025-09-12 17:36:51] [INFO] --- maven-compiler-plugin:3.8.1:compile (java-compile) @ tiklab-hadess-api ---
+[2025-09-12 17:36:51] [INFO] Changes detected - recompiling the module!
+[2025-09-12 17:36:51] [INFO] Compiling 88 source files to /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-api/target/classes
+[2025-09-12 17:36:52] [INFO] /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-api/src/main/java/io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java: /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-api/src/main/java/io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java使用了未经检查或不安全的操作。
+[2025-09-12 17:36:52] [INFO] /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-api/src/main/java/io/tiklab/hadess/repository/model/RepositoryRemoteProxy.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[2025-09-12 17:36:52] [INFO]
+[2025-09-12 17:36:52] [INFO] -------------------< io.tiklab:tiklab-hadess-server >-------------------
+[2025-09-12 17:36:52] [INFO] Building tiklab-hadess-server 1.0.2                                [3/4]
+[2025-09-12 17:36:52] [INFO] --------------------------------[ jar ]---------------------------------
+[2025-09-12 17:36:52] [INFO]
+[2025-09-12 17:36:52] [INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ tiklab-hadess-server ---
+[2025-09-12 17:36:52] [INFO] Deleting /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-server/target
+[2025-09-12 17:36:52] [INFO]
+[2025-09-12 17:36:52] [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ tiklab-hadess-server ---
+[2025-09-12 17:36:52] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[2025-09-12 17:36:52] [INFO] Copying 28 resources
+[2025-09-12 17:36:52] [INFO]
+[2025-09-12 17:36:52] [INFO] --- maven-compiler-plugin:3.8.1:compile (java-compile) @ tiklab-hadess-server ---
+[2025-09-12 17:36:53] [INFO] Changes detected - recompiling the module!
+[2025-09-12 17:36:53] [INFO] Compiling 131 source files to /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-server/target/classes
+[2025-09-12 17:36:54] [INFO] /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-server/src/main/java/io/tiklab/hadess/upload/controller/LibraryUploadController.java: 某些输入文件使用或覆盖了已过时的 API。
+[2025-09-12 17:36:54] [INFO] /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-server/src/main/java/io/tiklab/hadess/upload/controller/LibraryUploadController.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[2025-09-12 17:36:54] [INFO] /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-server/src/main/java/io/tiklab/hadess/library/controller/PullInfoController.java: 某些输入文件使用了未经检查或不安全的操作。
+[2025-09-12 17:36:54] [INFO] /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-server/src/main/java/io/tiklab/hadess/library/controller/PullInfoController.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[2025-09-12 17:36:54] [INFO]
+[2025-09-12 17:36:54] [INFO] ------------------< io.tiklab:tiklab-hadess-starter >-------------------
+[2025-09-12 17:36:54] [INFO] Building tiklab-hadess-starter 1.0.2                               [4/4]
+[2025-09-12 17:36:54] [INFO] --------------------------------[ jar ]---------------------------------
+[2025-09-12 17:36:54] [INFO]
+[2025-09-12 17:36:54] [INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ tiklab-hadess-starter ---
+[2025-09-12 17:36:54] [INFO] Deleting /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-starter/target
+[2025-09-12 17:36:54] [INFO]
+[2025-09-12 17:36:54] [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ tiklab-hadess-starter ---
+[2025-09-12 17:36:54] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[2025-09-12 17:36:54] [INFO] Copying 5 resources
+[2025-09-12 17:36:54] [INFO]
+[2025-09-12 17:36:54] [INFO] --- maven-dependency-plugin:2.8:unpack (unpack) @ tiklab-hadess-starter ---
+[2025-09-12 17:36:54] [INFO] Configured Artifact: io.tiklab:tiklab-jdk-linux:1.0.2:zip
+[2025-09-12 17:36:54] [INFO] Configured Artifact: io.tiklab:tiklab-postgresql-linux:1.0.2:zip
+[2025-09-12 17:36:54] [INFO] Unpacking /Users/limingliang/.m2/repository/io/tiklab/tiklab-jdk-linux/1.0.2/tiklab-jdk-linux-1.0.2.zip to /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-starter/embbed with includes "" and excludes ""
+[2025-09-12 17:36:56] [INFO] Unpacking /Users/limingliang/.m2/repository/io/tiklab/tiklab-postgresql-linux/1.0.2/tiklab-postgresql-linux-1.0.2.zip to /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-starter/embbed with includes "" and excludes ""
+[2025-09-12 17:36:58] [INFO]
+[2025-09-12 17:36:58] [INFO] --- maven-compiler-plugin:3.8.1:compile (java-compile) @ tiklab-hadess-starter ---
+[2025-09-12 17:36:58] [INFO] Changes detected - recompiling the module!
+[2025-09-12 17:36:58] [INFO] Compiling 6 source files to /Users/limingliang/other/scan/project/tiklab-hadess/tiklab-hadess-starter/target/classes
+[2025-09-12 17:36:58] [INFO] ------------------------------------------------------------------------
+[2025-09-12 17:36:58] [INFO] Reactor Summary for tiklab-hadess 1.0.2:
+[2025-09-12 17:36:58] [INFO]
+[2025-09-12 17:36:58] [INFO] tiklab-hadess ...................................... SUCCESS [  0.047 s]
+[2025-09-12 17:36:58] [INFO] tiklab-hadess-api .................................. SUCCESS [  0.908 s]
+[2025-09-12 17:36:58] [INFO] tiklab-hadess-server ............................... SUCCESS [  2.098 s]
+[2025-09-12 17:36:58] [INFO] tiklab-hadess-starter .............................. SUCCESS [  3.834 s]
+[2025-09-12 17:36:58] [INFO] ------------------------------------------------------------------------
+[2025-09-12 17:36:58] [INFO] BUILD SUCCESS
+[2025-09-12 17:36:58] [INFO] ------------------------------------------------------------------------
+[2025-09-12 17:36:58] [INFO] Total time:  6.946 s
+[2025-09-12 17:36:58] [INFO] Finished at: 2025-09-12T17:36:58+08:00
+[2025-09-12 17:36:58] [INFO] ------------------------------------------------------------------------
+[2025-09-12 17:36:58] [sourceFare] compile success

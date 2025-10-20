@@ -85,7 +85,7 @@ public class ScanSchemeRuleServiceImpl implements ScanSchemeRuleService {
     public ScanSchemeRule findScanSchemeRule(@NotNull String id) {
         ScanSchemeRule scanSchemeRule = findOne(id);
 
-        joinTemplate.joinQuery(scanSchemeRule);
+        joinTemplate.joinQuery(scanSchemeRule,new String[]{"scanRule"});
 
         return scanSchemeRule;
     }
@@ -106,7 +106,7 @@ public class ScanSchemeRuleServiceImpl implements ScanSchemeRuleService {
         List<ScanSchemeRuleEntity> scanSchemeRuleEntityList = scanSchemeRuleDao.findScanSchemeRuleList(ScanSchemeRuleQuery);
 
         List<ScanSchemeRule> scanSchemeRuleList = BeanMapper.mapList(scanSchemeRuleEntityList, ScanSchemeRule.class);
-        joinTemplate.joinQuery(scanSchemeRuleList);
+        joinTemplate.joinQuery(scanSchemeRuleList,new String[]{"scanRule"});
 
         return scanSchemeRuleList;
     }
@@ -116,7 +116,7 @@ public class ScanSchemeRuleServiceImpl implements ScanSchemeRuleService {
         Pagination<ScanSchemeRuleEntity>  pagination = scanSchemeRuleDao.findScanSchemeRulePage(ScanSchemeRuleQuery);
 
         List<ScanSchemeRule> scanSchemeRuleList = BeanMapper.mapList(pagination.getDataList(), ScanSchemeRule.class);
-        joinTemplate.joinQuery(scanSchemeRuleList);
+        joinTemplate.joinQuery(scanSchemeRuleList,new String[]{"scanRule"});
 
         return PaginationBuilder.build(pagination,scanSchemeRuleList);
     }

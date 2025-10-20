@@ -23,6 +23,11 @@ public class DeployEnvEntity {
     @Column(name = "env_address",notNull = true)
     private String envAddress;
 
+    @Column(name = "install_way",notNull = true)
+    private Integer installWay=1;
+
+
+
     //种类 1 、默认 ；2、自定义
     @Column(name = "category")
     private Integer category;
@@ -77,56 +82,12 @@ public class DeployEnvEntity {
     public void setCategory(Integer category) {
         this.category = category;
     }
+
+    public Integer getInstallWay() {
+        return installWay;
+    }
+
+    public void setInstallWay(Integer installWay) {
+        this.installWay = installWay;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

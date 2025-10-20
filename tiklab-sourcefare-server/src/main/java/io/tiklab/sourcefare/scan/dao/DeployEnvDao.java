@@ -102,6 +102,7 @@ public class DeployEnvDao {
         QueryCondition queryCondition = QueryBuilders.createQuery(DeployEnvEntity.class)
                 .eq("envName", deployEnvQuery.getEnvName())
                 .eq("envType", deployEnvQuery.getEnvType())
+                .pagination(deployEnvQuery.getPageParam())
                 .get();
         return jpaTemplate.findPage(queryCondition, DeployEnvEntity.class);
     }
