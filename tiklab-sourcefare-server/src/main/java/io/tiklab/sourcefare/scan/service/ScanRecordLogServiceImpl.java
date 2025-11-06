@@ -5,6 +5,8 @@ import io.tiklab.core.page.PaginationBuilder;
 import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.DeleteBuilders;
 import io.tiklab.rpc.annotation.Exporter;
+import io.tiklab.sourcefare.common.SourceFareUtil;
+import io.tiklab.sourcefare.project.model.Project;
 import io.tiklab.sourcefare.project.service.PathSetService;
 import io.tiklab.sourcefare.scan.dao.ScanRecordLogDao;
 import io.tiklab.sourcefare.scan.entity.ScanRecordLogEntity;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -129,5 +133,36 @@ public class ScanRecordLogServiceImpl implements ScanRecordLogService {
 
 
         return PaginationBuilder.build(pagination,recordInstanceList);
+    }
+
+    /**
+     * 创建扫描记录的日志
+     * @param project project
+     * @param recordId recordId
+     */
+    public List<ScanRecordLog> createRecordLog(Project project, String recordId){
+        List<ScanRecordLog> arrayList = new ArrayList<>();
+        List<String> logTypeList = new ArrayList<>(Arrays.asList("compile", "scan", "duplicated", "complexity"));
+
+        //开启了覆盖率
+        Integer cover = project.getCover();
+        if (cover==1){
+            logTypeList.add("cover");
+        }
+        for (String logType:logTypeList){
+
+            ScanRecordLog recordLog = new ScanRecordLog();
+            recordLog.setProjectId(project.getId());
+            recordLog.setScanRecordId(recordId);
+            recordLog.setTime("0秒");
+            recordLog.setState(3);
+            recordLog.setType(logType);
+            recordLog.setScanType(project.getScanType());
+            SourceFareUtil.addLogOrder(recordLog,logType);
+            String logId = this.createScanRecordLog(recordLog);
+            recordLog.setId(logId);
+            arrayList.add(recordLog);
+        }
+        return arrayList;
     }
 }

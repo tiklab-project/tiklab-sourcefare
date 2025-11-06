@@ -60,6 +60,14 @@ public class ScanRecordController {
 
         return Result.ok();
     }
+    @RequestMapping(path="/deleteScanRecordByProjectId",method = RequestMethod.POST)
+    @ApiMethod(name = "deleteScanRecord",desc = "通过项目id删除扫描记录")
+    @ApiParam(name = "id",desc = "id",required = true)
+    public Result<Void> deleteScanRecordByProjectId(@NotNull String projectId,@NotNull String recordId){
+        scanRecordService.deleteScanRecordByProjectId(projectId,recordId);
+
+        return Result.ok();
+    }
 
     @RequestMapping(path="/findScanRecord",method = RequestMethod.POST)
     @ApiMethod(name = "findScanRecord",desc = "通过id查询扫描记录")

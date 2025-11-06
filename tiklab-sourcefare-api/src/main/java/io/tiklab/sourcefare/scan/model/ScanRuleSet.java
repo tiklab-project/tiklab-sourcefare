@@ -24,6 +24,9 @@ public class ScanRuleSet implements Serializable {
     @ApiProperty(name="language")
     private String language;
 
+    @ApiProperty(name="property",desc="性质 0:社区版、1:企业版")
+    private Integer property;
+
     @ApiProperty(name="describe",desc="描述")
     private String describe;
 
@@ -70,5 +73,13 @@ public class ScanRuleSet implements Serializable {
 
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public void setProperty(Integer property) {
+        this.property = property;
     }
 }

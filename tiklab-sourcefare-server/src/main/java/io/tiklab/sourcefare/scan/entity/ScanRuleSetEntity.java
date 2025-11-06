@@ -20,6 +20,8 @@ public class ScanRuleSetEntity {
     @Column(name = "language")
     private String language;
 
+    @Column(name = "property")
+    private Integer property;
 
     @Column(name = "describe")
     private String describe;
@@ -66,5 +68,13 @@ public class ScanRuleSetEntity {
 
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public void setProperty(Integer property) {
+        this.property = property;
     }
 }

@@ -41,6 +41,13 @@ public interface ScanRecordService {
     void deleteScanRecord(@NotNull String id);
 
     /**
+     * 通过项目id删除扫描记录
+     * @param projectId 项目id
+     * @param recordId 记录id
+     */
+    void deleteScanRecordByProjectId(String projectId,String recordId);
+
+    /**
      * 条件删除扫描结果
      * @param  key  删除条件字段
      * @param value
@@ -91,5 +98,6 @@ public interface ScanRecordService {
     * @return
     */
     Pagination<ScanRecord> findScanRecordPage(ScanRecordQuery scanRecordQuery);
+
 
 }

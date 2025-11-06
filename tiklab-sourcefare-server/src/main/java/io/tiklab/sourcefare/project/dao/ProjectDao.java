@@ -97,12 +97,17 @@ public class ProjectDao {
      * @param projectQuery projectQuery
      */
     public List<ProjectEntity> findProjectList(ProjectQuery projectQuery) {
-        QueryCondition queryCondition = QueryBuilders.createQuery(ProjectEntity.class)
-                .like("name",projectQuery.getName())
-                .eq("scanWay",projectQuery.getScanWay())
-                .notIn("category",new String[]{"demox"})
-                .eq("scanSchemeId",projectQuery.getScanSchemeId())
-                .orders(projectQuery.getOrderParams())
+        QueryBuilders builders = QueryBuilders.createQuery(ProjectEntity.class)
+                .like("name", projectQuery.getName())
+                .notIn("category", new String[]{"demox"})
+                .eq("scanSchemeId", projectQuery.getScanSchemeId());
+
+        if (("arbess").equals(projectQuery.getScanWay())){
+            builders.in("scanWay", new String[]{"server","serverUpload"});
+        }else {
+            builders.eq("scanWay", projectQuery.getScanWay());
+        }
+        QueryCondition queryCondition = builders.orders(projectQuery.getOrderParams())
                 .get();
         return jpaTemplate.findList(queryCondition, ProjectEntity.class);
     }

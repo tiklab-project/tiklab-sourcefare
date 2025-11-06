@@ -1,6 +1,7 @@
 package io.tiklab.sourcefare.server.service;
 
 import io.tiklab.sourcefare.server.model.RepositoryServer;
+import io.tiklab.sourcefare.server.model.RepositoryServerQuery;
 import io.tiklab.sourcefare.server.model.ThirdBranch;
 import io.tiklab.sourcefare.server.model.ThirdRepository;
 
@@ -15,10 +16,9 @@ public interface ServerGitPukService {
 
     /**
      * 通过仓库的分支
-     * @param repId 仓库id
-     * @param repServerId 服务的id
+     * @param serverQuery serverQuery
      */
-    List<ThirdBranch> findRepositoryBranchList(String repId, String repServerId);
+    List<ThirdBranch> findRepositoryBranchList(RepositoryServerQuery serverQuery);
 
 
 }

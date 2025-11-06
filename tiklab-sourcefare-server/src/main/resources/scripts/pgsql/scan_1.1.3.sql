@@ -1,0 +1,1 @@
+ALTER TABLE wair_project add build_path varchar(128);

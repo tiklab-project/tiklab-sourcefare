@@ -5,6 +5,7 @@ import io.tiklab.postin.annotation.Api;
 import io.tiklab.postin.annotation.ApiMethod;
 import io.tiklab.postin.annotation.ApiParam;
 import io.tiklab.sourcefare.server.model.RepositoryServer;
+import io.tiklab.sourcefare.server.model.RepositoryServerQuery;
 import io.tiklab.sourcefare.server.model.ThirdBranch;
 import io.tiklab.sourcefare.server.model.ThirdRepository;
 import io.tiklab.sourcefare.server.service.ServerGitPukService;
@@ -38,10 +39,10 @@ public class ServerGitPukController {
     }
 
     @RequestMapping(path = "/findRepositoryBranchList",method = RequestMethod.POST)
-    @ApiMethod(name = "findRepositoryList",desc = "查询仓库的分支")
-    @ApiParam(name = "repId",desc = "repId",required = true)
-    public Result<List<ThirdBranch>> findRepositoryBranchList(@NotNull String repId,@NotNull String repServerId){
-        List<ThirdBranch> branchList = serverGitPukService.findRepositoryBranchList(repId,repServerId);
+    @ApiMethod(name = "findRepositoryBranchList",desc = "查询仓库的分支")
+    @ApiParam(name = "serverQuery",desc = "serverQuery",required = true)
+    public Result<List<ThirdBranch>> findRepositoryBranchList(@RequestBody @NotNull @Valid RepositoryServerQuery serverQuery){
+        List<ThirdBranch> branchList = serverGitPukService.findRepositoryBranchList(serverQuery);
 
         return Result.ok(branchList);
     }

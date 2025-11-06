@@ -6,6 +6,7 @@ import io.tiklab.dsm.support.DsmProcessTask;
 import io.tiklab.privilege.role.model.Role;
 import io.tiklab.privilege.role.model.RoleQuery;
 import io.tiklab.privilege.role.service.RoleService;
+import io.tiklab.sourcefare.server.service.RepositoryServerService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,10 +23,25 @@ public class InitAuthority implements DsmProcessTask {
     @Autowired
     RoleService roleService;
 
+
+
     @Override
     public void execute() {
-        addSysRoleFunction();
+        Thread thread = new Thread() {
+            public void run() {
+                //修改角色权限
+                addSysRoleFunction();
+
+
+            }};
+
+        thread.start();
     }
+
+
+
+
+
 
     private void addSysRoleFunction() {
         for (String sysRoleId : sysRoleIds) {

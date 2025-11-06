@@ -33,8 +33,15 @@ public class ScanRecord implements Serializable {
     @JoinField(key = "id")
     private User scanUser;
 
-    @ApiProperty(name="scanResult",desc="扫描结果 执行中：run 通过：success、失败：fail 、运行失败：execFail")
-    private String scanResult;
+    @ApiProperty(name="issueResult",desc="扫描结果 执行中：run 通过：success、失败：fail 、运行失败：execFail")
+    private String issueResult;
+
+    @ApiProperty(name="comResult",desc="复杂度扫描结果 success、execFail")
+    private String comResult;
+    @ApiProperty(name="dupResult",desc="重复度扫描结果 success、execFail")
+    private String dupResult;
+    @ApiProperty(name="coverResult",desc="覆盖率扫描结果 success、execFail")
+    private String coverResult;
 
     @ApiProperty(name="scanWay",desc="扫描方式 client、server")
     private String scanWay;
@@ -73,6 +80,10 @@ public class ScanRecord implements Serializable {
     private List typeList;
 
 
+
+    private String scanResult;
+
+
     public String getId() {
         return id;
     }
@@ -98,12 +109,36 @@ public class ScanRecord implements Serializable {
         this.scanUser = scanUser;
     }
 
-    public String getScanResult() {
-        return scanResult;
+    public String getIssueResult() {
+        return issueResult;
     }
 
-    public void setScanResult(String scanResult) {
-        this.scanResult = scanResult;
+    public void setIssueResult(String issueResult) {
+        this.issueResult = issueResult;
+    }
+
+    public String getComResult() {
+        return comResult;
+    }
+
+    public void setComResult(String comResult) {
+        this.comResult = comResult;
+    }
+
+    public String getDupResult() {
+        return dupResult;
+    }
+
+    public void setDupResult(String dupResult) {
+        this.dupResult = dupResult;
+    }
+
+    public String getCoverResult() {
+        return coverResult;
+    }
+
+    public void setCoverResult(String coverResult) {
+        this.coverResult = coverResult;
     }
 
     public Integer getSeverityTrouble() {
@@ -188,5 +223,13 @@ public class ScanRecord implements Serializable {
 
     public void setTypeList(List typeList) {
         this.typeList = typeList;
+    }
+
+    public String getScanResult() {
+        return scanResult;
+    }
+
+    public void setScanResult(String scanResult) {
+        this.scanResult = scanResult;
     }
 }

@@ -6,11 +6,14 @@ import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.condition.QueryCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.QueryBuilders;
 import io.tiklab.sourcefare.scan.entity.ScanSchemeRuleEntity;
+import io.tiklab.sourcefare.scan.entity.ScanSchemeRuleSetEntity;
 import io.tiklab.sourcefare.scan.model.ScanSchemeRuleQuery;
+import io.tiklab.sourcefare.scan.model.ScanSchemeRuleSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -90,11 +93,21 @@ public class ScanSchemeRuleDao {
      * @return List <ScanSchemeRuleEntity>
      */
     public List<ScanSchemeRuleEntity> findScanSchemeRuleList(ScanSchemeRuleQuery scanSchemeRuleQuery) {
-        QueryCondition queryCondition = QueryBuilders.createQuery(ScanSchemeRuleEntity.class)
-                .eq("scanSchemeId",scanSchemeRuleQuery.getScanSchemeId())
-                .eq("schemeRulesetId", scanSchemeRuleQuery.getSchemeRulesetId())
-                .orders(scanSchemeRuleQuery.getOrderParams())
-                .get();
+        QueryCondition queryCondition;
+        if (ObjectUtils.isEmpty(scanSchemeRuleQuery.getProperty())){
+             queryCondition = QueryBuilders.createQuery(ScanSchemeRuleEntity.class)
+                    .eq("scanSchemeId",scanSchemeRuleQuery.getScanSchemeId())
+                    .eq("schemeRulesetId", scanSchemeRuleQuery.getSchemeRulesetId())
+                    .eq("property",scanSchemeRuleQuery.getProperty())
+                    .orders(scanSchemeRuleQuery.getOrderParams())
+                    .get();
+        }else {
+            queryCondition=QueryBuilders.createQuery(ScanSchemeRuleEntity.class,"rule")
+                    .leftJoin(ScanSchemeRuleSetEntity.class,"set","rule.schemeRulesetId=set.id")
+                    .eq("rule.scanSchemeId",scanSchemeRuleQuery.getScanSchemeId())
+                    .eq("set.property",scanSchemeRuleQuery.getProperty())
+                    .get();
+        }
         return jpaTemplate.findList(queryCondition, ScanSchemeRuleEntity.class);
     }
 

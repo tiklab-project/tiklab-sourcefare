@@ -54,6 +54,13 @@ public class ScanRecordServiceImpl implements ScanRecordService {
     @Autowired
     RecordDuplicatedService duplicatedService;
 
+    @Autowired
+    CodeScanService codeScanService;
+
+
+    @Autowired
+    IssueStatisticService issueStatisticService;
+
     @Override
     public String createScanRecord(@NotNull @Valid ScanRecord openRecord) {
 
@@ -73,6 +80,10 @@ public class ScanRecordServiceImpl implements ScanRecordService {
 
     @Override
     public void deleteScanRecord(@NotNull String id) {
+        ScanRecord scanRecord = findOne(id);
+        if (("run").equals(scanRecord.getIssueResult())){
+            codeScanService.removeScanState(scanRecord.getProjectId());
+        }
 
 
         scanRecordDao.deleteScanRecord(id);
@@ -94,6 +105,18 @@ public class ScanRecordServiceImpl implements ScanRecordService {
         //删除扫描复杂度
         complexityService.deleteRecordComplexityByCondition("recordId",id);
 
+    }
+
+    @Override
+    public void deleteScanRecordByProjectId(String projectId,String recordId) {
+        deleteScanRecord(recordId);
+
+        //删除后当前项目不存在了扫描记录，就直接把扫描问题统计实例删除
+        List<ScanRecordEntity> openRecordEntityList = scanRecordDao.findScanRecordList(new ScanRecordQuery().setProjectId(projectId));
+        if (CollectionUtils.isEmpty(openRecordEntityList)){
+            //删除问题
+            issueStatisticService.deleteIssueStatisticByCondition("projectId",projectId);
+        }
     }
 
     @Override
@@ -172,6 +195,17 @@ public class ScanRecordServiceImpl implements ScanRecordService {
         }
 
         List<ScanRecord> scanRecords = openRecordList.stream().sorted(Comparator.comparing(ScanRecord::getCreateTime).reversed()).collect(Collectors.toList());
+        ScanRecord scanRecord = scanRecords.get(0);
+        if (("run").equals(scanRecord.getIssueResult())){
+            scanRecord.setScanResult("run");
+        }else if (("execFail").equals(scanRecord.getIssueResult())||("execFail").equals(scanRecord.getComResult())||
+                ("execFail").equals(scanRecord.getDupResult())||("execFail").equals(scanRecord.getCoverResult())){
+
+            scanRecord.setScanResult("execFail");
+        }else {
+            scanRecord.setScanResult("success");
+        }
+
 
         return scanRecords.get(0);
     }

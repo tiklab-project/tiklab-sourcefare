@@ -112,7 +112,7 @@ public class CodeScanCommon {
 
         scanRecord.setScanUser(user);
         scanRecord.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        scanRecord.setScanResult("run");
+        scanRecord.setIssueResult("run");
         scanRecord.setScanWay(way);
         String id = scanRecordService.createScanRecord(scanRecord);
         scanRecord.setId(id);
@@ -134,19 +134,18 @@ public class CodeScanCommon {
      * @param scanRecord scanRecord
      * @param scanResult 扫描结果
      */
-    public static void createRecordInstance(List<ScanSchemeRule> scanSchemeRuleList,
+    public static List<RecordInstance> createRecordInstance(List<ScanSchemeRule> scanSchemeRuleList,
                                              RecordInstanceService recordInstanceService,
                                              ScanRecord scanRecord,
                                              ScanResult scanResult) {
         List<ScanResultFile> scanResultFiles = scanResult.getScanResultFiles();
+        List<RecordInstance> arrayList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(scanSchemeRuleList)&&CollectionUtils.isNotEmpty(scanResultFiles)){
-
 
             int severityNum=0;
             int errorNum=0;
             int noticeNum=0;
             int suggestNum=0;
-            List<RecordInstance> arrayList = new ArrayList<>();
             for (ScanResultFile scanResultFile:scanResultFiles) {
                 List<ScanSchemeRule> schemeRuleList = scanSchemeRuleList.stream()
                         .filter(a -> (scanResultFile.getErrorRuleName()).equals(a.getScanRule().getRuleName()))
@@ -178,8 +177,6 @@ public class CodeScanCommon {
                     instance.setRuleName(scanResultFile.getErrorRuleName());
                     instance.setRuleType(scanSchemeRule.getScanRule().getRuleType());
 
-                    //获取code存储的位置
-                    String projectId = scanRecord.getProjectId();
 
                     String filePath = scanResultFile.getFilePath();
                     String s = StringUtils.substringAfter(filePath, "/");
@@ -187,34 +184,11 @@ public class CodeScanCommon {
                     instance.setFilePath(filePath);
 
 
-                   /* if (("go").equals(scanResult.getLanguage())){
-                        if (("server").equals(scanResult.getScanWay())){
-                           instance.setFilePath(filePath);
-                           Integer index = filePath.indexOf(scanResult.getScanObjectId()) + scanResult.getScanObjectId().length();
-                           String relativePath = filePath.substring(index);
-                            instance.setFileName(scanResult.getCodeName()+relativePath);
-                        }else {
-                            String fileName = SourceFareUtil.SystemTypeAddress(scanResult.getCodeName() + "/" + filePath);
-                            String address = SourceFareUtil.SystemTypeAddress(filePath);
-                            instance.setFileName(fileName);
-                            instance.setFilePath(address);
-                        }
-                    } else if (("c++").equals(scanResult.getLanguage())||("c#").equals(scanResult.getLanguage())){
-                        instance.setFileName(scanResult.getCodeName()+"/"+filePath);
-                        instance.setFilePath(filePath);
-                    }else {
-
-                        instance.setFileName(scanResult.getCodeName()+"/"+filePath);
-                        instance.setFilePath(filePath);
-                     *//*   instance.setFileName(scanResult.getCodeName()+"/"+relativePath);
-                        instance.setFilePath(relativePath);*//*
-                    }*/
                     instance.setCreateTime(new Timestamp(System.currentTimeMillis()));
                     arrayList.add(instance);
-                   // recordInstanceService.createScanRecordInstance(instance);
                 }
         }
-
+            //批量添加
             recordInstanceService.createScanRecordInstance(arrayList);
 
             //根据自定义的扫描方案添加错误数量
@@ -223,7 +197,9 @@ public class CodeScanCommon {
             scanRecord.setNoticeTrouble(noticeNum);
             scanRecord.setSuggestTrouble(suggestNum);
             scanRecord.setAllTrouble(severityNum+noticeNum+suggestNum+errorNum);
+
       }
+        return  arrayList;
     }
 
     /**
@@ -265,9 +241,10 @@ public class CodeScanCommon {
                 recordDuplicated.setProjectId(scanResult.getScanObjectId());
                 recordDuplicated.setRecordId(scanResult.getScanRecordId());
                 recordDuplicated.setCreateTime(new Timestamp(System.currentTimeMillis()));
-                //duplicatedService.createRecordDuplicated(recordDuplicated);
                 arrayList.add(recordDuplicated);
             }
+
+            //批量添加
             duplicatedService.createRecordDuplicated(arrayList);
         }
     }
@@ -289,9 +266,9 @@ public class CodeScanCommon {
                 recordComplexity.setProjectId(scanResult.getScanObjectId());
                 recordComplexity.setRecordId(scanResult.getScanRecordId());
                 recordComplexity.setCreateTime(new Timestamp(System.currentTimeMillis()));
-                //complexityService.createRecordComplexity(recordComplexity);
                 arrayList.add(recordComplexity);
             }
+            //批量添加
             complexityService.createRecordComplexity(arrayList);
         }
     }
@@ -299,27 +276,27 @@ public class CodeScanCommon {
 
     /**
      *  创建问题统计
-     *  @param scanResult scanResult
+     *  @param recordInstance recordInstance
      */
 
     public static void createIssueStatistic(IssueStatisticService issueStatisticService,
                                             List<ScanSchemeRule> scanSchemeRules,
-                                            ScanResult scanResult){
+                                            List<RecordInstance> recordInstance){
 
-        List<ScanResultFile> scanResultFiles = scanResult.getScanResultFiles();
-        if (CollectionUtils.isNotEmpty(scanSchemeRules)&&CollectionUtils.isNotEmpty(scanResultFiles)){
 
+        if (CollectionUtils.isNotEmpty(scanSchemeRules)&&CollectionUtils.isNotEmpty(recordInstance)){
+            String projectId = recordInstance.get(0).getProjectId();
             //查询项目的问题统计数据
             IssueStatisticQuery statisticQuery = new IssueStatisticQuery();
-            statisticQuery.setProjectId(scanResult.getScanObjectId());
+            statisticQuery.setProjectId(projectId);
             List<IssueStatistic> issueStatisticList = issueStatisticService.findIssueStatisticList(statisticQuery);
 
 
-            Map<String, List<ScanResultFile>> listMap = scanResultFiles.stream().collect(Collectors.groupingBy(ScanResultFile::getFilePath));
+            Map<String, List<RecordInstance>> listMap = recordInstance.stream().collect(Collectors.groupingBy(RecordInstance::getFilePath));
             Set<String> filePaths = listMap.keySet();
             List<IssueStatistic> arrayList = new ArrayList<>();
             for (String key:filePaths){
-                List<ScanResultFile> scanResultFileList = listMap.get(key);
+                List<RecordInstance> scanResultFileList = listMap.get(key);
                 //通过条件过滤
                 List<IssueStatistic> statisticList = issueStatisticList.stream().filter(a -> key.equals(a.getFilePath()))
                         .collect(Collectors.toList());
@@ -327,26 +304,25 @@ public class CodeScanCommon {
                 if (CollectionUtils.isNotEmpty(statisticList)){
                     issueStatisticService.deleteIssueStatisticByCondition("filePath",key);
                 }
-                for (ScanResultFile scanResultFile:scanResultFileList){
+                for (RecordInstance instance:scanResultFileList){
                     List<ScanSchemeRule> schemeRuleList = scanSchemeRules.stream()
-                            .filter(a -> (scanResultFile.getErrorRuleName()).equals(a.getScanRule().getRuleName()))
+                            .filter(a -> (instance.getRuleName()).equals(a.getScanRule().getRuleName()))
                             .collect(Collectors.toList());
 
                     if (CollectionUtils.isNotEmpty(schemeRuleList)){
                         ScanSchemeRule scanSchemeRule = schemeRuleList.get(0);
 
-                        String filePath = scanResultFile.getFilePath();
+                        String filePath = instance.getFilePath();
 
                         IssueStatistic issueStatistic = new IssueStatistic();
                         issueStatistic.setId(SourceFareUtil.getRandom(12));
-                        issueStatistic.setProjectId(scanResult.getScanObjectId());
+                        issueStatistic.setProjectId(projectId);
                         issueStatistic.setFilePath(filePath);
-                        issueStatistic.setProblemDesc(scanResultFile.getProblemDesc());
-                        issueStatistic.setProblemLine(scanResultFile.getProblemLine());
-                        issueStatistic.setProblemLevel(scanResultFile.getProblemLevel());
-                        issueStatistic.setRuleName(scanResultFile.getErrorRuleName());
-                        issueStatistic.setProblemLine(scanResultFile.getProblemLine());
-                        issueStatistic.setProblemDesc(scanResultFile.getProblemDesc());
+                        issueStatistic.setProblemDesc(instance.getProblemDesc());
+                        issueStatistic.setProblemLine(instance.getProblemLine());
+                        issueStatistic.setProblemLevel(instance.getProblemLevel());
+                        issueStatistic.setRuleName(instance.getRuleName());
+                        issueStatistic.setProblemDesc(instance.getProblemDesc());
                         issueStatistic.setRuleType(scanSchemeRule.getScanRule().getRuleType());
                         issueStatistic.setProblemState(0);
                         issueStatistic.setCreateTime(new Timestamp(System.currentTimeMillis()));

@@ -116,7 +116,18 @@ public class SourceFareDsmAutoConfiguration {
                 }).get();
         versionList.add(dsmVersion);
 
-
+        dsmVersion = DsmVersionBuilder.instance()
+                .version("1.3.2")
+                .db(new String[]{
+                        "scan_1.1.2"
+                }).get();
+        versionList.add(dsmVersion);
+        dsmVersion = DsmVersionBuilder.instance()
+                .version("1.3.3")
+                .db(new String[]{
+                        "scan_1.1.3"
+                }).get();
+        versionList.add(dsmVersion);
 
         dsmVersion = DsmVersionBuilder.instance()
                 .version("user_2.0.0")
@@ -150,18 +161,6 @@ public class SourceFareDsmAutoConfiguration {
                         "message_2.0.0",
                 }).get();
         versionList.add(dsmVersion);
-
-        dsmVersion = DsmVersionBuilder.instance()
-                .version("prvilege_source")
-                .db(new String[]{
-                        "source_prvilege-project_1.0.0",
-                        "source_prvilege-system_1.0.0",
-                        "licence_2.0.0",
-                })
-                .task(initAuthority)
-                .get();
-        versionList.add(dsmVersion);
-
         dsmVersion = DsmVersionBuilder.instance()
                 .version("licence_2.0.0")
                 .db(new String[]{
@@ -169,6 +168,18 @@ public class SourceFareDsmAutoConfiguration {
                 })
                 .get();
         versionList.add(dsmVersion);
+
+        dsmVersion = DsmVersionBuilder.instance()
+                .version("prvilege_source")
+                .db(new String[]{
+                        "source_prvilege-project_1.0.0",
+                        "source_prvilege-system_1.0.0",
+                })
+                .task(initAuthority)
+                .get();
+        versionList.add(dsmVersion);
+
+
         return versionList;
     }
 }

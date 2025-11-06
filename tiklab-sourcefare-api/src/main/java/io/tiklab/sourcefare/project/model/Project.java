@@ -62,6 +62,8 @@ public class Project implements Serializable {
     @ApiProperty(name="complexity",desc = "是否启用复杂度测试，0不开启、1开启")
     private Integer complexity;
 
+    @ApiProperty(name="buildPath",desc = "构建路径")
+    private String buildPath;
 
     @ApiProperty(name="scanResult",desc = "最新扫描结果")
     private String scanResult;
@@ -372,5 +374,13 @@ public class Project implements Serializable {
 
     public void setScanLanguage(String scanLanguage) {
         this.scanLanguage = scanLanguage;
+    }
+
+    public String getBuildPath() {
+        return buildPath;
+    }
+
+    public void setBuildPath(String buildPath) {
+        this.buildPath = buildPath;
     }
 }

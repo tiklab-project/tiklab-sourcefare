@@ -1,0 +1,14 @@
+CS8343：ref structs 无法实现接口
+CS8344：foreach 语句无法对异步或迭代器方法中的枚举器进行操作，因为类型是 ref struct 或者是允许 ref struct 的类型参数。
+CS8345：字段或自动实现的属性不能是类型，除非它是 ref struct 的实例成员。
+CS9048：scoped 修饰符只能用于 refs 和 ref struct 值。
+CS9050：ref 字段无法引用 ref struct。
+CS9059：ref 字段只能在 ref struct 中声明。
+CS9241：已指定 `ref struct`。
+CS9242：`allows` 约束子句必须是指定的最后一个约束。
+CS9243不允许将其他约束已知的类型参数的 ref struct 用作类。
+CS9244：类型不能是 ref struct 或允许 ref struct 的类型参数，以便在泛型类型或方法中使用它作为参数。
+CS9245：类型无法实现 ref struct 类型的接口成员。
+CS9246：在允许 ref struct 的类型参数上无法访问非虚拟实例接口成员。
+CS9247：foreach 语句无法对类型的枚举器进行操作，因为它是一个允许 ref struct 的类型参数，并且在编译时无法确定它是否实现了 IDisposable。
+CS9267： 迭代器的元素类型可能不是 ref 结构或允许 ref 结构的类型参数

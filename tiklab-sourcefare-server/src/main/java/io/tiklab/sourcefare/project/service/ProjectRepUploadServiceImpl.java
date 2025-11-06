@@ -114,6 +114,9 @@ public class ProjectRepUploadServiceImpl implements ProjectRepUploadService {
         List<ProjectRepUploadEntity> projectRepUploadEntityList = projectRepUploadDao.findProjectRepUploadList(ProjectRepUploadQuery);
 
         List<ProjectRepUpload> projectRepUploadList = BeanMapper.mapList(projectRepUploadEntityList, ProjectRepUpload.class);
+        String codePath = pathSetService.codePath();
+
+
 
         return projectRepUploadList;
     }
@@ -122,6 +125,11 @@ public class ProjectRepUploadServiceImpl implements ProjectRepUploadService {
     public ProjectRepUpload findProjectRepUploadByRepId(String projectId) {
         List<ProjectRepUpload> projectRepUploadList = findProjectRepUploadList(new ProjectRepUploadQuery().setProjectId(projectId));
         if (CollectionUtils.isNotEmpty(projectRepUploadList)){
+            String outputFolderPath = pathSetService.codePath() +"/"+ projectId;
+            File file = new File(outputFolderPath);
+            if (!file.exists()){
+                return null;
+            }
             return projectRepUploadList.get(0);
         }
         return null;

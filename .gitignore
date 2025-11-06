@@ -9,7 +9,7 @@ logs/
 plugin/
 APP_HOME_IS_UNDEFINED/
 DATA_HOME_IS_UNDEFINED/
-.embbed/
+tiklab-sourcefare-starter/embbed
 
 tiklab-sourcefare-starter/embbed/pgsql-10.23
 tiklab-sourcefare-starter/embbed/spotbugs-4.8.1
@@ -25,3 +25,4 @@ tiklab-sourcefare-starter/embbed/cpplint-2.0.2
 tiklab-sourcefare-starter/embbed/semgrep-1.136.0
 tiklab-sourcefare-starter/embbed/gocyclo
 tiklab-sourcefare-starter/embbed/go
+tiklab-sourcefare-starter/embbed/security-scan

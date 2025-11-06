@@ -30,6 +30,9 @@ public class ScanRuleQuery {
     @ApiProperty(name="scanTool",desc="工具")
     private String scanTool;
 
+    @ApiProperty(name="ruleType",desc="规则类型")
+    private String ruleType;
+
     public List<Order> getOrderParams() {
         return orderParams;
     }
@@ -80,5 +83,13 @@ public class ScanRuleQuery {
     public ScanRuleQuery setScanTool(String scanTool) {
         this.scanTool = scanTool;
         return this;
+    }
+
+    public String getRuleType() {
+        return ruleType;
+    }
+
+    public void setRuleType(String ruleType) {
+        this.ruleType = ruleType;
     }
 }

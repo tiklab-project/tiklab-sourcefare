@@ -19,7 +19,7 @@ public interface CodeScanService {
     ScanRecord codeScanExec(String  projectId);
 
 
-
+     void removeScanState(String id);
 
     /**
      * 接受客户端扫描的结果

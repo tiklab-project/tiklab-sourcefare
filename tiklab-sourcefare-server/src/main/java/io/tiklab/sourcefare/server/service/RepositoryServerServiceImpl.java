@@ -1,22 +1,30 @@
 package io.tiklab.sourcefare.server.service;
 
+import com.alibaba.fastjson.JSONObject;
+import io.tiklab.core.exception.ApplicationException;
 import io.tiklab.core.page.Pagination;
 import io.tiklab.core.page.PaginationBuilder;
+import io.tiklab.sourcefare.common.SourceFareServerFinal;
+import io.tiklab.sourcefare.common.SourceFareUtil;
 import io.tiklab.sourcefare.server.dao.RepositoryServerDao;
 import io.tiklab.sourcefare.server.entity.RepositoryServerEntity;
 import io.tiklab.sourcefare.server.model.RepositoryServer;
 import io.tiklab.sourcefare.server.model.RepositoryServerQuery;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.List;
+
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.*;
 
 /**
 * RepositoryServerServiceImpl 仓库服务
@@ -34,13 +42,62 @@ public class RepositoryServerServiceImpl implements RepositoryServerService {
 
 
     @Override
-    public String createRepositoryServer(@NotNull @Valid RepositoryServer RepositoryServer) {
+    public String createRepositoryServer(@NotNull @Valid RepositoryServer server) {
 
-        RepositoryServerEntity RepositoryServerEntity = BeanMapper.map(RepositoryServer, RepositoryServerEntity.class);
+        RepositoryServerEntity RepositoryServerEntity = BeanMapper.map(server, RepositoryServerEntity.class);
         RepositoryServerEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        if ((GITEE).equals(server.getServerType())){
+            RepositoryServerEntity.setAddress(GITEE_PARH);
+        }
+        try {
+            String path;
+            switch (server.getServerType()){
+                case GITEE->{
+                    path=  GITEE_API_URL+"?access_token="+server.getSecretKey()+
+                            "&sort=full_name&per_page=1&page=1";;
+                }
+                case PRI_GITLAB->{
+                    String address = server.getAddress();
+                    if (address.endsWith("/")){
+                        address= StringUtils.substringBeforeLast(address,"/");
+                    }
+                    path = address + "/api/v4/projects?min_access_level=10&page=1&private_token="+server.getSecretKey();
+                }
+                default->{
+                    path = server.getAddress()+SourceFareServerFinal.FIND_REPOSITORY_GIT_PUK;
+                }
+            }
 
-        String RepositoryServerId= RepositoryServerDao.createRepositoryServer(RepositoryServerEntity);
-        return RepositoryServerId;
+            if (GIT_PUK.equals(server.getServerType())){
+                ResponseEntity<JSONObject> response = SourceFareUtil.restTemplateGitPuk(server, path);
+                JSONObject jsonObject = response.getBody();
+                if (!("200").equals(jsonObject.get("code").toString())){
+                    throw new ApplicationException(jsonObject.get("msg").toString());
+                }
+            }else {
+              SourceFareUtil.getRestTemplate(path);
+            }
+
+            String RepositoryServerId= RepositoryServerDao.createRepositoryServer(RepositoryServerEntity);
+            return RepositoryServerId;
+        }catch (Exception e){
+            e.printStackTrace();
+            String message = e.getMessage();
+            if (message.contains("timed out") ){
+                throw new ApplicationException(58001,"请求超时,请检查服务地址");
+            }
+            if (message.contains("401 Unauthorized: Access token does not exist")){
+                throw new ApplicationException("401 Unauthorized: Access token does not exist");
+            }
+            if (message.contains("Connection refused")){
+                throw new ApplicationException("Connection refused,请检查服务地址");
+            }
+            if (message.contains("401 Unauthorized")){
+                throw new ApplicationException("401 Unauthorized");
+            }
+            throw new ApplicationException("地址不正确,请检查服务地址");
+        }
+
     }
 
     @Override

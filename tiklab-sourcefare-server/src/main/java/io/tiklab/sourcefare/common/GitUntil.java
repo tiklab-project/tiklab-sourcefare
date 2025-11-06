@@ -1,6 +1,7 @@
 package io.tiklab.sourcefare.common;
 
 
+import com.alibaba.fastjson.JSONObject;
 import io.tiklab.sourcefare.server.model.RepositoryServer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -8,10 +9,13 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.HttpTransport;
 import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 
 import java.io.*;
 
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.*;
 
 
 /**
@@ -20,6 +24,23 @@ import java.io.*;
 
 public class GitUntil {
 
+    /**
+     *  getThreeUserInfo 获取第三方用户信息
+     * @param repositoryServer repositoryServer
+     */
+    public static String getThreeUserInfo(RepositoryServer repositoryServer){
+        if ((GITEE).equals(repositoryServer.getServerType())){
+            String userPath = GITEE_USER_URL + "?access_token=" + repositoryServer.getSecretKey();
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<JSONObject> forEntity = restTemplate.getForEntity(userPath, JSONObject.class);
+
+            JSONObject body = forEntity.getBody();
+            String account = String.valueOf(body.get("login"));
+            return account;
+        }
+
+        return null;
+    }
 
     /**
      * 克隆仓库
@@ -36,8 +57,21 @@ public class GitUntil {
             folder.mkdirs();
         }
 
+        String serverType = repositoryServer.getServerType();
         UsernamePasswordCredentialsProvider credentialsProvider;
-        credentialsProvider= new UsernamePasswordCredentialsProvider(repositoryServer.getAccount(),repositoryServer.getPassWord());
+        if((PRI_GITLAB).equals(serverType)){
+            credentialsProvider= new UsernamePasswordCredentialsProvider("access_token", repositoryServer.getSecretKey());
+        }else if((GITEE).equals(serverType)) {
+            credentialsProvider= new UsernamePasswordCredentialsProvider(getThreeUserInfo(repositoryServer),repositoryServer.getSecretKey());
+        }else  {
+            //密码认证
+            if (!("key").equals(repositoryServer.getAuthType())) {
+                credentialsProvider = new UsernamePasswordCredentialsProvider(repositoryServer.getAccount(), repositoryServer.getPassWord());
+            }else {
+                credentialsProvider=null;
+            }
+        }
+
 
         Git git = Git.cloneRepository()
                 .setURI(repPath)

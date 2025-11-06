@@ -28,6 +28,8 @@ public class ScanSchemeRuleSet implements Serializable {
     @ApiProperty(name="language",desc="语言")
     private String language;
 
+    @ApiProperty(name="property",desc="性质 0:社区版、1:企业版")
+    private Integer property;
 
     @ApiProperty(name="scanRuleSet",desc="规则集")
     @Mappings({
@@ -104,5 +106,13 @@ public class ScanSchemeRuleSet implements Serializable {
 
     public void setRuleList(List<ScanRule> ruleList) {
         this.ruleList = ruleList;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public void setProperty(Integer property) {
+        this.property = property;
     }
 }

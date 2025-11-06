@@ -48,29 +48,29 @@ public class AcceptClientController {
     @RequestMapping(path="/acceptMessage",method = RequestMethod.POST)
     @ApiMethod(name = "acceptMessage",desc = "接收扫描信息")
     @ApiParam(name = "request",desc = "request",required = true)
-    public Result<String> acceptMessage(HttpServletRequest request, HttpServletResponse response){
+    public Result<List<ScanRecordLog>> acceptMessage(HttpServletRequest request, HttpServletResponse response){
 
-        String data = acceptClientService.acceptMessage(request);
-        return Result.ok(data);
+        List<ScanRecordLog> recordLogs = acceptClientService.acceptMessage(request);
+        return Result.ok(recordLogs);
     }
 
 
     @RequestMapping(path="/acceptScanResult",method = RequestMethod.POST)
     @ApiMethod(name = "acceptScanResult",desc = "接收扫描结果")
     @ApiParam(name = "request",desc = "request",required = true)
-    public Result<ScanRecord> acceptScanResult(HttpServletRequest request, HttpServletResponse response){
+    public Result<Void> acceptScanResult(HttpServletRequest request, HttpServletResponse response){
 
         codeScanService.acceptScanResult(request);
-        return Result.ok(null);
+        return Result.ok();
     }
 
     @RequestMapping(path="/acceptScanCode",method = RequestMethod.POST)
     @ApiMethod(name = "acceptScanCode",desc = "接收代码")
     @ApiParam(name = "file",desc = "file",required = true)
-    public Result<ScanRecord> acceptScanCode(@RequestParam("file") MultipartFile file){
+    public Result<Void> acceptScanCode(@RequestParam("file") MultipartFile file){
 
         acceptClientService.acceptScanCode(file);
-        return Result.ok(null);
+        return Result.ok();
     }
 
 }

@@ -11,18 +11,13 @@ import io.tiklab.privilege.role.service.RoleUserService;
 import io.tiklab.rpc.annotation.Exporter;
 import io.tiklab.sourcefare.common.FareMessageService;
 import io.tiklab.sourcefare.common.SourceFareUtil;
-import io.tiklab.sourcefare.common.SourceWairServerFinal;
+import io.tiklab.sourcefare.common.SourceFareServerFinal;
 import io.tiklab.sourcefare.project.dao.ProjectDao;
-import io.tiklab.sourcefare.project.dao.ProjectRepUploadDao;
 import io.tiklab.sourcefare.project.entity.ProjectEntity;
-import io.tiklab.sourcefare.project.entity.RecordOpenEntity;
 import io.tiklab.sourcefare.project.model.*;
-import io.tiklab.sourcefare.scan.model.DeployEnv;
 import io.tiklab.sourcefare.scan.model.ScanDoor;
 import io.tiklab.sourcefare.scan.model.ScanRecord;
-import io.tiklab.sourcefare.scan.service.IssueStatisticService;
-import io.tiklab.sourcefare.scan.service.ScanDoorService;
-import io.tiklab.sourcefare.scan.service.ScanRecordService;
+import io.tiklab.sourcefare.scan.service.*;
 import io.tiklab.sourcefare.server.model.RepositoryServer;
 import io.tiklab.toolkit.beans.BeanMapper;
 import io.tiklab.toolkit.join.JoinTemplate;
@@ -40,17 +35,15 @@ import org.springframework.util.ObjectUtils;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.tiklab.sourcefare.common.SourceWairServerFinal.PROJECT_DELETE;
-import static io.tiklab.sourcefare.common.SourceWairServerFinal.PROJECT_UPDATE;
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.PROJECT_DELETE;
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.PROJECT_UPDATE;
 
 /**
 * ProjectServiceImpl 项目
@@ -95,10 +88,8 @@ public class ProjectServiceImpl implements ProjectService {
     RecordOpenService recordOpenService;
 
     @Autowired
-    private DmUserService dmUserService;
+    DmUserService dmUserService;
 
-    @Autowired
-    ScanRecordService scanRecordService;
 
     @Autowired
     ScanDoorService scanDoorService;
@@ -108,6 +99,28 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
     IssueStatisticService issueStatisticService;
+
+    @Autowired
+    ScanRecordService scanRecordService;
+
+    @Autowired
+    RecordComplexityService complexityService;
+
+    @Autowired
+    RecordDuplicatedService duplicatedService;
+
+    @Autowired
+    RecordInstanceService instanceService;
+
+    @Autowired
+    RecordInstanceCondService instanceCondService;
+
+    @Autowired
+    ProjectCoverService projectCoverService;
+
+    @Autowired
+    ScanRecordLogService recordLogService;
+
 
     @Override
     public String createProject(@NotNull @Valid Project project) {
@@ -198,33 +211,47 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(@NotNull String id) {
         projectDao.deleteProject(id);
 
+        //删除项目的仓库信息
+        projectRepService.deleteProjectRepByRecord("projectId",id);
+
+        //删除项目上传代码信息
+        projectRepUploadService.deleteProjectRepUploadByRecord("projectId",id);
+
+        //删除项目的环境
+        projectEnvService.deleteProjectEnvByRecord("projectId",id);
+
+        //删除项目收藏信息
+        projectCollectService.deleteProjectCollectByRecord("projectId",id);
+
+        //删除打开记录
+        recordOpenService.deleteRecordOpenByRecord(id);
+
+        //删除问题
+        issueStatisticService.deleteIssueStatisticByCondition("projectId",id);
+
+        //删除扫描记录
+        scanRecordService.deleteScanRecordByCondition("projectId",id);
+
+        //删除复杂度
+        complexityService.deleteRecordComplexityByCondition("projectId",id);
+
+        //删除重复率
+        duplicatedService.deleteRecordDuplicatedByCondition("projectId",id);
+
+        //删除问题实例
+        instanceService.deleteScanRecordInstanceByCondition("projectId",id);
+
+        //删除问题实例
+        instanceCondService.deleteRecordInstanceCondByCondition("projectId",id);
+
+        //删除覆盖率
+        projectCoverService.deleteProjectCoverByCondition("projectId",id);
+
+
+        //删除日志
+        recordLogService.deleteScanRecordLogByCondition("projectId",id);
         Thread thread = new Thread() {
             public void run() {
-                //删除项目的仓库信息
-                projectRepService.deleteProjectRepByRecord("projectId",id);
-
-                //删除项目上传代码信息
-                projectRepUploadService.deleteProjectRepUploadByRecord("projectId",id);
-
-                //删除项目的环境
-                projectEnvService.deleteProjectEnvByRecord("projectId",id);
-
-                //删除项目收藏信息
-                projectCollectService.deleteProjectCollectByRecord("projectId",id);
-
-                //删除打开记录
-                recordOpenService.deleteRecordOpenByRecord(id);
-
-                //问题
-                issueStatisticService.deleteIssueStatisticByCondition("projectId",id);
-
-                List<ScanRecord> scanRecordList = scanRecordService.findScanRecordListByProjectId(id);
-                if (!CollectionUtils.isEmpty(scanRecordList)){
-                    for (ScanRecord scanRecord:scanRecordList){
-                        scanRecordService.deleteScanRecord(scanRecord.getId());
-                    }
-                }
-
                 //删除项目的代码
                 String projectPath = pathSetService.codePath()+"/"+id;
                 try {
@@ -300,32 +327,35 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<ProjectCollect> collectList = projectCollectService.findProjectCollectList(new ProjectCollectQuery().setUserId(projectQuery.getUserId()));
 
-        //查询项目的扫描记录
+        //查询项目的权限
         List<Project> dataList = projectPagination.getDataList();
         if (!CollectionUtils.isEmpty(dataList)){
-            List<String> ids = dataList.stream().map(Project::getId).collect(Collectors.toList());
-            Map<String, Set<String>> permissions = permissionService.findDomainListPermissions(projectQuery.getUserId(), ids);
 
+            //查询类型不为关联仓库
+            if (!("relevancyRepo").equals(projectQuery.getFindType())){
+                List<String> ids = dataList.stream().map(Project::getId).collect(Collectors.toList());
+                Map<String, Set<String>> permissions = permissionService.findDomainListPermissions(projectQuery.getUserId(), ids);
 
-            for (Project project:dataList){
-                String time = ObjectUtils.isEmpty(project.getScanTime()) ? null : SourceFareUtil.time(project.getScanTime(), "project") + "前";
-                project.setNewScanTime(time);
+                for (Project project:dataList){
+                    String time = ObjectUtils.isEmpty(project.getScanTime()) ? null : SourceFareUtil.time(project.getScanTime(), "project") + "前";
+                    project.setNewScanTime(time);
 
-                //查询项目收藏
-                List<ProjectCollect> projectCollects = collectList.stream().filter(a -> project.getId().equals(a.getProjectId()))
-                        .collect(Collectors.toList());
+                    //查询项目收藏
+                    List<ProjectCollect> projectCollects = collectList.stream().filter(a -> project.getId().equals(a.getProjectId()))
+                            .collect(Collectors.toList());
 
-                boolean collect = CollectionUtils.isEmpty(projectCollects) ? false : true;
-                project.setCollect(collect);
+                    boolean collect = CollectionUtils.isEmpty(projectCollects) ? false : true;
+                    project.setCollect(collect);
 
-                Set<String> stringSet = permissions.get(project.getId());
-                if (org.apache.commons.collections.CollectionUtils.isNotEmpty(stringSet)){
-                    List<String> deletes = stringSet.stream().filter(a -> PROJECT_DELETE.equals(a)).collect(Collectors.toList());
-                    List<String> updates = stringSet.stream().filter(a -> PROJECT_UPDATE.equals(a)).collect(Collectors.toList());
-                    boolean delete = org.apache.commons.collections.CollectionUtils.isNotEmpty(deletes) ? true : false;
-                    boolean update = org.apache.commons.collections.CollectionUtils.isNotEmpty(updates) ? true : false;
-                    project.setDelete(delete);
-                    project.setUpdate(update);
+                    Set<String> stringSet = permissions.get(project.getId());
+                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(stringSet)){
+                        List<String> deletes = stringSet.stream().filter(a -> PROJECT_DELETE.equals(a)).collect(Collectors.toList());
+                        List<String> updates = stringSet.stream().filter(a -> PROJECT_UPDATE.equals(a)).collect(Collectors.toList());
+                        boolean delete = org.apache.commons.collections.CollectionUtils.isNotEmpty(deletes) ? true : false;
+                        boolean update = org.apache.commons.collections.CollectionUtils.isNotEmpty(updates) ? true : false;
+                        project.setDelete(delete);
+                        project.setUpdate(update);
+                    }
                 }
             }
         }
@@ -482,10 +512,10 @@ public class ProjectServiceImpl implements ProjectService {
                 //map.put("repositoryPath",project.getAddress());
                 if (("create").equals(type)){
                     map.put("message", project.getName());
-                    map.put("link", SourceWairServerFinal.LOG_RPY_CREATE);
-                    map.put("qywxurl",SourceWairServerFinal.LOG_RPY_CREATE);
-                    fareMessageService.deployMessage(map, SourceWairServerFinal.LOG_TYPE_CREATE);
-                    fareMessageService.deployLog(map, SourceWairServerFinal.LOG_TYPE_CREATE,"project");
+                    map.put("link", SourceFareServerFinal.LOG_RPY_CREATE);
+                    map.put("qywxurl", SourceFareServerFinal.LOG_RPY_CREATE);
+                    fareMessageService.deployMessage(map, SourceFareServerFinal.LOG_TYPE_CREATE);
+                    fareMessageService.deployLog(map, SourceFareServerFinal.LOG_TYPE_CREATE,"project");
                 }
             }};
         thread.start();

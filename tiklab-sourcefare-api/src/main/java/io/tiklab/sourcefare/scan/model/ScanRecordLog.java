@@ -44,12 +44,18 @@ public class ScanRecordLog implements Serializable {
     @ApiProperty(name="sort",desc="排序")
     private Integer sort;
 
-    @ApiProperty(name="state",desc="状态 0失败、1成功")
+    @ApiProperty(name="state",desc="状态 0失败、1成功 2:未执行")
     private Integer state;
 
     @ApiProperty(name="execLog",desc="日志")
     private String execLog;
 
+    @ApiProperty(name="scanType",desc="扫描类型")
+    private String scanType;
+
+
+    //扫描时间搓
+    private Long timestamp;
 
     public String getId() {
         return id;
@@ -121,5 +127,21 @@ public class ScanRecordLog implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getScanType() {
+        return scanType;
+    }
+
+    public void setScanType(String scanType) {
+        this.scanType = scanType;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }

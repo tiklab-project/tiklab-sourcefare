@@ -21,6 +21,8 @@ public class ScanSchemeRuleQuery {
 
     private String schemeRulesetId;
 
+    private Integer property;
+
     public List<Order> getOrderParams() {
         return orderParams;
     }
@@ -52,6 +54,15 @@ public class ScanSchemeRuleQuery {
 
     public ScanSchemeRuleQuery setSchemeRulesetId(String schemeRulesetId) {
         this.schemeRulesetId = schemeRulesetId;
+        return this;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public ScanSchemeRuleQuery setProperty(Integer property) {
+        this.property = property;
         return this;
     }
 }

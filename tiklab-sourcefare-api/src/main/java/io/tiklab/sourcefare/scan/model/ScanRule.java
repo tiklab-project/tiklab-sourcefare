@@ -36,6 +36,9 @@ public class ScanRule implements Serializable {
     @ApiProperty(name="problemLevel",desc="规则等级 严重：1，错误：2，警告：3，建议：4")
     private Integer problemLevel;
 
+    @ApiProperty(name="property",desc="性质 0:社区版、1:企业版")
+    private Integer property;
+
     @ApiProperty(name="description",desc="规则描述")
     private String description;
 
@@ -114,5 +117,13 @@ public class ScanRule implements Serializable {
 
     public void setRuleType(String ruleType) {
         this.ruleType = ruleType;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public void setProperty(Integer property) {
+        this.property = property;
     }
 }

@@ -18,6 +18,15 @@ public class RepositoryServerQuery {
     @ApiProperty(name ="userId",desc = "用户id")
     private String  userId;
 
+    @ApiProperty(name ="repServerId",desc = "仓库服务id")
+    private String  repServerId;
+
+
+    @ApiProperty(name ="repo",desc = "repo")
+    private String  repo;
+
+    @ApiProperty(name ="owner",desc = "组")
+    private String  owner;
 
     public Page getPageParam() {
         return pageParam;
@@ -41,5 +50,29 @@ public class RepositoryServerQuery {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getRepServerId() {
+        return repServerId;
+    }
+
+    public void setRepServerId(String repServerId) {
+        this.repServerId = repServerId;
+    }
+
+    public String getRepo() {
+        return repo;
+    }
+
+    public void setRepo(String repo) {
+        this.repo = repo;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

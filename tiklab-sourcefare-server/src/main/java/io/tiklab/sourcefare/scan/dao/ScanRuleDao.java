@@ -40,7 +40,7 @@ public class ScanRuleDao {
 
     public void addList(List<ScanRule> rules) {
 
-        String insertSQL = "INSERT INTO wair_scan_rule (id, rule_set_id, rule_name, rule_type, scan_tool, rule_overview, problem_level, create_time, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String insertSQL = "INSERT INTO wair_scan_rule (id, rule_set_id, rule_name, rule_type, scan_tool, rule_overview, problem_level, create_time, description,property) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
         jpaTemplate.getJdbcTemplate().batchUpdate(insertSQL, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(java.sql.PreparedStatement ps, int i) throws SQLException {
@@ -54,6 +54,7 @@ public class ScanRuleDao {
                 ps.setInt(7, scanRule.getProblemLevel());
                 ps.setTimestamp(8, scanRule.getCreateTime());
                 ps.setString(9, scanRule.getDescription());
+                ps.setInt(10,scanRule.getProperty());
             }
 
             @Override
@@ -121,6 +122,7 @@ public class ScanRuleDao {
     public List<ScanRuleEntity> findScanRuleList(ScanRuleQuery scanRuleQuery) {
         QueryCondition queryCondition = QueryBuilders.createQuery(ScanRuleEntity.class)
                 .eq("ruleSetId",scanRuleQuery.getRuleSetId())
+                .eq("ruleType",scanRuleQuery.getRuleType())
                 .orders(scanRuleQuery.getOrderParams())
                 .get();
         return jpaTemplate.findList(queryCondition, ScanRuleEntity.class);
@@ -136,6 +138,7 @@ public class ScanRuleDao {
                 .eq("ruleSetId", scanRuleQuery.getRuleSetId())
                 .eq("problemLevel",scanRuleQuery.getProblemLevel())
                 .eq("scanTool",scanRuleQuery.getScanTool())
+                .eq("ruleType",scanRuleQuery.getRuleType())
                 .like("ruleName",scanRuleQuery.getRuleName())
                 .orders(scanRuleQuery.getOrderParams())
                 .pagination(scanRuleQuery.getPageParam())

@@ -3,19 +3,21 @@ package io.tiklab.sourcefare.common;
 import com.alibaba.fastjson.JSONObject;
 import io.tiklab.core.exception.ApplicationException;
 import io.tiklab.sourcefare.scan.model.DeployEnv;
+import io.tiklab.sourcefare.scan.model.ScanRecordLog;
 import io.tiklab.sourcefare.scanner.common.ProjectUtil;
 import io.tiklab.sourcefare.scanner.common.SourceFareFinal;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import io.tiklab.sourcefare.server.model.RepositoryServer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
-import org.springframework.util.ObjectUtils;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +25,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static io.tiklab.sourcefare.common.SourceWairServerFinal.*;
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.*;
+import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.LOG_COMPILE;
 
 public class SourceFareUtil {
 
@@ -289,45 +292,7 @@ public class SourceFareUtil {
         return responseBody;
     }
 
-    /**
-     * 解压zip文件夹
-     * @param zipFilePath 解压路径
-     * @param destDirectory 压缩包文件路径
-     */
 
-   /* public static void decompressionZip(String zipFilePath,String destDirectory) throws IOException {
-
-        File destDir = new File(destDirectory);
-        if (!destDir.exists()) {
-            destDir.mkdirs();
-        }
-
-        try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(
-                new BufferedInputStream(new FileInputStream(zipFilePath)), "UTF-8")) { // 指定编码解决中文问题
-
-            ZipArchiveEntry entry;
-            while ((entry = zipIn.getNextZipEntry()) != null) {
-                String entryName = entry.getName();
-                String filePath = destDirectory + File.separator + entryName;
-
-                if (entry.isDirectory()) {
-                    // 创建目录
-                    new File(filePath).mkdirs();
-                } else {
-                    // 确保父目录存在
-                    File parent = new File(filePath).getParentFile();
-                    if (parent != null && !parent.exists()) {
-                        parent.mkdirs();
-                    }
-
-                    // 提取文件
-                    try (OutputStream out = Files.newOutputStream(Paths.get(filePath))) {
-                        IOUtils.copy(zipIn, out);
-                    }
-                }
-            }
-        }
-    }*/
 
     /**
      * 解压zip文件夹
@@ -349,46 +314,53 @@ public class SourceFareUtil {
         String zipName = StringUtils.substringAfterLast(inputFilePath, "/");
         String fileName = StringUtils.substringBeforeLast(zipName, ".zip");
 
+        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(inputFilePath))) {
 
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
 
-        // 创建zip文件输入流
-        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(inputFilePath));
+            while (zipEntry != null) {
+                String entryName = zipEntry.getName();
 
-        // 获取zip文件中的每个entry
-        ZipEntry zipEntry = zipInputStream.getNextEntry();
-
-        while (zipEntry != null) {
-            String entryName = zipEntry.getName();
-            // 跳过与ZIP文件同名的顶级目录
-            if (entryName.startsWith(fileName + "/") || entryName.startsWith(fileName + "\\")) {
-                entryName = entryName.substring(fileName.length() + 1);
-            }
-            // 构建目标文件路径
-            File extractedFile = new File(targetFolder, entryName);
-
-            // 如果entry是一个文件，则解压缩
-            if (!zipEntry.isDirectory()) {
-                // 创建目标文件的父目录（如果不存在）
-                if (!extractedFile.getParentFile().exists()) {
-                    extractedFile.getParentFile().mkdirs();
+                // 跳过与ZIP文件同名的顶级目录
+                if (entryName.startsWith(fileName + "/") || entryName.startsWith(fileName + "\\")) {
+                    entryName = entryName.substring(fileName.length() + 1);
                 }
 
-                // 创建输出流，将entry解压到目标文件
-                FileOutputStream outputStream = new FileOutputStream(extractedFile);
-                int length;
-                while ((length = zipInputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-                outputStream.close();
-            }
+                // 构建目标文件路径
+                File extractedFile = new File(targetFolder, entryName);
 
-            // 关闭当前entry，继续获取下一个entry
-            zipInputStream.closeEntry();
-            zipEntry = zipInputStream.getNextEntry();
+                // 如果entry是一个文件，则解压缩
+                if (!zipEntry.isDirectory()) {
+                    // 创建目标文件的父目录（如果不存在）
+                    if (!extractedFile.getParentFile().exists()) {
+                        extractedFile.getParentFile().mkdirs();
+                    }
+
+                    try (FileOutputStream outputStream = new FileOutputStream(extractedFile)) {
+                        int length;
+                        while ((length = zipInputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+                    } catch (java.util.zip.ZipException e) {
+                        if (e.getMessage().contains("EXT descriptor")) {
+                            System.err.println("跳过有EXT描述符问题的条目: " + entryName);
+                            // 可以选择记录日志或采取其他措施
+                            zipInputStream.closeEntry();
+                            zipEntry = zipInputStream.getNextEntry();
+                            continue; // 跳过这个条目
+                        } else {
+                            throw e; // 重新抛出其他异常
+                        }
+                    }
+                }
+
+                // 关闭当前entry，继续获取下一个entry
+                zipInputStream.closeEntry();
+                zipEntry = zipInputStream.getNextEntry();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        // 关闭zip文件输入流
-        zipInputStream.close();
     }
 
 
@@ -519,6 +491,84 @@ public class SourceFareUtil {
             }
         }
         return address;
+    }
+
+
+    /**
+     *  getRestTemplate 通过RestTemplate 查询
+     * @param path 查询路径
+     */
+    public static ResponseEntity<List>  getRestTemplate(String path){
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().set(1,new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        ResponseEntity<List> response = restTemplate.getForEntity(path, List.class);
+        return response;
+    }
+
+
+    public static ResponseEntity<JSONObject>  restTemplateGitPuk(RepositoryServer server,String findPath){
+        Map<String, String> hashMap = new HashMap<>();
+        hashMap.put("accessToken", SourceFareServerFinal.ACCESS_TOKEN);
+
+        // 创建请求头对象
+        HttpHeaders headers = SourceFareUtil.initHeaders(MediaType.APPLICATION_JSON, hashMap);
+
+        // 请求体参数
+        MultiValueMap<String, Object> valueMap = new LinkedMultiValueMap<>();
+        valueMap.add("account",server.getAccount());
+        valueMap.add("password",server.getPassWord());
+        valueMap.add("repName",server.getRepName());
+
+
+        // 创建 HttpEntity 包含请求体和请求头
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(valueMap, headers);
+
+        //设置连接超时时间
+        ClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        ((SimpleClientHttpRequestFactory) factory).setConnectTimeout(10000);
+        RestTemplate restTemplate = new RestTemplate(factory);
+
+        ResponseEntity<JSONObject> response = restTemplate.exchange(findPath, HttpMethod.POST, requestEntity, JSONObject.class);
+       return response;
+    }
+
+    public static void addLogOrder(ScanRecordLog recordLog, String type){
+        switch (type){
+            case LOG_COMPILE -> {
+                recordLog.setSort(1);
+                recordLog.setTitle("项目构建");
+            }
+            case SourceFareFinal.SCAN -> {
+                recordLog.setSort(2);
+                recordLog.setTitle("问题扫描");
+            }
+            case SourceFareFinal.DUPLICATED -> {
+                recordLog.setSort(3);
+                recordLog.setTitle("重复度扫描");
+            }
+            case SourceFareFinal.COMPLEXITY -> {
+                recordLog.setSort(4);
+                recordLog.setTitle("复杂度扫描");
+            }
+            case SourceFareFinal.COVER -> {
+                recordLog.setSort(5);
+                recordLog.setTitle("覆盖率扫描");
+            }
+        }
+    }
+
+    public static String getCommandPath(String cmd) {
+        String[] whichCmd = System.getProperty("os.name").toLowerCase().contains("win")
+                ? new String[]{"where", cmd}
+                : new String[]{"which", cmd};
+        try {
+            Process p = new ProcessBuilder(whichCmd).start();
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                String line = r.readLine();
+                return (line != null && !line.isEmpty()) ? line.trim() : null;
+            }
+        } catch (IOException ignored) {}
+        return null;
     }
 
 }

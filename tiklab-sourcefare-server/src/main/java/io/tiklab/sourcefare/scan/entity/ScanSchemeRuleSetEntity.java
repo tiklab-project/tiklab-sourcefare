@@ -18,6 +18,9 @@ public class ScanSchemeRuleSetEntity {
     @Column(name = "rule_set_id",notNull = true)
     private String ruleSetId;
 
+    @Column(name = "property",notNull = true)
+    private Integer property;
+
     @Column(name = "language",notNull = true)
     private String language;
 
@@ -63,5 +66,13 @@ public class ScanSchemeRuleSetEntity {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public void setProperty(Integer property) {
+        this.property = property;
     }
 }

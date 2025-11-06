@@ -3,10 +3,12 @@ package io.tiklab.sourcefare.scan.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tiklab.core.exception.ApplicationException;
 import io.tiklab.core.exception.SystemException;
+import io.tiklab.licence.licence.model.Version;
+import io.tiklab.licence.licence.service.VersionService;
 import io.tiklab.rpc.annotation.Exporter;
 import io.tiklab.sourcefare.common.GitUntil;
 import io.tiklab.sourcefare.common.SourceFareUtil;
-import io.tiklab.sourcefare.common.SourceWairServerFinal;
+import io.tiklab.sourcefare.common.SourceFareServerFinal;
 import io.tiklab.sourcefare.project.model.*;
 import io.tiklab.sourcefare.project.service.*;
 import io.tiklab.sourcefare.scan.model.*;
@@ -18,9 +20,7 @@ import io.tiklab.sourcefare.scanner.common.SourceFareFinal;
 import io.tiklab.sourcefare.scanner.model.*;
 
 import io.tiklab.sourcefare.scanner.model.ScanResult;
-import io.tiklab.sourcefare.scanner.model.ScanResultFile;
 import io.tiklab.sourcefare.scanner.scan.*;
-import io.tiklab.toolkit.context.AppContext;
 import io.tiklab.toolkit.join.JoinTemplate;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -36,16 +36,16 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.*;
 import static io.tiklab.sourcefare.scanner.common.ScanCommon.getStarTime;
-import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.LOG_COMPILE;
-import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.LOG_SCAN;
+import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.*;
 
 @Service
 @Exporter
@@ -54,6 +54,9 @@ public class CodeScanServiceImpl implements CodeScanService {
 
     @Autowired
     DeployEnvService deployEnvService;
+
+    @Autowired
+    VersionService versionService;
 
 
     @Autowired
@@ -66,7 +69,7 @@ public class CodeScanServiceImpl implements CodeScanService {
     ScanRecordService recordService;
 
     @Autowired
-    ScanRecordLogService recordLogService;
+    ScanRecordLogService logService;
 
     @Autowired
     RecordInstanceService recordInstanceService;
@@ -112,7 +115,9 @@ public class CodeScanServiceImpl implements CodeScanService {
 
     public static Map<String , String> codeScanState = new HashMap<>();
 
-
+    public void removeScanState(String id){
+        codeScanState.remove(id);
+    }
 
     @Override
     public ScanRecord codeScanExec(String projectId) {
@@ -120,7 +125,7 @@ public class CodeScanServiceImpl implements CodeScanService {
         //判断项目的扫描任务是否正在执行
         String execRecord = codeScanState.get(projectId);
         if (!ObjectUtils.isEmpty(execRecord)){
-            throw new SystemException(SourceWairServerFinal.SYSTEM_EXCEPTION,"该项目扫描正在执行中");
+            throw new SystemException(SourceFareServerFinal.SYSTEM_EXCEPTION,"该项目扫描正在执行中");
         }else {
             //添加执行状态，并移除上一次扫描的日志
             codeScanState.put(projectId,"run");
@@ -134,54 +139,71 @@ public class CodeScanServiceImpl implements CodeScanService {
         //查询项目的环境
         List<ProjectEnv> projectEnvList = projectEnvService.findProjectEnvList(new ProjectEnvQuery().setProjectId(projectId));
 
-
         //扫描计划中的扫描方案
         ScanScheme scanScheme = project.getScanScheme();
-
-        //添加扫描开始时间和第一阶段任务的开始时间 （服务端添加）
-        ScanCommon.putStarTime(projectId,new Date(System.currentTimeMillis()));
-        ScanCommon.putExecStarTime(projectId,new Date(System.currentTimeMillis()));
-        ScanCommon.joinScanLogs(projectId,LOG_COMPILE,"[sourceFare] Start the server-side scan："+project.getName());
-
 
         //查询出规则集
         List<ScanSchemeRuleSet> schemeRuleList = scanSchemeRuleSetService.findScanSchemeRuleSetList(new ScanSchemeRuleSetQuery().setScanSchemeId(scanScheme.getId()));
         if (CollectionUtils.isEmpty(schemeRuleList)){
             codeScanState.remove(projectId);
-            throw new SystemException(SourceWairServerFinal.NOT_FOUNT_EXCEPTION,"关联的方案中没有添加规则");
+            throw new SystemException(SourceFareServerFinal.NOT_FOUNT_EXCEPTION,"关联的方案中没有添加规则");
         }
-        if (("client").equals(project.getScanWay())){
+        if ((CLIENT).equals(project.getScanWay())){
             codeScanState.remove(projectId);
             throw new SystemException("扫描方式client错误");
         }
-        //初始化扫描记录
+
+        if ((SERVER_UPLOAD).equals(project.getScanWay())){
+            ProjectRepUpload projectRepUpload = repUploadService.findProjectRepUploadByRepId(projectId);
+            if (ObjectUtils.isEmpty(projectRepUpload)){
+                throw new SystemException("code not found");
+            }
+           String clonePath = pathSetService.codePath() + "/" + projectId;
+            if (!new File(clonePath).exists()){
+                throw new SystemException("code not found");
+            }
+        }
+
+
+        //初始化扫描记录、日志
         ScanRecord scanRecord = CodeScanCommon.initScanRecord(recordService,project.getId(),"server");
+        List<ScanRecordLog> recordLog = logService.createRecordLog(project, scanRecord.getId());
+        ObjectMapper mapper = new ObjectMapper();
+        List<ScanLog> logs = recordLog.stream()
+                .map(map -> mapper.convertValue(map, ScanLog.class))
+                .collect(Collectors.toList());
+
+        //添加开始时间、日志到内存中
+        ScanCommon.putStarTime(projectId,new Date());
+        String lowerCase = scanScheme.getLanguage().toLowerCase();
+        ScanCommon.initScanLogs(logs,lowerCase);
+        ScanCommon.joinScanLogs(projectId,LOG_COMPILE,2,"[sourceFare] start the server-side scan："+project.getName());
 
 
         ExecutorService executorService = Executors.newCachedThreadPool();
         executorService.submit(new Runnable() {
             @Override
             public void run() {
+                //初始化扫描结果
+                ScanResult scanResult = new ScanResult();
+                scanResult.setScanObjectId(projectId);
 
                 String repositoryName=null;
                 try {
                     String clonePath=null;
 
                     //在服务端执行扫描
-                    if (("server").equals(project.getScanWay())){
-
+                    if ((SERVER).equals(project.getScanWay())){
 
                         List<ProjectRep> repositoryRepList = projectRepService.findProjectRepList(new ProjectRepQuery().setProjectId(projectId));
                         ProjectRep projectRep = repositoryRepList.get(0);
                         repositoryName = projectRep.getRepositoryName();
 
-
                         //clone代码
-                        clonePath = cloneCode(projectRep);
+                        clonePath = cloneCode(scanResult,projectRep);
                     }
-
                     //在服务端upload扫描
-                    if (("serverUpload").equals(project.getScanWay())){
+                    if ((SERVER_UPLOAD).equals(project.getScanWay())){
                         clonePath = pathSetService.codePath() + "/" + projectId;
                         ProjectRepUpload projectRepUpload = repUploadService.findProjectRepUploadByRepId(projectId);
                         repositoryName=projectRepUpload.getCodeName();
@@ -197,21 +219,18 @@ public class CodeScanServiceImpl implements CodeScanService {
                     scanData.setCover(cover);
                     scanData.setComplexity(complexity);
                     scanData.setScanType("server");
-                    ScanResult scanResult=null;
+
 
                     //查询问题扫描的环境
                     List<ProjectEnv> projectEnvs = projectEnvList.stream().filter(a -> ("exec").equals(a.getType())).collect(Collectors.toList());
 
 
-
-                    String lowerCase = scanScheme.getLanguage().toLowerCase();
                     if ((SourceFareFinal.JAVA).equals(lowerCase)){
                         //执行环境
                         List<ProjectEnv> execDev = projectEnvList.stream().filter(a -> ("maven").equals(a.getDeployEnv().getEnvType())).collect(Collectors.toList());
                         if (ObjectUtils.isEmpty(execDev)) {
-                            throw new ApplicationException("没有maven环境，请在设置扫描配置里面配置maven环境");
+                            throw new ApplicationException("没有maven环境，请在配置maven环境");
                         }
-
 
                         scanData.setEnvPath(execDev.get(0).getDeployEnv().getEnvAddress());
 
@@ -220,8 +239,7 @@ public class CodeScanServiceImpl implements CodeScanService {
                             //覆盖测试需要jdk环境
                             List<ProjectEnv> jdkEnv = projectEnvList.stream().filter(a -> ("jdk").equals(a.getDeployEnv().getEnvType())).collect(Collectors.toList());
                             if (ObjectUtils.isEmpty(jdkEnv)) {
-                                ScanCommon.joinScanLog(projectId,"覆盖测试需要JDK，请在设置扫描配置里面配置JDK");
-                                throw new ApplicationException("覆盖测试需要JDK，请在设置扫描配置里面配置JDK");
+                                throw new ApplicationException("The coverage test requires JDK. Please configure the JDK");
                             }
                             scanData.setJdkPath(jdkEnv.get(0).getDeployEnv().getEnvAddress());
                         }
@@ -240,15 +258,7 @@ public class CodeScanServiceImpl implements CodeScanService {
                     if ((SourceFareFinal.JAVA_SCRIPT).equals(lowerCase)){
                         List<ProjectEnv> execDev = projectEnvList.stream().filter(a -> ("node").equals(a.getDeployEnv().getEnvType())).collect(Collectors.toList());
                         if (ObjectUtils.isEmpty(execDev)) {
-                            //即没有关联的node也没有全局的node
-                            ScanCommon.joinScanLog(projectId, "Node.js未正确安装");
-
-                            //更新失败扫描记录
-                            updateFailScanRecord(scanRecord);
-
-                            project.setScanResult("fail");
-                            projectService.updateProject(project);
-                            throw new ApplicationException("没有配置Node.js地址，也没有全局的Node.js环境");
+                            throw new ApplicationException("没有配置Node.js地址");
                         }
                         scanData.setEnvPath(execDev.get(0).getDeployEnv().getEnvAddress());
                         scanData.setLanguage("javascript");
@@ -278,6 +288,31 @@ public class CodeScanServiceImpl implements CodeScanService {
 
                     //c# 语言扫描
                     if ((SourceFareFinal.CC).equals(lowerCase)){
+                        String buildPath = project.getBuildPath();
+                        if (StringUtils.isNotBlank(buildPath)){
+
+                            String path;
+                            int systemType = ProjectUtil.findSystemType();
+                            if (systemType==1){
+                                String typeAddress = ProjectUtil.SystemTypeAddress(buildPath);
+                                String after = StringUtils.substringAfter(typeAddress, "\\");
+                                path=clonePath+"\\"+after;
+                            }else {
+                                String after = StringUtils.substringAfter(buildPath, "/");
+                                path=clonePath+"/"+after;
+                            }
+
+                           logger.info("build path:"+path);
+                            scanData.setBuildPath(path);
+                        }
+
+                        //执行环境
+                        List<ProjectEnv> execDev = projectEnvList.stream().filter(a -> ("net").equals(a.getDeployEnv().getEnvType())).collect(Collectors.toList());
+                        if (ObjectUtils.isEmpty(execDev)) {
+                            throw new ApplicationException("没有net环境，请在配置net环境");
+                        }
+                        scanData.setEnvPath(execDev.get(0).getDeployEnv().getEnvAddress());
+
                         scanData.setLanguage(SourceFareFinal.CC);
 
                         scanResult = CodeScanNet.instance().execScan(scanData);
@@ -297,13 +332,14 @@ public class CodeScanServiceImpl implements CodeScanService {
 
                     //扫描完成后添加数据
                     scanCompleteAddData(project,scanResult,scanRecord,scanScheme.getId());
-                    
                 }catch (Exception e){
                     e.printStackTrace();
-                    ScanCommon.joinScanLog(projectId,"扫描失败："+e.getMessage());
-
+                    ScanCommon.joinScanLogs(projectId, LOG_COMPILE,0,"[sourceFare] scan code fail"+e.getMessage());
+                    scanResult.setIssueResult(EXEC_FAIL);
+                    ScanResult scanResult1 = ScanCommon.initScanResult(scanResult);
                     //更新失败扫描记录
-                    updateFailScanRecord(scanRecord);
+                    updateFailScanRecord(scanRecord,scanResult1);
+
                     project.setScanResult("fail");
                     projectService.updateProject(project);
                 }finally {
@@ -316,22 +352,36 @@ public class CodeScanServiceImpl implements CodeScanService {
     @Override
     public void acceptScanResult(HttpServletRequest request) {
         logger.info("接收到客户端提交的扫描结果");
+        ScanRecord scanRecord=null;
+        ScanResult scanResult=null;
+        Project project=null;
         try {
             ServletInputStream inputStream = request.getInputStream();
             ObjectMapper mapper = new ObjectMapper();
-            ScanResult scanResult = mapper.readValue(inputStream, ScanResult.class);// 转换为对象
+             scanResult = mapper.readValue(inputStream, ScanResult.class);// 转换为对象
 
             String objectId = scanResult.getScanObjectId();
-            Project project = projectService.findOne(objectId);
+             project = projectService.findOne(objectId);
             ScanScheme scanScheme = project.getScanScheme();
 
             //获取初始化的扫描记录
-            ScanRecord scanRecord = recordService.findScanRecord(scanResult.getScanRecordId());
+             scanRecord = recordService.findScanRecord(scanResult.getScanRecordId());
 
 
             scanCompleteAddData(project,scanResult,scanRecord,scanScheme.getId());
 
         }catch (IOException e) {
+            if (!ObjectUtils.isEmpty(scanResult)){
+                String scanObjectId = scanResult.getScanObjectId();
+                ScanCommon.joinScanLogs(scanObjectId, LOG_COMPILE,0,"[sourceFare] scan code fail"+e.getMessage());
+                scanResult.setIssueResult(EXEC_FAIL);
+                ScanResult scanResult1 = ScanCommon.initScanResult(scanResult);
+
+                //更新失败扫描记录
+                updateFailScanRecord(scanRecord,scanResult1);
+                project.setScanResult("fail");
+                projectService.updateProject(project);
+            }
             throw new RuntimeException(e);
         }
     }
@@ -341,18 +391,35 @@ public class CodeScanServiceImpl implements CodeScanService {
         Map<String, Object> hashMap = new HashMap<>();
         List<ScanLog> scanLogs = ScanCommon.getScanLogs(projectId);
         String s = codeScanState.get(projectId);
-        hashMap.put("scanResult","run");
+        hashMap.put("issueResult","run");
         if (StringUtils.isBlank(s)){
             hashMap.put("state","end");
             ScanRecord scanRecord = recordService.findOne(recordId);
-            hashMap.put("scanResult",scanRecord.getScanResult());
+            hashMap.put("issueResult",scanRecord.getIssueResult());
+            hashMap.put("comResult",scanRecord.getComResult());
+            hashMap.put("dupResult",scanRecord.getDupResult());
+            hashMap.put("coverResult",scanRecord.getCoverResult());
         }
         Date starTime = getStarTime(projectId);
         if (ObjectUtils.isEmpty(starTime)){
             starTime= new Date(System.currentTimeMillis());
         }
 
-        String time = ProjectUtil.time(getStarTime(projectId),"scan");
+        long allTimeStamp=0L;
+        List<ScanLog> logList = scanLogs.stream().filter(a -> a.getState() == 1||a.getState() ==0).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(logList)){
+             allTimeStamp = logList.stream().mapToLong(ScanLog::getTimestamp).sum();
+        }
+
+        List<ScanLog> logRunList = scanLogs.stream().filter(a -> a.getState() == 2).collect(Collectors.toList());
+        for (ScanLog scanLog:logRunList){
+            long timestamp = new Date().getTime()-scanLog.getStartTime().getTime();
+            long l = timestamp <1000 ? 1000 : timestamp;
+            allTimeStamp+=l;
+            scanLog.setTime(ProjectUtil.timestamp(l,"scan"));
+        }
+
+        String time = ProjectUtil.timestamp(allTimeStamp,"scan");
         hashMap.put("createTime",getStarTime(projectId));
         hashMap.put("scanTime",time);
         hashMap.put("Logs",scanLogs);
@@ -377,83 +444,103 @@ public class CodeScanServiceImpl implements CodeScanService {
             if (!ObjectUtils.isEmpty(scanResult)){
                 scanResult.setScanRecordId(scanRecord.getId());
 
-                //扫描结果
-                String result=scanResult.getResult();
-                if (("success").equals(scanResult.getResult())){
+                //问题扫描结果
+                String issueResult = scanResult.getIssueResult();
+                if ((SUCCESS).equals(issueResult)){
 
-                    //查询扫描方案关联的扫描规则
-                    List<ScanSchemeRule> schemeRuleList = schemeRuleService.findScanSchemeRuleList(new ScanSchemeRuleQuery().setScanSchemeId(scanSchemeId));
+                    //根据当前是否订阅。  查询扫描方案关联的扫描规则
+                    Version version = versionService.getVersion();
+                    List<ScanSchemeRule> schemeRuleList;
+                    if (version.getRelease()==1){
+
+                       schemeRuleList = schemeRuleService.findScanSchemeRuleList(new ScanSchemeRuleQuery()
+                                .setScanSchemeId(scanSchemeId).setProperty(0));
+
+                    }else {
+                        schemeRuleList = schemeRuleService.findScanSchemeRuleList(new ScanSchemeRuleQuery()
+                                .setScanSchemeId(scanSchemeId));
+                    }
                     List<ScanSchemeRule> scanSchemeRules = schemeRuleList.stream().filter(a -> a.getIsDisable() == 0).collect(Collectors.toList());
 
-
                     //创建扫描问题的实例
-                    CodeScanCommon.createRecordInstance(scanSchemeRules,recordInstanceService,scanRecord,scanResult);
+                    List<RecordInstance> recordInstance = CodeScanCommon.createRecordInstance(scanSchemeRules, recordInstanceService, scanRecord, scanResult);
+
+                    if (CollectionUtils.isNotEmpty(recordInstance)){
+                        //项目扫描门禁
+                        ScanDoor scanDoor = scanDoorService.findScanDoorByProjectId(project.getId());
+                        if (scanDoor.getSeverityState()==1&&scanDoor.getSeverityNum()<scanRecord.getSeverityTrouble()){
+                            issueResult="fail";
+                        }
+                        if (scanDoor.getNoticeState()==1&&scanDoor.getNoticeNum()<scanRecord.getNoticeTrouble()){
+                            issueResult="fail";
+                        }
+                        if (scanDoor.getErrorState()==1&&scanDoor.getErrorNum()<scanRecord.getErrorTrouble()){
+                            issueResult="fail";
+                        }
+                        if (scanDoor.getSuggestState()==1&&scanDoor.getSuggestNum()<scanRecord.getSuggestTrouble()){
+                            issueResult="fail";
+                        }
 
 
-                    //项目扫描门禁
-                    ScanDoor scanDoor = scanDoorService.findScanDoorByProjectId(project.getId());
-                    if (scanDoor.getSeverityState()==1&&scanDoor.getSeverityNum()<scanRecord.getSeverityTrouble()){
-                        result="fail";
+                        Thread thread = new Thread() {
+                            public void run() {
+                                //创建问题统计
+                                CodeScanCommon.createIssueStatistic(issueStatisticService,scanSchemeRules,recordInstance);
+                            }};
+                        thread.start();
                     }
-                    if (scanDoor.getNoticeState()==1&&scanDoor.getNoticeNum()<scanRecord.getNoticeTrouble()){
-                        result="fail";
-                    }
-                    if (scanDoor.getErrorState()==1&&scanDoor.getErrorNum()<scanRecord.getErrorTrouble()){
-                        result="fail";
-                    }
-                    if (scanDoor.getSuggestState()==1&&scanDoor.getSuggestNum()<scanRecord.getSuggestTrouble()){
-                        result="fail";
-                    }
+                }
 
-
-                    //创建覆盖率
-                    this.createCover(scanResult);
-
-                    //创建重复数据
-                    CodeScanCommon.createProjectDuplicated(recordDuplicatedService,scanResult);
-
-                    //创建复杂度
+                //复杂度
+                String comResult = scanResult.getComResult();
+                if ((SUCCESS).equals(comResult)){
                     CodeScanCommon.createProjectComplexity(recordComplexityService,scanResult);
+                }
 
-                    Thread thread = new Thread() {
-                        public void run() {
-                            //创建问题统计
-                            CodeScanCommon.createIssueStatistic(issueStatisticService,scanSchemeRules,scanResult);
-                        }};
-                    thread.start();
+                //重复度
+                String dupResult = scanResult.getDupResult();
+                if ((SUCCESS).equals(dupResult)){
+                    CodeScanCommon.createProjectDuplicated(recordDuplicatedService,scanResult);
+                }
+
+                //覆盖率
+                String coverResult = scanResult.getCoverResult();
+                if ((SUCCESS).equals(coverResult)){
+                    this.createCover(scanResult);
                 }
 
 
 
                 //扫描时间
-                String time;
-                if (("client").equals(scanResult.getScanWay())){
-                    time = ("0秒").equals(scanResult.getScanTime()) ? "1秒" : scanResult.getScanTime();
-                    //创建扫描日志
-                    this.createClientRecordLog(scanResult);
+                this.updateRecordLog(scanResult);
+                long sum =  scanResult.getLogs().stream().filter(a->a.getState()!=3).mapToLong(ScanLog::getTimestamp).sum();
+                String time = ProjectUtil.timestamp(sum, "scan");
 
-                }else {
-                    time = SourceFareUtil.time(ScanCommon.getStarTime(project.getId()),"scan");
-                    //创建扫描日志
-                    this.createRecordLog(scanRecord);
-                }
 
                 //更新扫描记录
+                scanRecord.setIssueResult(issueResult);
+                scanRecord.setDupResult(dupResult);
+                scanRecord.setComResult(comResult);
+                scanRecord.setCoverResult(coverResult);
                 scanRecord.setScanTime(time);
-                scanRecord.setScanResult(result);
                 recordService.updateScanRecord(scanRecord);
 
 
                 //更新扫描项目最近扫描状态
+                if (EXEC_FAIL.equals(dupResult)||EXEC_FAIL.equals(comResult)||
+                        EXEC_FAIL.equals(coverResult)|| EXEC_FAIL.equals(issueResult)){
+                    project.setScanResult(EXEC_FAIL);
+                }else {
+                    project.setScanResult(SUCCESS);
+                }
                 project.setScanTime(new Timestamp(System.currentTimeMillis()));
-                project.setScanResult(result);
                 projectService.updateProject(project);
             }
         }catch (Exception e){
             e.printStackTrace();
             logger.error("扫描结束，创建扫描结果失败："+e.getMessage());
             //更新失败扫描记录
-            updateFailScanRecord(scanRecord);
+            updateFailScanRecord(scanRecord,scanResult);
         }
     }
 
@@ -464,13 +551,13 @@ public class CodeScanServiceImpl implements CodeScanService {
      *  clone代码
      * @param  projectRep projectRep
      */
-    public String cloneCode(ProjectRep projectRep)  {
+    public String cloneCode(ScanResult scanResult,ProjectRep projectRep)  {
         String projectId = projectRep.getProjectId();
 
         String backupsPath = pathSetService.codePath() + "/" + projectRep.getRepositoryName();
 
         logger.info("拉取代码:"+projectRep.getRepositoryName());
-        ScanCommon.joinScanLogs(projectId, LOG_COMPILE,"[sourceFare] execute the code clone:"+projectRep.getRepositoryName());
+        ScanCommon.joinScanLogs(projectId, LOG_COMPILE,2,"[sourceFare] execute the code clone:"+projectRep.getRepositoryName());
 
         //本地存储地址
         String codePath = pathSetService.codePath() + "/" + projectId;
@@ -479,7 +566,8 @@ public class CodeScanServiceImpl implements CodeScanService {
             //界面中需要定位到错误在代码文件中具体的位置，防止删除后没有拉取到最新代码
             boolean dirName = SourceFareUtil.updateDirName(codePath, backupsPath, 1);
             if (!dirName){
-                ScanCommon.joinScanLogs(projectId, LOG_COMPILE,"[sourceFare] code acquisition fail");
+                ScanCommon.joinScanLogs(projectId, LOG_COMPILE,0,"[sourceFare] code acquisition fail");
+                scanResult.setIssueResult(EXEC_FAIL);
                 throw new RuntimeException("修改代码文件名失败");
             }
             // FileUtils.deleteDirectory(new File(codePath));
@@ -497,19 +585,20 @@ public class CodeScanServiceImpl implements CodeScanService {
             }
 
             logger.info("[sourceFare]  code clone path:"+address);
-            ScanCommon.joinScanLogs(projectId, LOG_COMPILE,"[sourceFare]  code clone path:"+address);
+            ScanCommon.joinScanLogs(projectId, LOG_COMPILE,2,"[sourceFare]  code clone path:"+address);
 
              GitUntil.cloneRepository(projectRep.getRepositoryServer(),address, projectRep.getBranch(),codePath);
 
              //拉取成功删除备份的数据
              FileUtils.deleteDirectory(new File(backupsPath));
-            ScanCommon.joinScanLogs(projectId, LOG_COMPILE,"[sourceFare]  code clone success");
+            ScanCommon.joinScanLogs(projectId, LOG_COMPILE,2,"[sourceFare]  code clone success");
             return codePath;
         } catch (Exception e) {
             e.printStackTrace();
             //拉取失败将原本的代码文件名恢复
             SourceFareUtil.updateDirName(backupsPath,codePath , 1);
-            ScanCommon.joinScanLogs(projectId, LOG_COMPILE,"[sourceFare]  code clone fail:"+e.getMessage());
+            ScanCommon.joinScanLogs(projectId, LOG_COMPILE,0,"[sourceFare]  code clone fail:"+e.getMessage());
+            scanResult.setIssueResult(EXEC_FAIL);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -520,24 +609,24 @@ public class CodeScanServiceImpl implements CodeScanService {
      *  更新扫描失败状态
      *  @param scanRecord scanRecord
      */
-    public  void updateFailScanRecord(ScanRecord scanRecord) {
+    public  void updateFailScanRecord(ScanRecord scanRecord,ScanResult scanResult) {
 
         String projectId = scanRecord.getProjectId();
 
-        scanRecord.setScanResult("execFail");
-        String time = SourceFareUtil.time(ScanCommon.getExecStarTime(projectId),"scan");
+        scanRecord.setIssueResult("execFail");
+        String time = SourceFareUtil.time(ScanCommon.getStarTime(projectId),"scan");
         scanRecord.setScanTime(time);
         recordService.updateScanRecord(scanRecord);
 
         //创建扫描记录日志
-        createRecordLog(scanRecord);
+        updateRecordLog(scanResult);
     }
 
     /**
      *  创建服务端扫描记录日志
      *  @param scanRecord scanRecord
      */
-    public  void createRecordLog(ScanRecord scanRecord) {
+    /*public  void createRecordLog(ScanRecord scanRecord) {
 
         ScanRecordLog recordLog = new ScanRecordLog();
         String projectId = scanRecord.getProjectId();
@@ -549,72 +638,35 @@ public class CodeScanServiceImpl implements CodeScanService {
         if (CollectionUtils.isNotEmpty(scanLogs)){
             for (ScanLog scanLog:scanLogs){
                 recordLog.setExecLog(scanLog.getExecLog());
-                recordLog.setTime(scanLog.getScanTime());
-                recordLog.setType(scanLog.getGroup());
-                addLogOrder(recordLog,scanLog.getGroup());
+                recordLog.setTime(scanLog.getTime());
+                recordLog.setType(scanLog.getType());
+                SourceFareUtil.addLogOrder(recordLog,scanLog.getType());
                 recordLogService.createScanRecordLog(recordLog);
             }
         }
-
-        /*Map<String,String> resultLogs = ScanCommon.getScanLogs(projectId);
-        Set<String> mapKey = resultLogs.keySet();
-        //扫描日志
-        for (String key:mapKey){
-            if (key.endsWith("time")){
-                continue;
-            }
-            String s = resultLogs.get(key);
-            String time = resultLogs.get(key+"time");
-            recordLog.setExecLog(s);
-            recordLog.setTime(time);
-            recordLog.setType(key);
-
-            addLogOrder(recordLog,key);
-            recordLogService.createScanRecordLog(recordLog);
-        }*/
-    }
+    }*/
 
     /**
-     *  创建客户端扫描记录日志
+     *  更新客户端扫描记录日志
      *  @param scanResult scanResult
      */
-    public  void createClientRecordLog(ScanResult scanResult) {
-
-        ScanRecordLog recordLog = new ScanRecordLog();
-        String projectId = scanResult.getScanObjectId();
-        recordLog.setProjectId(projectId);
-        recordLog.setScanRecordId(scanResult.getScanRecordId());
+    public  void updateRecordLog(ScanResult scanResult) {
 
         List<ScanLog> resultLogs = scanResult.getLogs();
         if (CollectionUtils.isNotEmpty(resultLogs)){
             for (ScanLog scanLog:resultLogs){
-                recordLog.setExecLog(scanLog.getExecLog());
-                recordLog.setTime(scanLog.getScanTime());
-                recordLog.setType(scanLog.getGroup());
-                addLogOrder(recordLog,scanLog.getGroup());
-                recordLogService.createScanRecordLog(recordLog);
-            }
-        }
-        //扫描日志
-        /*Map<String,String> resultLogs = scanResult.getLogs();
-        if (ObjectUtils.isEmpty(resultLogs)){
-            return;
-        }
-        Set<String> mapKey = resultLogs.keySet();
+                if (scanLog.getState()==2){
+                    scanLog.setState(0);
+                }
+                ScanRecordLog scanRecordLog = new ScanRecordLog();
+                BeanUtils.copyProperties(scanLog,scanRecordLog);
 
-        for (String key:mapKey){
-            if (key.endsWith("time")){
-                continue;
+                logService.updateScanRecordLog(scanRecordLog);
             }
-            String s = resultLogs.get(key);
-            String time = resultLogs.get(key+"time");
-            recordLog.setExecLog(s);
-            recordLog.setTime(time);
-            recordLog.setType(key);
-            addLogOrder(recordLog,key);
-            recordLogService.createScanRecordLog(recordLog);
-        }*/
+        }
     }
+
+
 
     /**
      *  创建覆盖率
@@ -642,36 +694,6 @@ public class CodeScanServiceImpl implements CodeScanService {
                     coverService.createProjectCover(projectCover);
                 }
              }
-        }
-    }
-
-
-    public void addLogOrder(ScanRecordLog recordLog,String type){
-        switch (type){
-            case LOG_COMPILE -> {
-                recordLog.setSort(1);
-                recordLog.setTitle("项目构建");
-            }
-            case SourceFareFinal.LOG_SCAN_ENV -> {
-                recordLog.setSort(1);
-                recordLog.setTitle("初始扫描环境");
-            }
-            case SourceFareFinal.LOG_SCAN -> {
-                recordLog.setSort(2);
-                recordLog.setTitle("问题扫描");
-            }
-            case SourceFareFinal.LOG_DUPLICATED -> {
-                recordLog.setSort(3);
-                recordLog.setTitle("重复度扫描");
-            }
-            case SourceFareFinal.LOG_COMPLEXITY -> {
-                recordLog.setSort(4);
-                recordLog.setTitle("复杂度扫描");
-            }
-            case SourceFareFinal.LOG_COVER -> {
-                recordLog.setSort(5);
-                recordLog.setTitle("覆盖率扫描");
-            }
         }
     }
 

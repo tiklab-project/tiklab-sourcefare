@@ -16,6 +16,8 @@ import io.tiklab.sourcefare.project.model.Project;
 import io.tiklab.sourcefare.scan.model.*;
 import io.tiklab.sourcefare.scan.service.*;
 import io.tiklab.sourcefare.scanner.common.ProjectUtil;
+import io.tiklab.sourcefare.server.model.RepositoryServer;
+import io.tiklab.sourcefare.server.service.RepositoryServerService;
 import io.tiklab.toolkit.context.AppContext;
 import io.tiklab.user.user.model.User;
 import org.apache.commons.collections.CollectionUtils;
@@ -91,15 +93,32 @@ public class InitializeServiceImpl implements InitializeService {
     @Autowired
     ScanDoorService scanDoorService;
 
+    @Autowired
+    RepositoryServerService serverService;
+
     @Override
     public void initData(){
         Thread thread = new Thread() {
             public void run() {
                 addScanRule();
                 createSampleData();
+                updateServer();
             }};
 
         thread.start();
+    }
+
+    public void updateServer(){
+        List<RepositoryServer> allRepositoryServer = serverService.findAllRepositoryServer();
+        if (CollectionUtils.isNotEmpty(allRepositoryServer)){
+            List<RepositoryServer> serverList = allRepositoryServer.stream().filter(a -> a.getServerType().equals("GitPuk")).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(serverList)){
+                for (RepositoryServer server:serverList){
+                    server.setServerType("gitPuk");
+                    serverService.updateRepositoryServer(server);
+                }
+            }
+        }
     }
 
     public void createSampleData() {
@@ -131,7 +150,10 @@ public class InitializeServiceImpl implements InitializeService {
 
             scanRecord.setProjectId(projectId);
             scanRecord.setScanUser(user);
-            scanRecord.setScanResult("success");
+            scanRecord.setIssueResult("success");
+            scanRecord.setDupResult("success");
+            scanRecord.setComResult("success");
+            scanRecord.setCoverResult("success");
             scanRecord.setScanWay("client");
             scanRecord.setAllTrouble(3);
             scanRecord.setSeverityTrouble(1);
@@ -233,18 +255,19 @@ public class InitializeServiceImpl implements InitializeService {
         List<String> arrayList = new ArrayList<>();
         arrayList.add("/file/eslint.json");
         arrayList.add("/file/spotbugs.json");
+        arrayList.add("/file/pmd.json");
         arrayList.add("/file/golangci.json");
         arrayList.add("/file/pylint.json");
-        //arrayList.add("/file/cpplint.json");
-        arrayList.add("/file/semgrep.json");
         arrayList.add("/file/cppCheck.json");
-        arrayList.add("/file/pmd.json");
+        arrayList.add("/file/sercurityCodeScan.json");
+        //arrayList.add("/file/cpplint.json");
+       /* arrayList.add("/file/semgrep.json");
+
+        */
         for (String fileName:arrayList){
             //创建扫描方案
             String schemeId = createScheme(allScanScheme, fileName);
 
-            //创建快速扫描方案
-            String startSchemeId = createQuickStartScheme(allScanScheme, fileName);
 
             File file = new File(AppContext.getAppHome() + fileName);
             try {
@@ -266,7 +289,7 @@ public class InitializeServiceImpl implements InitializeService {
                                     .setRuleSetId(id)
                                     .setScanSchemeId(schemeId));
                             if (CollectionUtils.isEmpty(schemeRuleSetList)) {
-                                createSchemeSet(list.get(0),schemeId,ruleSet.get("language").toString());
+                                createSchemeSet(list.get(0),schemeId,ruleSet);
                             }
                             continue;
                         }
@@ -275,6 +298,7 @@ public class InitializeServiceImpl implements InitializeService {
                     //添加扫描规则集
                     ScanRuleSet scanRuleSet = new ScanRuleSet();
                     scanRuleSet.setRuleSetName(ruleSetName);
+                    scanRuleSet.setProperty(Integer.valueOf(ruleSet.get("property").toString()));
                     scanRuleSet.setLanguage(ruleSet.get("language").toString());
                     scanRuleSet.setDescribe(ruleSet.get("describe").toString());
                     String ruleSetId = ruleSetService.createScanRuleSet(scanRuleSet);
@@ -286,8 +310,10 @@ public class InitializeServiceImpl implements InitializeService {
                     List<Map> ruleList = objectMapper.convertValue(ruleSet.get("ruleList"), List.class);
                     for (Map rule:ruleList){
                         ScanRule scanRule = new ScanRule();
+
                         scanRule.setId(SourceFareUtil.getRandom(12));
                         scanRule.setRuleSetId(ruleSetId);
+                        scanRule.setProperty(Integer.valueOf(ruleSet.get("property").toString()));
                         scanRule.setCreateTime(new Timestamp(System.currentTimeMillis()));
                         scanRule.setRuleName(rule.get("ruleName").toString().trim());
                         scanRule.setScanTool(rule.get("scanTool").toString());
@@ -314,12 +340,8 @@ public class InitializeServiceImpl implements InitializeService {
 
 
 
-                    createSchemeSet(scanRuleSet,schemeId,ruleSet.get("language").toString());
+                    createSchemeSet(scanRuleSet,schemeId,ruleSet);
 
-                    if (StringUtils.isNotBlank(startSchemeId)){
-                        //创建快速扫描规则
-                        createQuickStartSchemeSet(scanRuleSet,startSchemeId,ruleSet.get("language").toString(),rules);
-                    }
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -375,13 +397,13 @@ public class InitializeServiceImpl implements InitializeService {
         scanScheme.setScanWay("rule");
         scanScheme.setCategory(1);
         if (fileName.endsWith("spotbugs.json")){
-            scanScheme.setSchemeName("Java推荐扫描方案");
-            scanScheme.setDescribe("java推荐的扫描方案");
+            scanScheme.setSchemeName("Java推荐扫描方案(编译扫描)");
+            scanScheme.setDescribe("java推荐的扫描方案，需要编译代码");
             scanScheme.setLanguage("Java");
         }
         if (fileName.endsWith("pmd.json")){
-            scanScheme.setSchemeName("Java静态扫描推荐方案(深入扫描)");
-            scanScheme.setDescribe("Java静态扫描推荐方案(深入扫描)");
+            scanScheme.setSchemeName("Java扫描推荐方案(静态扫描)");
+            scanScheme.setDescribe("Java扫描推荐方案(静态扫描)");
             scanScheme.setLanguage("Java");
         }
         if (fileName.endsWith("eslint.json")){
@@ -404,7 +426,7 @@ public class InitializeServiceImpl implements InitializeService {
             scanScheme.setDescribe("c++、c推荐的扫描方案");
             scanScheme.setLanguage("c++");
         }
-        if (fileName.endsWith("semgrep.json")){
+        if (fileName.endsWith("sercurityCodeScan.json")){
             scanScheme.setSchemeName("c#推荐扫描方案");
             scanScheme.setDescribe("c#推荐的扫描方案");
             scanScheme.setLanguage("c#");
@@ -422,84 +444,23 @@ public class InitializeServiceImpl implements InitializeService {
         return collect.get(0).getId();
     }
 
-    //创建快速扫描方案
-    public String createQuickStartScheme(List<ScanScheme> allScanScheme,String fileName){
-        ScanScheme scanScheme = new ScanScheme();
-        scanScheme.setScanWay("rule");
-        scanScheme.setCategory(1);
-
-        if (fileName.endsWith("pmd.json")){
-            scanScheme.setSchemeName("Java静态扫描推荐方案(快速扫描)");
-            scanScheme.setDescribe("Java静态扫描推荐方案(快速扫描)");
-            scanScheme.setLanguage("Java");
-
-            List<ScanScheme> collect=null;
-            if (CollectionUtils.isNotEmpty(allScanScheme)){
-                collect = allScanScheme.stream().filter(a -> scanScheme.getSchemeName().equals(a.getSchemeName())).collect(Collectors.toList());
-            }
-
-            //为空则创建
-            if (CollectionUtils.isEmpty(collect)){
-                return schemeService.createScanScheme(scanScheme);
-            }
-            return collect.get(0).getId();
-        }
-
-        return null;
-
-    }
-
 
     //添加扫描方案规则集
-    public String createSchemeSet(ScanRuleSet scanRuleSet,String schemeId,String language){
+    public String createSchemeSet(ScanRuleSet scanRuleSet,String schemeId,Map ruleSet){
         if (ObjectUtils.isNotEmpty(schemeId)){
+            String language = ruleSet.get("language").toString();
             //添加扫描规则方案
             ScanSchemeRuleSet scanSchemeRuleSet = new ScanSchemeRuleSet();
             scanSchemeRuleSet.setScanSchemeId(schemeId);
             scanSchemeRuleSet.setLanguage(language);
             scanSchemeRuleSet.setScanRuleSet(scanRuleSet);
+            scanSchemeRuleSet.setProperty(Integer.valueOf(ruleSet.get("property").toString()));
             String schemeRuleSetId = schemeRuleSetService.createScanSchemeRuleSet(scanSchemeRuleSet);
             return schemeRuleSetId;
         }
         return null;
     }
 
-    public void   createQuickStartSchemeSet(ScanRuleSet scanRuleSet,String schemeId,String language,List<ScanRule> rules) throws IOException {
-        File file = new File(AppContext.getAppHome() + "/file/pmd-quickstart.json");
-        String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(content);
-        List<String> ruleSetList = objectMapper.convertValue(jsonNode, List.class);
-
-        if (CollectionUtils.isNotEmpty(ruleSetList)){
-            //添加扫描规则方案
-            ScanSchemeRuleSet scanSchemeRuleSet = new ScanSchemeRuleSet();
-            scanSchemeRuleSet.setScanSchemeId(schemeId);
-            scanSchemeRuleSet.setLanguage(language);
-            scanSchemeRuleSet.setScanRuleSet(scanRuleSet);
-            String schemeRuleSetId = schemeRuleSetService.createSchemeRuleSet(scanSchemeRuleSet);
-
-            List<ScanRule> scanRuleList;
-            if (ObjectUtils.isEmpty(rules)){
-                 scanRuleList = ruleService.findScanRuleList(new ScanRuleQuery().setRuleSetId(scanSchemeRuleSet.getScanRuleSet().getId()));
-            }else {
-                scanRuleList=rules;
-            }
-            for (String rule:ruleSetList){
-                List<ScanRule> scanRules = scanRuleList.stream().filter(a -> rule.equals(a.getRuleName())).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(scanRules)){
-                    ScanRule scanRule = scanRules.get(0);
-
-                    ScanSchemeRule scanSchemeRule = new ScanSchemeRule();
-                    scanSchemeRule.setScanSchemeId(schemeId);
-                    scanSchemeRule.setSchemeRulesetId(schemeRuleSetId);
-                    scanSchemeRule.setScanRule(scanRule);
-                    scanSchemeRule.setProblemLevel(scanRule.getProblemLevel());
-                    scanSchemeRuleService.createScanSchemeRule(scanSchemeRule);
-                }
-            }
-        }
-    }
 
     //创建记录实例
     public void createRecordInstance(Project project,String scanRecordId){

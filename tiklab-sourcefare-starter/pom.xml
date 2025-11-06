@@ -208,6 +208,13 @@
 				</dependency>
 				<dependency>
 					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-securityscan-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
 					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
@@ -283,6 +290,14 @@
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
 										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-securityscan-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
@@ -383,6 +398,13 @@
 				</dependency>
 				<dependency>
 					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-securityscan-windows</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
 					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
@@ -454,6 +476,13 @@
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-sourcefare-pylint-windows</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-securityscan-windows</artifactId>
 											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
@@ -562,6 +591,13 @@
 				</dependency>
 				<dependency>
 					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-securityscan-linux</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-sourcefare-semgrep-linux</artifactId>
 					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
@@ -639,6 +675,13 @@
 										</artifactItem>
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-securityscan-linux</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-sourcefare-cpplint-linux</artifactId>
 											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
@@ -710,7 +753,7 @@
 				</dependency>
 				<dependency>
 					<groupId>io.tiklab</groupId>
-					<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+					<artifactId>tiklab-sourcefare-lizard-mac</artifactId>
 					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
 					<scope>provided</scope>
@@ -732,6 +775,13 @@
 				<dependency>
 					<groupId>io.tiklab</groupId>
 					<artifactId>tiklab-sourcefare-pylint-mac</artifactId>
+					<version>${tiklab-sourcefare-tool.version}</version>
+					<type>zip</type>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>io.tiklab</groupId>
+					<artifactId>tiklab-sourcefare-securityscan-mac</artifactId>
 					<version>${tiklab-sourcefare-tool.version}</version>
 					<type>zip</type>
 					<scope>provided</scope>
@@ -801,7 +851,7 @@
 										</artifactItem>
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
-											<artifactId>tiklab-sourcefare-lizard-linux</artifactId>
+											<artifactId>tiklab-sourcefare-lizard-mac</artifactId>
 											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>
@@ -809,6 +859,13 @@
 										<artifactItem>
 											<groupId>io.tiklab</groupId>
 											<artifactId>tiklab-sourcefare-pylint-mac</artifactId>
+											<version>${tiklab-sourcefare-tool.version}</version>
+											<type>zip</type>
+											<outputDirectory>embbed</outputDirectory>
+										</artifactItem>
+										<artifactItem>
+											<groupId>io.tiklab</groupId>
+											<artifactId>tiklab-sourcefare-securityscan-mac</artifactId>
 											<version>${tiklab-sourcefare-tool.version}</version>
 											<type>zip</type>
 											<outputDirectory>embbed</outputDirectory>

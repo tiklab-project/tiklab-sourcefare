@@ -26,6 +26,8 @@ public class ScanRuleEntity {
     @Column(name = "rule_type")
     private String ruleType;
 
+    @Column(name = "property")
+    private Integer property;
 
     @Column(name = "rule_overview")
     private String ruleOverview;
@@ -110,5 +112,13 @@ public class ScanRuleEntity {
 
     public void setRuleType(String ruleType) {
         this.ruleType = ruleType;
+    }
+
+    public Integer getProperty() {
+        return property;
+    }
+
+    public void setProperty(Integer property) {
+        this.property = property;
     }
 }

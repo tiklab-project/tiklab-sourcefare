@@ -22,8 +22,16 @@ public class ScanRecordEntity {
     @Column(name = "scan_user_id")
     private String scanUserId;
 
-    @Column(name = "scan_result")
-    private String scanResult;
+    @Column(name = "issue_result")
+    private String issueResult;
+    @Column(name = "com_result")
+    private String comResult;
+
+    @Column(name = "dup_result")
+    private String dupResult;
+
+    @Column(name = "cover_result")
+    private String coverResult;
 
     @Column(name = "scan_way")
     private String scanWay;
@@ -78,12 +86,36 @@ public class ScanRecordEntity {
         this.scanUserId = scanUserId;
     }
 
-    public String getScanResult() {
-        return scanResult;
+    public String getIssueResult() {
+        return issueResult;
     }
 
-    public void setScanResult(String scanResult) {
-        this.scanResult = scanResult;
+    public void setIssueResult(String issueResult) {
+        this.issueResult = issueResult;
+    }
+
+    public String getComResult() {
+        return comResult;
+    }
+
+    public void setComResult(String comResult) {
+        this.comResult = comResult;
+    }
+
+    public String getDupResult() {
+        return dupResult;
+    }
+
+    public void setDupResult(String dupResult) {
+        this.dupResult = dupResult;
+    }
+
+    public String getCoverResult() {
+        return coverResult;
+    }
+
+    public void setCoverResult(String coverResult) {
+        this.coverResult = coverResult;
     }
 
     public Integer getSeverityTrouble() {

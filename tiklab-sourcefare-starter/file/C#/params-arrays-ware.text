@@ -1,0 +1,15 @@
+CS0225：params 参数必须是一维数组或具有有效的集合类型
+CS0231：params 参数必须是形参列表中的最后一个参数。
+CS0466：由于“method2”没有 params 参数，因此“method1”也不应当有该参数
+CS0674：请勿使用 System.ParamArrayAttribute 或 System.ParamArrayAttribute/System.Runtime.CompilerServices.ParamCollectionAttribute。请改用 params 关键字。
+CS0758：两种分部方法声明必须要么都使用 params 参数，要么都不使用 params 参数
+CS1104：参数数组不能与 this 修饰符一起在扩展方法中使用。
+CS1611：params 参数不能声明为 in ref 或 out
+CS1670：params 在此上下文中无效
+CS1751：无法为参数数组指定默认值。
+CS9218：由于使用了具有动态类型的实参，并且该方法具有非数组 params 集合形参，因此无法从用法中推断出方法的类型参数。请尝试显式指定类型参数。
+CS9223：创建 params 集合会导致构造函数的无限调用链。
+CS9224：方法的可见性不能低于具有 params 集合的成员。
+CS9225：构造函数未初始化所需的成员。
+CS9227：类型不包含适当实例 Add 方法的定义。
+CS9228：非数组 params 集合类型必须具有可以不带参数调用的适用构造函数。

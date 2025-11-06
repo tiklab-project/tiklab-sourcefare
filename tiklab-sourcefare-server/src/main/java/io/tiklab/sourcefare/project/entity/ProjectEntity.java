@@ -35,6 +35,8 @@ public class ProjectEntity extends BaseModel {
     @Column(name = "scan_type")
     private String scanType;
 
+    @Column(name = "build_path")
+    private String buildPath;
 
     @Column(name = "scan_scheme_id")
     private String scanSchemeId;
@@ -50,7 +52,7 @@ public class ProjectEntity extends BaseModel {
     @Column(name = "category")
     private String category;
 
-    //制品库图标颜色 0-4
+    //图标颜色 0-4
     @Column(name = "color")
     private Integer color;
 
@@ -203,5 +205,13 @@ public class ProjectEntity extends BaseModel {
 
     public void setScanLanguage(String scanLanguage) {
         this.scanLanguage = scanLanguage;
+    }
+
+    public String getBuildPath() {
+        return buildPath;
+    }
+
+    public void setBuildPath(String buildPath) {
+        this.buildPath = buildPath;
     }
 }

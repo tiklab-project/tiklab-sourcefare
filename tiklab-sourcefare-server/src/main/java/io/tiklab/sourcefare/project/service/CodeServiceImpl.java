@@ -7,6 +7,7 @@ import io.tiklab.sourcefare.scan.model.*;
 import io.tiklab.sourcefare.scan.service.RecordComplexityService;
 import io.tiklab.sourcefare.scan.service.RecordDuplicatedService;
 import io.tiklab.sourcefare.scan.service.RecordInstanceService;
+import io.tiklab.sourcefare.scanner.common.ProjectUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -108,9 +109,10 @@ public class CodeServiceImpl implements CodeService {
 
                 //计算文件夹相对路径
                 getBorder(s, codeQuery);
-                relativePath = StringUtils.substringAfter(codeQuery.getOmitPath(), pathSetService.codePath()+"/");
+                relativePath = StringUtils.substringAfter(codeQuery.getOmitPath(), ProjectUtil.SystemTypeAddress(pathSetService.codePath()+"/"));
 
-                String showName = StringUtils.substringAfter(codeQuery.getOmitPath(), allPath+"/");
+                String showName = StringUtils.substringAfter(codeQuery.getOmitPath(), ProjectUtil.SystemTypeAddress(allPath + "/"));
+
                 code.setName(showName);
                 // 统计当前文件夹下面的文件数量
                 Path currentDir = Paths.get(file.getAbsolutePath()).toAbsolutePath();
@@ -248,10 +250,10 @@ public class CodeServiceImpl implements CodeService {
      * @param code code
      * */
     public boolean problemsNum( List<RecordInstance> instanceList, Code code){
-        String substringAfter = StringUtils.substringAfter(code.getPath(), "/");
+        String substringAfter = StringUtils.substringAfter(code.getPath(), File.separator);
         String path;
         if (("folder").equals(code.getType())){
-            path=substringAfter+"/";
+            path=substringAfter+File.separator;
         }else {
             path = substringAfter;
         }
@@ -285,7 +287,7 @@ public class CodeServiceImpl implements CodeService {
         if (CollectionUtils.isNotEmpty(duplicatedList)){
             String path;
             if (("folder").equals(code.getType())){
-                path=code.getPath()+"/";
+                path=code.getPath()+File.separator;
             }else {
                 path = code.getPath();
             }
@@ -314,7 +316,7 @@ public class CodeServiceImpl implements CodeService {
         if (CollectionUtils.isNotEmpty(complexityList)){
             String path;
             if (("folder").equals(code.getType())){
-                path=code.getPath()+"/";
+                path=code.getPath()+File.separator;
             }else {
                 path = code.getPath();
             }

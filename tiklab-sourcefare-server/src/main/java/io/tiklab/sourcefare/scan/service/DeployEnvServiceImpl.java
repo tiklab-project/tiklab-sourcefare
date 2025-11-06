@@ -7,7 +7,6 @@ import io.tiklab.dal.jpa.criterial.condition.DeleteCondition;
 import io.tiklab.dal.jpa.criterial.conditionbuilder.DeleteBuilders;
 import io.tiklab.rpc.annotation.Exporter;
 import io.tiklab.sourcefare.common.SourceFareUtil;
-import io.tiklab.sourcefare.common.SourceWairServerFinal;
 import io.tiklab.sourcefare.scan.dao.DeployEnvDao;
 import io.tiklab.sourcefare.scan.entity.DeployEnvEntity;
 import io.tiklab.sourcefare.scan.model.DeployEnv;
@@ -21,7 +20,11 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import static io.tiklab.sourcefare.scanner.common.SourceFareFinal.SCAN_TYPE_PYTHON;
@@ -139,18 +142,43 @@ public class DeployEnvServiceImpl implements DeployEnvService {
 
     @Override
     public String detectionEnv(String type) {
+        switch (type) {
+            case "net" ->{
+                return  detectDotnet();
+            }
+        }
         String envVersion = ProjectUtil.getEnvPath(type);
         if (StringUtils.isBlank(envVersion)){
             throw new ApplicationException("全局路径不存在");
         }
 
+
         if (type.equals(SCAN_TYPE_PYTHON)&&(envVersion.contains("not found")||envVersion.contains("no python"))){
             envVersion= ProjectUtil.getEnvPath(SCAN_TYPE_PYTHON3);
         }
-        if (envVersion.contains("not found")){
-            throw new ApplicationException(envVersion);
+        if (envVersion.contains("not found")||envVersion.contains("no python")){
+            throw new ApplicationException("未查询到全局的"+type);
         }
         envVersion=StringUtils.substringBeforeLast(envVersion,"/");
         return envVersion;
     }
+
+    private static String detectDotnet() {
+        try {
+            ProcessBuilder builder = new ProcessBuilder("dotnet", "--version");
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line = reader.readLine();
+                if (line != null && line.matches("\\d+\\.\\d+(\\.\\d+)?")) {
+                    String version = line.trim();
+                    String dotnet = SourceFareUtil.getCommandPath("dotnet");
+                    return dotnet;
+                }
+            }
+        }catch (IOException ignored){}
+        return "false";
+    }
+
 }

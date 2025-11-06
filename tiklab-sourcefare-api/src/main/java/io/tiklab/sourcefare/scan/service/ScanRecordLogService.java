@@ -2,6 +2,7 @@ package io.tiklab.sourcefare.scan.service;
 
 
 import io.tiklab.core.page.Pagination;
+import io.tiklab.sourcefare.project.model.Project;
 import io.tiklab.sourcefare.scan.model.ScanRecordLog;
 import io.tiklab.sourcefare.scan.model.ScanRecordLogQuery;
 import io.tiklab.toolkit.join.annotation.FindAll;
@@ -79,6 +80,8 @@ public interface ScanRecordLogService {
     * @return
     */
     Pagination<ScanRecordLog> findScanRecordLogPage(ScanRecordLogQuery scanRecordLogQuery);
+
+     List<ScanRecordLog> createRecordLog(Project project, String recordId);
 
 
 }

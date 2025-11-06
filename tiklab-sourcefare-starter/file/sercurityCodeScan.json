@@ -1,0 +1,300 @@
+[{"ruleSetName":"c#基础安全规则包",
+  "language":"c#",
+  "describe":"c#基础安全功能规则包，包括（注入类漏洞、跨站脚本（XSS、数据保护、反序列化漏洞等安全规则）",
+  "property": 0,
+  "ruleList":[{
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"securityCodeScan",
+    "ruleName":"SCS0001",
+    "property":"0",
+    "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0001.md",
+    "ruleOverview":"The dynamic value passed to the command execution should be validated.",
+    "desc":"If a malicious user controls either the FileName or Arguments, he might be able to execute unwanted commands or add unwanted argument. This behavior would not be possible if input parameter are validate against a white-list of characters."
+  },{
+    "ruleType":"security",
+    "problemLevel":1,
+    "scanTool":"securityCodeScan",
+    "ruleName":"SCS0002",
+    "property":"0",
+    "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0002.md",
+    "ruleOverview":"SQL injection flaws are introduced when software developers create dynamic database queries that include user supplied input.",
+    "desc":"Malicious user might get direct read and/or write access to the database. If the database is poorly configured the attacker might even get Remote Code Execution (RCE) on the machine running the database."
+  },
+    {
+      "ruleType":"security",
+      "problemLevel":1,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0003",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0003.md",
+      "ruleOverview":"The dynamic value passed to the XPath query should be validated.",
+      "desc":"If the user input is not properly filtered, a malicious user could extend the XPath query."
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0004",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0004.md",
+      "ruleOverview":"Certificate Validation has been disabled. The communication could be intercepted.",
+      "desc":"Disabling certificate validation is often used to connect easily to a host that is not signed by a root certificate authority. As a consequence, this is vulnerable to Man-in-the-middle attacks since the client will trust any certificate.\nVulnerable Code\nServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;"
+    },
+    {
+      "ruleType":"function",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0005",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0005.md",
+      "ruleOverview":"The random numbers generated could be predicted.",
+      "desc":"The use of a predictable random value can lead to vulnerabilities when used in certain security critical contexts."
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0006",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0006.md",
+      "ruleOverview":"MD5 or SHA1 have known collision weaknesses and are no longer considered strong hashing algorithms.",
+      "desc":"Vulnerable Code\nvar hashProvider = new SHA1CryptoServiceProvider();\nvar hash = hashProvider.ComputeHash(str);Solution\nUse SHA256 or SHA512. Notice, that hashing algorithms are designed to be fast and shouldn't be used directly for hashing passwords. Use adaptive algorithms for the purpose.\n\nvar hashProvider = SHA256Managed.Create();\nvar hash = hashProvider.ComputeHash(str);"
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":1,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0007",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0007.md",
+      "ruleOverview":"The XML parser is configured incorrectly. The operation could be vulnerable to XML eXternal Entity (XXE) processing.",
+      "desc":"Risk\nVulnerable Code\nPrior to .NET 4.5.2\n\n// DTD expansion is enabled by default\nXmlReaderSettings settings = new XmlReaderSettings();\nXmlReader reader = XmlReader.Create(inputXml, settings);\nXmlDocument xmlDoc = new XmlDocument();\nxmlDoc.Load(pathToXmlFile);\nConsole.WriteLine(xmlDoc.InnerText);\n.NET 4.5.2 and later\n\nIn .NET Framework versions 4.5.2 and up, XmlTextReader's internal XmlResolver is set to null by default, making the XmlTextReader ignore DTDs by default. The XmlTextReader can become unsafe if if you create your own non-null XmlResolver with default or unsafe settings.Vulnerable Code\nPrior to .NET 4.5.2\n\n// DTD expansion is enabled by default\nXmlReaderSettings settings = new XmlReaderSettings();\nXmlReader reader = XmlReader.Create(inputXml, settings);\nXmlDocument xmlDoc = new XmlDocument();\nxmlDoc.Load(pathToXmlFile);\nConsole.WriteLine(xmlDoc.InnerText);"
+    },{
+      "ruleType":"security",
+      "problemLevel":4,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0008",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0008.md",
+      "ruleOverview":"It is recommended to specify the Secure flag to new cookie.",
+      "desc":"The Secure flag is a directive to the browser to make sure that the cookie is not sent by unencrypted channel"
+    },{
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0009",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0009.md",
+      "ruleOverview":"It is recommended to specify the HttpOnly flag to new cookie.",
+      "desc":"Cookies that doesn't have the flag set are available to JavaScript running on the same domain. When a user is the target of a \"Cross-Site Scripting\", the attacker would benefit greatly from getting the session id."
+    },{
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0010",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0010.md",
+      "ruleOverview":"DES and 3DES are not considered a strong cipher for modern applications. Currently, NIST recommends the usage of AES block ciphers instead.",
+      "desc":"Broken or deprecated ciphers have typically known weakness. A attacker might be able to brute force the secret key use for the encryption. The confidentiality and integrity of the information encrypted is at risk."
+    },{
+      "ruleType":"security",
+      "problemLevel":1,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0011",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0011.md",
+      "ruleOverview":"XSLT scripting should be enabled only if you require script support and you are working in a fully trusted environment.",
+      "desc":"This issue may lead to Remote Code Execution (RCE) if the XML source is untrusted."
+    },{
+      "ruleType":"function",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0012",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0012.md",
+      "ruleOverview":"Neither the annotation [Authorize], nor [AllowAnonymous] is present.",
+      "desc":"The endpoint is potentially accessible to not authorized users. If it contains sensitive information, like log files for example, it may lead to privilege escalation. The warning may be ignored/suppressed if the application is using other authorization checks. It is possible to customize the rule and register the additional attributes."
+    },{
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"function",
+      "ruleName":"SCS0013",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0013.md",
+      "ruleOverview":"The cipher text produced is susceptible to alteration by an adversary.",
+      "desc":"The cipher provides no way to detect that the data has been tampered with. If the cipher text can be controlled by an attacker, it could be altered without detection. The use of AES in CBC mode with a HMAC is recommended guaranteeing integrity and confidentiality."
+    },{
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0015",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0015.md",
+      "ruleOverview":"The password configuration to this API appears to be hardcoded.",
+      "desc":"If hard-coded passwords are used, it is almost certain that malicious users will gain access through the account in question."
+    },
+    {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0016",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0016.md",
+      "ruleOverview":"Anti-forgery token is missing.",
+      "desc":"An attacker could send a link to the victim. By visiting the malicious link, a web page would trigger a POST request (because it is a blind attack - the attacker doesn't see a response from triggered request and has no use from GET request and GET requests should not change a state on the server by definition) to the website. The victim would not be able to acknowledge that an action is made in the background, but his cookie would be automatically submitted if he is authenticated to the website. This attack does not require special interaction other than visiting a website."
+    },  {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0017",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0017.md",
+      "ruleOverview":"Request validation is disabled. Request validation allows the filtering of some XSS patterns submitted to the application.",
+      "desc":"Although it performs blacklisting (that is worse than whitelisting by definition) and you should not rely solely on it for XSS protection, it provides a first line of defense for your application. Do not disable the validation:\n\npublic class TestController\n{\n    [HttpPost]\n    public ActionResult ControllerMethod(string input) {\n        return f(input);\n    }\n}"
+    },  {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0018",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0018.md",
+      "ruleOverview":"With a malicious relative path, an attacker could reach a secret file.",
+      "desc":"A path traversal attack (also known as directory traversal) aims to access files and directories that are stored outside the expected directory.By manipulating variables that reference files with “dot-dot-slash (../)” sequences and its variations or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system including application source code or configuration and critical system files."
+    },  {
+      "ruleType":"function",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0019",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0019.md",
+      "ruleOverview":"Caching conflicts with authorization.",
+      "desc":"Having the annotation [OutputCache] will disable the annotation [Authorize] for the requests following the first one."
+    },  {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0021",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0021.md",
+      "ruleOverview":"The validateRequest which provides additional protection against XSS is disabled in configuration file.",
+      "desc":"Although it performs blacklisting (that is worse than whitelisting by definition) and you should not rely solely on it for XSS protection, it provides a first line of defense for your application. Do not disable the validation: The default value is true. Or set it explicitly:\n\n<system.web>\n   ...\n   <pages [..] validateRequest=\"true\" [..]/>\n   ...\n</system.web>"
+    },  {
+      "ruleType":"function",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0022",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0022.md",
+      "ruleOverview":"The enableEventValidation is disabled in configuration file.",
+      "desc":"This feature reduces the risk of unauthorized or malicious post-back requests and callbacks. It is strongly recommended that you do not disable event validation. When the EnableEventValidation property is set to true, ASP.NET validates that a control event originated from the user interface that was rendered by that control."
+    },  {
+      "ruleType":"function",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0023",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0023.md",
+      "ruleOverview":"The viewStateEncryptionMode is not set to Always in configuration file.",
+      "desc":"Web Forms controls use hidden base64 encoded fields to store state information. If sensitive information is stored there it may be leaked to the client side."
+    },  {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0024",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0024.md",
+      "ruleOverview":"The enableViewStateMac is disabled in configuration file. (This feature cannot be disabled starting .NET 4.5.1)",
+      "desc":"The view state could be altered by an attacker.\n\nVulnerable Code\n<system.web>\n   ...\n   <pages [..] enableViewStateMac=\"false\" [..]/>\n   ...\n</system.web>"
+    },  {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0025",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0025.md",
+      "ruleOverview":"The dynamic value passed to the LDAP query should be validated.",
+      "desc":"If the user input is not properly filtered, a malicious user could extend the LDAP query. "
+    },  {
+      "ruleType":"security",
+      "problemLevel":2,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0026",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0026.md",
+      "ruleOverview":"The dynamic value passed to the LDAP query should be validated.",
+      "desc":"If the user input is not properly filtered, a malicious user could extend the LDAP query. "
+    },  {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0027",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0027.md",
+      "ruleOverview":"The dynamic value passed to the Redirect should be validated.",
+      "desc":"Your site may be used in phishing attacks. An attacker may craft a trustworthy looking link to your site redirecting a victim to a similar looking malicious site: https://www.yourdomain.com/loginpostback?redir=https://www.urdomain.com/login, "
+    },  {
+      "ruleType":"security",
+      "problemLevel":1,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0028",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0028.md",
+      "ruleOverview":"Untrusted data passed for deserialization.",
+      "desc":"Arbitrary code execution, full application compromise or denial of service. An attacker may pass specially crafted serialized .NET object of specific class that will execute malicious code during the construction of the object."
+    },  {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0029",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0029.md",
+      "ruleOverview":" Cross-Site Scripting (XSS)",
+      "desc":"XSS could be used to execute unwanted JavaScript in a client's browser. XSS can be used to steal the cookie containing the user’s session ID. There is rarely a good reason to read or manipulate cookies in client-side JavaScript, so consider marking cookies as HTTP-only, meaning that cookies will be received, stored, and sent by the browser, but cannot be modified or read by JavaScript. "
+    },  {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0030",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0030.md",
+      "ruleOverview":" Request validation is enabled only for pages (Configuration File)",
+      "desc":"The requestValidationMode which provides additional protection against XSS is enabled only for pages, not for all HTTP requests in configuration file."
+    }, {
+      "ruleType":"security",
+      "problemLevel":3,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0031",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0031.md",
+      "ruleOverview":"The dynamic value passed to the LDAP query should be validated.",
+      "desc":"If the user input is not properly filtered, a malicious user could extend the LDAP query."
+    }, {
+      "ruleType":"norm",
+      "problemLevel":4,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0032",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0032.md",
+      "ruleOverview":" The minimal length of a password is recommended to be set at least to 8.",
+      "desc":"Weak password can be guessed or brute-forced."
+    }, {
+      "ruleType":"norm",
+      "problemLevel":4,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0033",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0033.md",
+      "ruleOverview":"Weak password can be guessed or brute-forced.",
+      "desc":"PasswordValidator should have at least two requirements for better security (RequiredLength, RequireDigit, RequireLowercase, RequireUppercase and/or RequireNonLetterOrDigit)."
+    }, {
+      "ruleType":"norm",
+      "problemLevel":4,
+      "scanTool":"securityCodeScan",
+      "ruleName":"SCS0034",
+      "property":"0",
+      "href":"https://github.com/security-code-scan/security-code-scan/blob/vs2019/website/rules/0034.md",
+      "ruleOverview":" The RequiredLength property must be set with a minimum value of 8.",
+      "desc":"Weak password can be guessed or brute-forced."
+    }
+  ]}]

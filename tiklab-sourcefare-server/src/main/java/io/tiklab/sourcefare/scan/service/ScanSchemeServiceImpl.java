@@ -1,6 +1,5 @@
 package io.tiklab.sourcefare.scan.service;
 
-import dm.jdbc.util.StringUtil;
 import io.tiklab.core.page.Pagination;
 import io.tiklab.core.page.PaginationBuilder;
 import io.tiklab.rpc.annotation.Exporter;
@@ -22,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.tiklab.sourcefare.common.SourceWairServerFinal.*;
+import static io.tiklab.sourcefare.common.SourceFareServerFinal.*;
 
 /**
 * ScanSchemeServiceImpl-扫描方案
@@ -139,7 +138,7 @@ public class ScanSchemeServiceImpl implements ScanSchemeService {
 
             List<ScanScheme> scanSchemes = allScanScheme.stream().filter(a -> a.getLanguage().toLowerCase().equals(lowerCase)).collect(Collectors.toList());
 
-            if (StringUtils.isNotBlank(scanSchemeQuery.getScanType())){
+            if (StringUtils.isNotBlank(scanSchemeQuery.getScanType())&&("java").equals(lowerCase)){
                 if ((STATIC).equals(scanSchemeQuery.getScanType())){
                      scanSchemes = scanSchemes.stream().filter(a -> a.getSchemeName().contains("静态")).collect(Collectors.toList());
                 }

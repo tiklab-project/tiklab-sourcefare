@@ -7,6 +7,8 @@ import io.tiklab.sourcefare.project.model.Project;
 import io.tiklab.sourcefare.project.service.PathSetService;
 import io.tiklab.sourcefare.project.service.ProjectService;
 import io.tiklab.sourcefare.scan.common.CodeScanCommon;
+import io.tiklab.sourcefare.scan.entity.ScanRecordEntity;
+import io.tiklab.sourcefare.scan.entity.ScanRecordLogEntity;
 import io.tiklab.sourcefare.scan.model.*;
 import io.tiklab.sourcefare.scanner.common.ProjectUtil;
 import io.tiklab.sourcefare.scanner.model.ScanResult;
@@ -24,7 +26,10 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,9 +76,12 @@ public class AcceptClientServiceImpl implements AcceptClientService {
     @Autowired
     IssueStatisticService issueStatisticService;
 
+    @Autowired
+    ScanRecordLogService logService;
+
 
     @Override
-    public String acceptMessage(HttpServletRequest request) {
+    public List<ScanRecordLog> acceptMessage(HttpServletRequest request) {
         logger.info("接受到客户端消息-初始化扫描记录");
         try {
             ServletInputStream  inputStream = request.getInputStream();
@@ -86,13 +94,16 @@ public class AcceptClientServiceImpl implements AcceptClientService {
             }
             ScanRecord scanRecord = CodeScanCommon.initScanRecord(recordService, projectId,"client");
             logger.info("初始化扫描记录完成发送消息给客户端-初始化扫描记录");
-            return scanRecord.getId();
+
+            String recordId = scanRecord.getId();
+            //添加扫描日志步骤
+            List<ScanRecordLog> recordLog = logService.createRecordLog(project, recordId);
+
+            return recordLog;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-
 
 
    @Override
@@ -121,4 +132,6 @@ public class AcceptClientServiceImpl implements AcceptClientService {
             throw new RuntimeException(e);
         }
     }
+
+
 }
